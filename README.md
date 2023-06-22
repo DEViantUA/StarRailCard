@@ -1,5 +1,5 @@
 <p align="center">
- <img src="https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/StarRailCardM.png?token=GHSAT0AAAAAABYNVB75OGJZE4DGVGXA3LESZEUFGZA" alt="Баннер"/>
+ <img src="https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/StarRailCardM.png" alt="Баннер"/>
 </p>
 
 ____
