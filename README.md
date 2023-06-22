@@ -22,10 +22,9 @@ from starrailcard import honkaicard
 import asyncio
 
 async def mains():
-    while True:
-        async with honkaicard.MiHoMoCard() as hmhm:
-            r = await hmhm.creat(700649319)
-            print(r)
+    async with honkaicard.MiHoMoCard() as hmhm:
+        r = await hmhm.creat(700649319)
+        print(r)
 
 asyncio.run(mains())
 ```
