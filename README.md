@@ -38,4 +38,3 @@ asyncio.run(mains())
 |  português  |     pt  | 한국어      |     kr  | deutsch    |     de  |
 |  日本語      |     jp  | 中文        |     zh  | español    |     es  |
 |  中文        |     zh  | Indonesian |     id  | français   |     fr  |
-|  Khaenri'ah  |     kh  | Khaenri'ah |
