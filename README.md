@@ -22,7 +22,7 @@ from starrailcard import honkaicard
 import asyncio
 
 async def mains():
-    async with honkaicard.MiHoMoCard() as hmhm:
+    async with honkaicard.MiHoMoCard(template=1) as hmhm:
         r = await hmhm.creat(700649319)
         print(r)
 
@@ -39,4 +39,22 @@ asyncio.run(mains())
 |  中文        |     zh  | Indonesian |     id  | français   |     fr  |
 
 
-<img src="https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-18.png" alt="Example">
+
+<details>
+<summary>Sample 1 template</summary>
+ 
+[![Adaptation][3]][3]
+ 
+[3]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-18.png
+  
+</details>
+
+
+<details>
+<summary>Sample 2 template</summary>
+ 
+[![Adaptation][4]][4]
+ 
+[4]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-19.png
+ 
+</details>
