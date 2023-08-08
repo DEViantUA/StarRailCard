@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starrailcard"
-version = "0.0.2"
+version = "0.0.8"
 description = "Module for generating Honkai Star Rail character cards"
 authors = ["None"]
 
@@ -11,7 +11,7 @@ homepage = "https://github.com/DEViantUA/StarRailCard"
 
 [tool.poetry.dependencies]
 Pillow = "^9.4.0"
-honkairail = "^1.0.9"
+honkairail = "^1.1.0"
 python = "^3.9"
 
 [build-system]

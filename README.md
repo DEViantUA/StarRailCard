@@ -7,9 +7,9 @@ ____
 ## StarRailCard
 Module for generating Honkai Star Rail character cards
 
-:white_medium_square: Ability to generate with or without background.<br>
-:white_medium_square: Ability to set a custom image.<br>
-:white_medium_square: Flexible map settings.
+* Ability to generate with or without background.<br>
+* Ability to set a custom image.<br>
+* Flexible map settings.
 
 ## Installation:
 ```

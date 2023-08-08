@@ -8,6 +8,13 @@ from pathlib import Path
 assets = Path(__file__).parent.parent / 'assets'
 font = str(assets / 'font' / 'NotoSansKR-Bold.otf')
 
+async def change_font(x):
+    global font
+    if x == "cn":
+        font = str(assets / 'font' / 'NotoSansCJKsc-Bold.otf')
+    else:
+        font = str(assets / 'font' / 'NotoSansKR-Bold.otf')
+
 
 mapping = {
     'total_bg': assets/'bg'/'bg.png',
@@ -46,6 +53,55 @@ mapping = {
 
     'sets_bg': assets/'Sets'/'bg.png',
     'sets_count': assets/'Sets'/'count.png',
+
+    #TEAMPLE TWO
+
+    "bg_wind": assets/'teample_two'/'bg'/'ANEMO.png',
+    "bg_electro": assets/'teample_two'/'bg'/'ELECTRO.png',
+    "bg_fire": assets/'teample_two'/'bg'/'FIRE.png',
+    "bg_ice": assets/'teample_two'/'bg'/'ICE.png',
+    "bg_imaginary": assets/'teample_two'/'bg'/'IMAGINARY.png',
+    "bg_quantom": assets/'teample_two'/'bg'/'QUANTOM.png',
+    "bg_psyhical": assets/'teample_two'/'bg'/'PSYHICAL.png',
+    "MASKA_ART": assets/'teample_two'/'bg'/'MASKA_ART.png',
+    "MASKA_ART_CUSTUM": assets/'teample_two'/'bg'/'MASKA_ART_CUSTUM.png',
+    "MASKA_ARTS": assets/'teample_two'/'bg'/'MASKA_ARTS.png',
+    "shadow": assets/'teample_two'/'bg'/'SHADOW.png',
+    "effect_stars": assets/'teample_two'/'bg'/'stars.png',
+
+    "Maska_LC": assets/'teample_two'/'LC'/'Maska.png',
+    "shadow_LC": assets/'teample_two'/'LC'/'shadow.png',
+    "icons_LC": assets/'teample_two'/'LC'/'icons.png',
+
+    "bg_relic_ANEMO": assets/'teample_two'/'artifact'/'ANEMO.png',
+    "bg_relic_ELECTRO": assets/'teample_two'/'artifact'/'ELECTRO.png',
+    "bg_relic_FIRE": assets/'teample_two'/'artifact'/'FIRE.png',
+    "bg_relic_ICE": assets/'teample_two'/'artifact'/'ICE.png',
+    "bg_relic_IMAGINARY": assets/'teample_two'/'artifact'/'IMAGINARY.png',
+    "bg_relic_PSYHICAL": assets/'teample_two'/'artifact'/'PSYHICAL.png',
+    "bg_relic_QUANTOM": assets/'teample_two'/'artifact'/'QUANTOM.png',
+    "relic_mask": assets/'teample_two'/'artifact'/'maska.png',
+    "relic_frame": assets/'teample_two'/'artifact'/'frame.png',
+    "rank": assets/'teample_two'/'artifact'/'rank.png',
+    "sets_relic": assets/'teample_two'/'artifact'/'sets.png',
+
+    "stats_frame": assets/'teample_two'/'stats'/'bg.png',
+    "total_stats_frame": assets/'teample_two'/'artifact'/'rank_total.png',
+
+
+    "Knight": assets/'teample_two'/'path'/'Knight.png',
+    "Mage": assets/'teample_two'/'path'/'Mage.png',
+    "Priest": assets/'teample_two'/'path'/'Priest.png',
+    "Rogue": assets/'teample_two'/'path'/'Rogue.png',
+    "Shaman": assets/'teample_two'/'path'/'Shaman.png',
+    "Warlock": assets/'teample_two'/'path'/'Warlock.png',
+    "Warrior": assets/'teample_two'/'path'/'Warrior.png',
+
+    "path_closed": assets/'teample_two'/'path'/'closed.png',
+    "path_closed_dop": assets/'teample_two'/'path'/'closed_dop.png',
+    "path_count": assets/'teample_two'/'path'/'count.png',
+
+
 
 
 }

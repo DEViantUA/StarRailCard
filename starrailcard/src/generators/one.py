@@ -85,11 +85,11 @@ class Creat:
         if self.img:
             bg_new = _of.bg_charters.copy()
             bg = bg_new.copy()
-            user_image = await pill.get_resize_image(self.img, 478, 342)
+            user_image = await pill.get_resize_image(self.img, 478, 374)
             if user_image["type"] == 2:
                 bg_new.alpha_composite(user_image["img"], (0, 0))
             else:
-                bg_new.alpha_composite(user_image["img"], (int(174 - user_image["img"].size[0] / 2), 0))
+                bg_new.alpha_composite(user_image["img"], (int(187 - user_image["img"].size[0] / 2), 0))
             
             bg.paste(bg_new, (0, 0), _of.maska_charters.convert("L"))
         else:

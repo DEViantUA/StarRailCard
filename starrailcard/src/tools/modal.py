@@ -49,3 +49,4 @@ class HSRCard(BaseModel):
     player: PlayerV2
     card: List[Card]
     name: Optional[str]
+    id: Optional[str]

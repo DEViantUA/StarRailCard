@@ -1,8 +1,8 @@
 # Copyright 2023 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
 
-from src.tools import translation, pill, modal
-from src.generators import one
+from .src.tools import translation, pill, modal, openFile
+from .src.generators import one, two
 from honkairail import starrailapi
 import asyncio,re,os,datetime
 
@@ -35,7 +35,7 @@ async def saveBanner(uid, res, name):
     res.save(file_path)
 
 class MiHoMoCard():
-    def __init__(self,lang = "ru", characterImgs = None, characterName = None, hide = False, save = False, background = True):
+    def __init__(self,lang = "ru", characterImgs = None, characterName = None, hide = False, save = False, background = True, template = 1):
 
         """
         :param lang: str, What language to receive information supported:  en, ru, vi, th, pt, kr, jp, zh, id, fr, es, de, chs, cht.
@@ -45,8 +45,12 @@ class MiHoMoCard():
         :param save: bool, Save images or not.
         :param background: bool, Generate image with or without background.
 
-        """
+        """        
+        
+        self.template = template
 
+        if not int(template) in [1,2]:
+            self.template = 1
 
         if not lang in translation.supportLang:
             self.lang = "en"
@@ -73,13 +77,17 @@ class MiHoMoCard():
     async def __aexit__(self, *args):
         pass
     
-    async def characterImg(self,name):
+    async def characterImg(self,name,ids):
         if name in self.characterImgs:
             self.img = await pill.get_user_image(self.characterImgs[name])
         else:
             self.img = None
+        
+        if ids in self.characterImgs:
+            self.img = await pill.get_user_image(self.characterImgs[ids])
 
     async def creat(self, uid):
+        await openFile.change_font(self.lang)
         task = []
         data = await self.API.get_full_data(uid)
         user = {
@@ -92,20 +100,26 @@ class MiHoMoCard():
             },
             "player": data.player,
             "card": [],
-            "name": ""
+            "name": "",
+            "id": "",
         }
 
         
         for key in data.characters:
-            if self.characterName:
-                if not key.name.lower()  in self.characterName:
-                    continue
-            user["name"] += f"{key.name}, "
             
-            if self.characterImgs:
-                await self.characterImg(key.name.lower())
+            user["name"] += f"{key.name}, "
+            user["id"] += f"{key.id}, "
+            
+            if self.characterName:
+                if not key.name.lower() in self.characterName and not str(key.id) in self.characterName:
+                    continue       
 
-            task.append(one.Creat(key, self.translateLang,self.img,self.hide,int(uid),remove_html_tags(data.player.nickname),self.background).start())
+            if self.characterImgs:
+                await self.characterImg(key.name.lower(), str(key.id))
+            if self.template == 1:
+                task.append(one.Creat(key, self.translateLang,self.img,self.hide,int(uid),remove_html_tags(data.player.nickname),self.background).start())
+            else:
+                task.append(two.Creat(key, self.translateLang,self.img,self.hide,int(uid)).start())
 
         user["card"] = await asyncio.gather(*task)
 

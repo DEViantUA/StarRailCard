@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: starrailcard
-Version: 0.0.2
+Version: 0.0.8
 Summary: Module for generating Honkai Star Rail character cards
 Home-page: https://github.com/DEViantUA/StarRailCard
 Author: None
@@ -10,7 +10,7 @@ Classifier: Programming Language :: Python :: 3.9
 Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: 3.11
 Requires-Dist: Pillow (>=9.4.0,<10.0.0)
-Requires-Dist: honkairail (>=1.0.9,<2.0.0)
+Requires-Dist: honkairail (>=1.1.0,<2.0.0)
 Project-URL: Repository, https://github.com/DEViantUA/StarRailCard
 Description-Content-Type: text/markdown
 
@@ -22,9 +22,10 @@ ____
 
 ## StarRailCard
 Module for generating Honkai Star Rail character cards
-:white_medium_square: Ability to generate with or without background.<br>
-:white_medium_square: Ability to set a custom image.<br>
-:white_medium_square: Flexible map settings.
+
+* Ability to generate with or without background.<br>
+* Ability to set a custom image.<br>
+* Flexible map settings.
 
 ## Installation:
 ```
@@ -37,10 +38,9 @@ from starrailcard import honkaicard
 import asyncio
 
 async def mains():
-    while True:
-        async with honkaicard.MiHoMoCard() as hmhm:
-            r = await hmhm.creat(700649319)
-            print(r)
+    async with honkaicard.MiHoMoCard(template=1) as hmhm:
+        r = await hmhm.creat(700649319)
+        print(r)
 
 asyncio.run(mains())
 ```
@@ -53,4 +53,25 @@ asyncio.run(mains())
 |  português  |     pt  | 한국어      |     kr  | deutsch    |     de  |
 |  日本語      |     jp  | 中文        |     zh  | español    |     es  |
 |  中文        |     zh  | Indonesian |     id  | français   |     fr  |
-|  Khaenri'ah  |     kh  | Khaenri'ah |
+
+
+
+<details>
+<summary>Sample 1 template</summary>
+ 
+[![Adaptation][3]][3]
+ 
+[3]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-18.png
+  
+</details>
+
+
+<details>
+<summary>Sample 2 template</summary>
+ 
+[![Adaptation][4]][4]
+ 
+[4]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-19.png
+ 
+</details>
+
