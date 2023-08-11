@@ -1,6 +1,5 @@
 # Copyright 2023 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
-
 from PIL import ImageFont,Image,ImageDraw,ImageChops
 from io import BytesIO
 from . import openFile
@@ -67,8 +66,19 @@ async def get_resize_image(userImages,baseheight,basewidth):
         return {"img": userImages, "type": 2}
 
 
-async def create_image_with_text(text, font_size, max_width = 336, color = (255,255,255,255)):
+async def get_text_size_frame(text,font_size,frame_width):
     font = await get_font(font_size)
+
+    while font.getlength(text) > frame_width:
+        font_size -= 1
+        font = await get_font(font_size)
+
+    return font,font.getlength(text)
+
+
+async def create_image_text(text, font_size, max_width=336, max_height=None, color=(255, 255, 255, 255)):
+    original_font = await get_font(font_size)
+    font = original_font
     lines = []
     line = []
     for word in text.split():
@@ -93,27 +103,21 @@ async def create_image_with_text(text, font_size, max_width = 336, color = (255,
         width = max(width, line_width)
         height += font.getmask(' '.join(line)).getbbox()[3]
 
-    img = Image.new('RGBA', (min(width, max_width), height+(font_size-4)), color= (255,255,255,0))
+    if max_height is not None and height > max_height:
+        reduction_ratio = max_height / height
+        new_font_size = int(font_size * reduction_ratio)
+        font = await get_font(new_font_size)
+
+    img = Image.new('RGBA', (min(width, max_width), height + (font_size - 4)), color=(255, 255, 255, 0))
 
     draw = ImageDraw.Draw(img)
     y_text = 0
     for line in lines:
         text_width, text_height = font.getmask(' '.join(line)).getbbox()[2:]
         draw.text((0, y_text), ' '.join(line), font=font, fill=color)
-        y_text += text_height+5
-    
+        y_text += text_height + 5
+
     return img
-
-
-async def get_text_size_frame(text,font_size,frame_width):
-    font = await get_font(font_size)
-
-    while font.getlength(text) > frame_width:
-        font_size -= 1
-        font = await get_font(font_size)
-
-    return font,font.getlength(text)
-
 
 async def create_image_with_text(text, font_size, max_width=336, color=(255, 255, 255, 255), alg="Left"):
     font = await get_font(font_size)
@@ -145,6 +149,7 @@ async def create_image_with_text(text, font_size, max_width=336, color=(255, 255
     img = Image.new('RGBA', (min(width, max_width), height + (font_size)), color=(255, 255, 255, 0))
 
     draw = ImageDraw.Draw(img)
+    
     y_text = 0
     for line_num, line in enumerate(lines):
         text_width, text_height = font.getmask(' '.join(line)).getbbox()[2:]
@@ -185,19 +190,23 @@ async def get_centr_honkai(size, file_name):
 
     return background_image
 
-async def creat_bg_teample_two(image,bg,maska, teample = 2):
-    splash = await get_dowload_img(link=image)
-    frme_splash = await get_centr_honkai((719,719),splash)
-    #frme_splash = Image.new('RGBA', (866,812), color= (255,255,255,0))
-    #rme_splash.alpha_composite(splash,(-338,-226))
-    bg_frame = Image.new('RGBA', (1916,719), color= (255,255,255,0))
-    bg_frame.alpha_composite(frme_splash,(0,0))
-
-    bg_element = bg.copy()
-    maska_bg =  bg.copy()
-    bg_element.alpha_composite(bg_frame,(0,0))
-    bg_element.paste(maska_bg,(0,0),maska)
-    bg_element.alpha_composite(openFile.ImageCache().shadow,(2,0))
+async def creat_bg_teample_two(image,bg,maska = None, teample = 2):
+    if teample == 3:
+        bg_element = bg.convert("RGBA")
+        splash = await get_dowload_img(link=image)
+        frme_splash = await get_centr_honkai((582,802),splash)
+        frme_splash.alpha_composite(openFile.ImageCache().shadow_art,(0,0))
+        bg_element.alpha_composite(frme_splash,(1342,0))
+    else:
+        splash = await get_dowload_img(link=image)
+        frme_splash = await get_centr_honkai((719,719),splash)
+        bg_frame = Image.new('RGBA', (1916,719), color= (255,255,255,0))
+        bg_frame.alpha_composite(frme_splash,(0,0))
+        bg_element = bg.copy()
+        maska_bg =  bg.copy()
+        bg_element.alpha_composite(bg_frame,(0,0))
+        bg_element.paste(maska_bg,(0,0),maska)
+        bg_element.alpha_composite(openFile.ImageCache().shadow,(2,0))
 
     return bg_element
 
@@ -343,7 +352,7 @@ async def creat_user_image(img, teampl = "1", shadow = None, bg = None):
             "start_y": 0,
             "mask": openFile.ImageCache().MASKA_ART_CUSTUM.convert("L"), 
             "effect": openFile.ImageCache().effect_stars.convert("RGBA") 
-        }
+        },
     }.get(teampl)
     frame = Image.new("RGBA", position["size_teample"], (0,0,0,0))
     userImagess = await ImageCreat(position["frame"],img).get_centry_image(baseheight = position["baseheight"], basewidth = position["basewidth"], baseheight_wide = position["baseheight_wide"], centry = position["centry"])
@@ -361,4 +370,17 @@ async def creat_user_image(img, teampl = "1", shadow = None, bg = None):
     bg.alpha_composite(shadow,(0,0))
     
     return bg
+
+async def creat_user_image_tree(img):
+    bg = Image.new("RGBA", (1924,802), (36,36,36,255))
+    userImagess = await ImageCreat((582,802),img).get_centry_image(baseheight = 802, basewidth = 582, baseheight_wide = None, centry = 291)
+    grandient = await GradientGenerator(userImagess).generate(1,802, left= True)
+    grandient = grandient.resize((1350,802))
+    bg.alpha_composite(grandient.convert("RGBA"),(0,0))
+    grandient = ImageChops.soft_light(bg, openFile.ImageCache().overlay.convert("RGBA"))
+    grandient.alpha_composite(openFile.ImageCache().art_frame,(0,0))
+    userImagess.alpha_composite(openFile.ImageCache().shadow_art,(0,0))
+    grandient.alpha_composite(userImagess,(1342,0))
+
+    return grandient
 

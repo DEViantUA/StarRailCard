@@ -148,7 +148,7 @@ class Creat:
         font = await pill.get_font(35)
         icon_element = await pill.get_dowload_img(self.character.element.icon, thumbnail_size=(56,56))
         stars = await get_stars_icon(self.character.rarity)
-        level = f"Level: {self.character.level}/80"
+        level = f"{self.lang.lvl}: {self.character.level}/80"
         name = self.character.name
 
         background_name.alpha_composite(icon_element,(0,8))

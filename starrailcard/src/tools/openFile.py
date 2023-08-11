@@ -103,6 +103,43 @@ mapping = {
 
 
 
+    "shadow_bg": assets/'teample_tree'/'bg'/'shadow_bg.png',
+    "splash_art": assets/'teample_tree'/'bg'/'splash_art.png',
+    "shadow_art": assets/'teample_tree'/'bg'/'shadow_art.png',
+    "art_frame": assets/'teample_tree'/'bg'/'art_frame.png',
+    "overlay": assets/'teample_tree'/'bg'/'overlay.png',
+
+    "lc_3_stars": assets/'teample_tree'/'lc'/'3_stars.png',
+    "lc_4_stars": assets/'teample_tree'/'lc'/'4_stars.png',
+    "lc_5_stars": assets/'teample_tree'/'lc'/'5_stars.png',
+    "blink": assets/'teample_tree'/'lc'/'blink.png',
+    "lc_info": assets/'teample_tree'/'lc'/'info.png',
+
+    "closed_main": assets/'teample_tree'/'skills'/'closed_main.png',
+    "main_skills": assets/'teample_tree'/'skills'/'main.png',
+    "closed_trees": assets/'teample_tree'/'skills'/'closed_trees.png',
+    "count_tree": assets/'teample_tree'/'skills'/'count_tree.png',
+    "dop": assets/'teample_tree'/'skills'/'dop.png',
+    "open_trees": assets/'teample_tree'/'skills'/'open_trees.png',
+
+    "ON_const": assets/'teample_tree'/'const'/'ON.png',
+    "OFF_const": assets/'teample_tree'/'const'/'OFF.png',
+    "CLOSED_const": assets/'teample_tree'/'const'/'CLOSED.png',
+
+    "artifact_tree": assets/'teample_tree'/'artifact'/'artifact.png',
+    "sets_tree": assets/'teample_tree'/'artifact'/'sets.png',
+
+    "name_banners": assets/'teample_tree'/'name_banners.png',
+    "stars_five": assets/'teample_tree'/'stars_five.png',
+    "stars_four": assets/'teample_tree'/'stars_four.png',
+
+    "icon": assets/"icon.png",
+    "icon_maska": assets/"icon_maska.png"
+
+    
+
+
+
 
 }
 
