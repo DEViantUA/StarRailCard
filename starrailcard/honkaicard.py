@@ -2,7 +2,7 @@
 # All rights reserved.
 
 from .src.tools import translation, pill, modal, openFile
-from .src.generators import one, two
+from .src.generators import one, two, tree, author
 from honkairail import starrailapi
 import asyncio,re,os,datetime
 
@@ -49,7 +49,7 @@ class MiHoMoCard():
         
         self.template = template
 
-        if not int(template) in [1,2]:
+        if not int(template) in [1,2,3]:
             self.template = 1
 
         if not lang in translation.supportLang:
@@ -85,7 +85,7 @@ class MiHoMoCard():
         
         if ids in self.characterImgs:
             self.img = await pill.get_user_image(self.characterImgs[ids])
-
+    
     async def creat(self, uid):
         await openFile.change_font(self.lang)
         task = []
@@ -118,6 +118,8 @@ class MiHoMoCard():
                 await self.characterImg(key.name.lower(), str(key.id))
             if self.template == 1:
                 task.append(one.Creat(key, self.translateLang,self.img,self.hide,int(uid),remove_html_tags(data.player.nickname),self.background).start())
+            elif self.template == 3:
+                task.append(tree.Creat(key, self.translateLang,self.img,self.hide,int(uid)).start())
             else:
                 task.append(two.Creat(key, self.translateLang,self.img,self.hide,int(uid)).start())
 
@@ -128,5 +130,47 @@ class MiHoMoCard():
                 await saveBanner(uid,keys["card"], keys["name"])
 
         return modal.HSRCard(**user)
+    
+
+    async def add_author(self, card, link = "", name = ""):
+        """
+        :param card: PILL.IMAGE, Generated card using the create function
+        :param link: str, Specify the author through the link
+        :param name: str, Specify the author through the text
+        """
+        types = 0
+        if link != "":
+            try:
+                _, text = await author.get_site_info(link)
+                icon = await author.get_site_icon(link)
+            except:
+                url = link
+                text = link
+                icon = openFile.ImageCache().icon
+                types = 1
+        else:
+            if name != "":
+                text = name
+                icon = openFile.ImageCache().icon
+                types = 1
+            else:
+                raise TypeError("Specify one of the parameters: lang or name")
+
+        author_icon = await author.start(text,icon,types)
+
+        if self.template == 1:
+            position = (278,447)
+        elif self.template == 2:
+            position = (36,56)
+        else:
+            position = (1356,609)
+
+        card.alpha_composite(author_icon,position)
+        
+        return card
+            
+        
+
+
 
         
