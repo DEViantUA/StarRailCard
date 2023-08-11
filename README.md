@@ -29,8 +29,6 @@ async def mains():
 asyncio.run(mains())
 ```
 
-
-
 <details>
 <summary>Add image author</summary>
 

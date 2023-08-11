@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starrailcard"
-version = "0.0.8"
+version = "0.0.9"
 description = "Module for generating Honkai Star Rail character cards"
 authors = ["None"]
 
