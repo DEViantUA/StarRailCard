@@ -106,7 +106,26 @@ class Relict(BaseModel):
     sub_affix: list[Affix]
 
 
+async def fetch_data_seeleland(uid):
+    url = f"https://seeleland.azurewebsites.net/api/get_player_data?uid={uid}"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            data = await response.json()
+            return data
 
 
+async def get_seeleland(uid, charter_id):
+    data = await fetch_data_seeleland(uid)
+    if data is None:
+        return None
+    for key in data:
+        if key["k"] == str(charter_id):
+            data = key.get("lb")
+    
+    if data != {} and data is not None:
+        for key in data:
+            return data[key]
+    else:
+        return None
 
     

@@ -129,12 +129,22 @@ mapping = {
     "artifact_tree": assets/'teample_tree'/'artifact'/'artifact.png',
     "sets_tree": assets/'teample_tree'/'artifact'/'sets.png',
 
+
+    "frame_art_1": assets/'teample_tree'/'artifact'/'frame_art_1.png',
+    "frame_art_2": assets/'teample_tree'/'artifact'/'frame_art_2.png',
+    "frame_art_3": assets/'teample_tree'/'artifact'/'frame_art_3.png',
+    "frame_art_4": assets/'teample_tree'/'artifact'/'frame_art_4.png',
+    "frame_art_5": assets/'teample_tree'/'artifact'/'frame_art_5.png',
+
     "name_banners": assets/'teample_tree'/'name_banners.png',
     "stars_five": assets/'teample_tree'/'stars_five.png',
     "stars_four": assets/'teample_tree'/'stars_four.png',
 
     "icon": assets/"icon.png",
-    "icon_maska": assets/"icon_maska.png"
+    "icon_maska": assets/"icon_maska.png",
+
+
+    "seeleland": assets/"seeleland.png"
 
     
 

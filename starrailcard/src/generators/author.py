@@ -37,7 +37,7 @@ async def start(text,icon,types = 0):
     font_autrhor = await pill.get_font(20)
     if types == 0:
         icon_bg = Image.new('RGBA', (30,30), color=(255, 255, 255, 0))
-        icon_bg.paste(icon,(0,0), openFile.ImageCache().icon_maska.convert("L"))
+        icon_bg.paste(icon.resize((30,30)),(0,0), openFile.ImageCache().icon_maska.convert("L"))
     else:
         icon_bg = icon
 

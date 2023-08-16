@@ -2,7 +2,7 @@
 # All rights reserved.
 import asyncio, time
 from PIL import ImageDraw,Image
-from ..tools import pill, openFile
+from ..tools import pill, openFile, calculator
 
 _of = openFile.ImageCache()
 
@@ -16,6 +16,18 @@ async def open_frame_lc(x):
         return _of.lc_4_stars
     else:
         return _of.lc_3_stars
+
+async def get_open_frame_art(x):
+    if x == 5:
+        return _of.frame_art_5.copy()
+    elif x == 4:
+        return _of.frame_art_4.copy()
+    elif x == 3:
+        return _of.frame_art_3.copy()
+    elif x == 2:
+        return _of.frame_art_2.copy()
+    else:
+        return _of.frame_art_1.copy()
 
 
 async def get_stars_icon(x, v = 1):
@@ -71,7 +83,8 @@ async def max_lvl(x):
 
 class Creat:
 
-    def __init__(self,characters, lang,img,hide,uid) -> None:
+    def __init__(self,characters, lang,img,hide,uid,seeleland) -> None:
+        self.seeleland = seeleland
         self.character = characters
         self.lang = lang
         self.img = img
@@ -187,8 +200,10 @@ class Creat:
                 count = _of.count_tree.copy()
                 bg.alpha_composite(icon,(4,4))
                 draw = ImageDraw.Draw(count)
-                draw.text((12,0), f"{key.level}", font=font, fill=(255, 255, 255, 255))
-                bg.alpha_composite(count,(9,42))
+
+                x = int(font.getlength( f"{key.level}/{key.max_level}")/2)
+                draw.text((22-x,-2), f"{key.level}/{key.max_level}", font=font, fill=(255, 255, 255, 255))
+                bg.alpha_composite(count,(3,42))
                 main_bg.alpha_composite(bg,(position_main,0))
                 position_main += 80
 
@@ -318,7 +333,12 @@ class Creat:
             bg.alpha_composite(icon,position[i])
             d.text((position[i][0]+40, position[i][1]), str(k.display), font=font, fill=(255,255,255, 255))
         
-        return bg
+        creat_full_bg_art = Image.new("RGBA", (406, 111), (0, 0, 0, 0))
+        open_frame_art = await get_open_frame_art(relics.rarity)
+        creat_full_bg_art.alpha_composite(bg,(4,0))
+        creat_full_bg_art.alpha_composite(open_frame_art,(0,0))
+
+        return creat_full_bg_art
 
     async def creat_constant(self):
         background_skills = Image.new("RGBA", (403, 63), (0, 0, 0, 0))
@@ -406,6 +426,19 @@ class Creat:
 
         return background_name
 
+    async def creat_seeleland(self):
+        bg = _of.seeleland.copy()
+        font = await pill.get_font(13)
+        data = await calculator.get_seeleland(self.uid, self.character.id)
+        if data is None:
+            return None
+        draw = ImageDraw.Draw(bg)
+        draw.text((143, 3), str(data["sc"]), font=font, fill=(255, 255, 255, 255))
+        draw.text((136, 20), data["rank"], font=font, fill=(255, 255, 255, 255))
+        draw.text((127, 38), data["percrank"].replace("top ", ""), font=font, fill=(255, 255, 255, 255))
+
+        return bg
+
     async def start(self):
         bg, lc, skills, stats, const, sets, info = await asyncio.gather(
             self.creat_charters(),
@@ -427,6 +460,12 @@ class Creat:
         bg.alpha_composite(sets, (449, 363))
         bg.alpha_composite(skills["main"], (507, 59))
         bg.alpha_composite(skills["dop"], (469, 139))
+
+        if self.seeleland:
+            seeleland = await self.creat_seeleland()
+            if not seeleland is None:
+                bg.alpha_composite(seeleland,(1645,692))
+
 
         position = (
             (32, 297),
