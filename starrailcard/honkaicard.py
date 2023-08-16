@@ -35,7 +35,7 @@ async def saveBanner(uid, res, name):
     res.save(file_path)
 
 class MiHoMoCard():
-    def __init__(self,lang = "ru", characterImgs = None, characterName = None, hide = False, save = False, background = True, template = 1):
+    def __init__(self,lang = "ru", characterImgs = None, characterName = None, hide = False, save = False, background = True, template = 1, seeleland = False):
 
         """
         :param lang: str, What language to receive information supported:  en, ru, vi, th, pt, kr, jp, zh, id, fr, es, de, chs, cht.
@@ -44,6 +44,7 @@ class MiHoMoCard():
         :param hide: bool, Display UID.
         :param save: bool, Save images or not.
         :param background: bool, Generate image with or without background.
+        :param seeleland: bool, Get information from the site: seeleland.com (Only for 3 patterns).
 
         """        
         
@@ -70,6 +71,7 @@ class MiHoMoCard():
         self.save = save
         self.hide = hide
         self.img = None
+        self.seeleland = seeleland
 
     async def __aenter__(self):
         return self
@@ -119,7 +121,7 @@ class MiHoMoCard():
             if self.template == 1:
                 task.append(one.Creat(key, self.translateLang,self.img,self.hide,int(uid),remove_html_tags(data.player.nickname),self.background).start())
             elif self.template == 3:
-                task.append(tree.Creat(key, self.translateLang,self.img,self.hide,int(uid)).start())
+                task.append(tree.Creat(key, self.translateLang,self.img,self.hide,int(uid),self.seeleland).start())
             else:
                 task.append(two.Creat(key, self.translateLang,self.img,self.hide,int(uid)).start())
 
