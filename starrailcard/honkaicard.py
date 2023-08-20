@@ -2,7 +2,7 @@
 # All rights reserved.
 
 from .src.tools import translation, pill, modal, openFile
-from .src.generators import one, two, tree, author
+from .src.generators import one, two, tree, author, profile
 from honkairail import starrailapi
 import asyncio,re,os,datetime
 
@@ -133,12 +133,39 @@ class MiHoMoCard():
 
         return modal.HSRCard(**user)
     
+    async def get_profile(self, uid, banner = None, card = False):
+        data = await self.API.get_full_data(uid)
+        user = {
+            "settings": {
+                "uid": int(uid),
+                "lang": self.lang,
+                "hide": self.hide,
+                "save": self.save,
+                "background": self.background
+            },
+            "player": data.player,
+            "card": None,
+            "name": "",
+            "id": "",
+        }
+        for key in data.characters:
+            user["name"] += f"{key.name}, "
+            user["id"] += f"{key.id}, "
 
-    async def add_author(self, card, link = "", name = ""):
+        if card:
+            if not banner is None:
+                banner = await pill.get_user_image(banner)
+            user["card"] = await profile.Creat(data, self.translateLang, banner, self.hide).start()
+            
+
+        return modal.HSRCard(**user)
+
+    async def add_author(self, card, link = "", name = "", profile = False):
         """
         :param card: PILL.IMAGE, Generated card using the create function
         :param link: str, Specify the author through the link
         :param name: str, Specify the author through the text
+        :param profile: bool, Is the card a profile card.
         """
         types = 0
         if link != "":
@@ -160,12 +187,15 @@ class MiHoMoCard():
 
         author_icon = await author.start(text,icon,types)
 
-        if self.template == 1:
-            position = (278,447)
-        elif self.template == 2:
-            position = (36,56)
+        if profile:
+            position = (510,0)
         else:
-            position = (1356,609)
+            if self.template == 1:
+                position = (278,447)
+            elif self.template == 2:
+                position = (36,56)
+            else:
+                position = (1356,609)
 
         card.alpha_composite(author_icon,position)
         
