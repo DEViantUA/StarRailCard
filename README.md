@@ -49,6 +49,23 @@ asyncio.run(mains())
 </details>
 
 
+<details>
+<summary>Create a profile card.</summary>
+
+``` python
+from starrailcard import honkaicard 
+import asyncio
+
+async def mains():
+    async with honkaicard.MiHoMoCard(template=1) as hmhm:
+        r = await hmhm.get_profile(700649319,  card = True)
+        print(r)
+
+asyncio.run(mains())
+```
+</details>
+
+
 ## Languages Supported
 | Languege    |  Code   | Languege    |  Code   | Languege    |  Code   |
 |-------------|---------|-------------|---------|-------------|---------|
@@ -86,5 +103,15 @@ asyncio.run(mains())
 [![Adaptation][2]][2]
  
 [2]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-21.png
+ 
+</details>
+
+
+<details>
+<summary>Sample profile template</summary>
+ 
+[![Adaptation][1]][1]
+ 
+[1]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-22.png
  
 </details>
