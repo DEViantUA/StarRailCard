@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starrailcard"
-version = "0.1.0"
+version = "0.1.5"
 description = "Module for generating Honkai Star Rail character cards"
 authors = ["None"]
 
@@ -9,10 +9,15 @@ readme = 'README.md'  # Markdown files are supported
 repository = "https://github.com/DEViantUA/StarRailCard"
 homepage = "https://github.com/DEViantUA/StarRailCard"
 
+keywords = ["honkai", "cards", "generation", "honkaistarraill","raill", "starraill", "builds"] 
+
 [tool.poetry.dependencies]
 Pillow = "^9.4.0"
 honkairail = "^1.1.0"
 python = "^3.9"
+
+[tool.poetry.dev-dependencies]
+cachetools = "^5.3.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

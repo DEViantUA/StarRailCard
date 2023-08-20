@@ -1,8 +1,9 @@
 Metadata-Version: 2.1
 Name: starrailcard
-Version: 0.1.0
+Version: 0.1.5
 Summary: Module for generating Honkai Star Rail character cards
 Home-page: https://github.com/DEViantUA/StarRailCard
+Keywords: honkai,cards,generation,honkaistarraill,raill,starraill,builds
 Author: None
 Requires-Python: >=3.9,<4.0
 Classifier: Programming Language :: Python :: 3
@@ -65,6 +66,23 @@ asyncio.run(mains())
 </details>
 
 
+<details>
+<summary>Create a profile card.</summary>
+
+``` python
+from starrailcard import honkaicard 
+import asyncio
+
+async def mains():
+    async with honkaicard.MiHoMoCard(template=1) as hmhm:
+        r = await hmhm.get_profile(700649319,  card = True)
+        print(r)
+
+asyncio.run(mains())
+```
+</details>
+
+
 ## Languages Supported
 | Languege    |  Code   | Languege    |  Code   | Languege    |  Code   |
 |-------------|---------|-------------|---------|-------------|---------|
@@ -102,6 +120,16 @@ asyncio.run(mains())
 [![Adaptation][2]][2]
  
 [2]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-21.png
+ 
+</details>
+
+
+<details>
+<summary>Sample profile template</summary>
+ 
+[![Adaptation][1]][1]
+ 
+[1]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-22.png
  
 </details>
 
