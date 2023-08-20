@@ -144,13 +144,27 @@ mapping = {
     "icon_maska": assets/"icon_maska.png",
 
 
-    "seeleland": assets/"seeleland.png"
+    "seeleland": assets/"seeleland.png",
 
     
+    "default_bg": assets/'teample_profile'/"bg"/'default_bg.png',
+    "bg_shadow": assets/'teample_profile'/"bg"/'shadow.png',
+    "name_frame":assets/'teample_profile'/"bg"/'name_frame.png',
+    "total_bg_frame":assets/'teample_profile'/"bg"/'frame.png',
 
+    "charter_icon_bg":assets/'teample_profile'/"charters"/'bg.png',
+    "frame_stars_charters_4":assets/'teample_profile'/"charters"/'frame_stars_4.png',
+    "frame_stars_charters_5":assets/'teample_profile'/"charters"/'frame_stars_5.png',
+    "stats_frame_icon":assets/'teample_profile'/"charters"/'stats_frame_icon.png',
+    "ups":assets/'teample_profile'/"charters"/'ups.png',
 
-
-
+    "element_electro":assets/'teample_profile'/"element"/'electro.png',
+    "element_fire":assets/'teample_profile'/"element"/'fire.png',
+    "element_ice":assets/'teample_profile'/"element"/'ice.png',
+    "element_IMAGINARY":assets/'teample_profile'/"element"/'IMAGINARY.png',
+    "element_psyhical":assets/'teample_profile'/"element"/'psyhical.png',
+    "element_quantom":assets/'teample_profile'/"element"/'quantom.png',
+    "element_wind":assets/'teample_profile'/"element"/'wind.png',
 }
 
 

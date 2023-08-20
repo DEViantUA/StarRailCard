@@ -106,20 +106,22 @@ class Creat:
         lc.alpha_composite(frame,(0,0))
         lc.alpha_composite(stars,(21,186))
 
-        stats = _of.lc_info.copy()
+        stat_icon = _of.lc_info.copy()
+        stats = Image.new("RGBA", (167, 90), (0, 0, 0, 0))
+        stats.alpha_composite(stat_icon,(0,0))
         d = ImageDraw.Draw(stats)
         max_level = await max_lvl(self.character.light_cone.promotion)
 
 
-        font_14 = await pill.get_font(14)
+        font_20 = await pill.get_font(20)
         font_17 = await pill.get_font(17)
 
-        d.text((31, 0), f"{self.lang.lvl}: {self.character.light_cone.level}/{max_level}", font=font_14, fill=(255, 255, 255, 255))
+        d.text((31, -2), f"{self.lang.lvl}: {self.character.light_cone.level}/{max_level}", font=font_17, fill=(255, 255, 255, 255))
         d.text((5, -1), await ups(self.character.light_cone.rank), font=font_17, fill=(247, 212, 168, 255))
-        d.text((30, 34), self.character.light_cone.attributes[0].display, font=font_14, fill=(255, 255, 255, 255))
-        d.text((110, 34), self.character.light_cone.attributes[1].display, font=font_14, fill=(255, 255, 255, 255))
-        d.text((29, 68), self.character.light_cone.attributes[2].display, font=font_14, fill=(255, 255, 255, 255))
-        names = await pill.create_image_with_text(self.character.light_cone.name, 16, max_width=214, color=(255, 255, 255, 255))
+        d.text((28, 29), self.character.light_cone.attributes[0].display, font=font_20, fill=(255, 255, 255, 255))
+        d.text((110, 29), self.character.light_cone.attributes[1].display, font=font_20, fill=(255, 255, 255, 255))
+        d.text((28, 63), self.character.light_cone.attributes[2].display, font=font_20, fill=(255, 255, 255, 255))
+        names = await pill.create_image_with_text(self.character.light_cone.name, 20, max_width=214, color=(255, 255, 255, 255))
         bg_new.alpha_composite(names, (184, 69 - names.size[1]))
 
         bg_new.alpha_composite(lc, (0,0))
@@ -392,9 +394,9 @@ class Creat:
             bg.alpha_composite(icon,(3,3))
             d = ImageDraw.Draw(bg)
 
-            d.text((383, 10), str(sets["num"]), font=font, fill=(110, 249, 123, 255))
+            d.text((383, 10), str(sets["num"]), font=font, fill=(247, 212, 168, 255))
             sets_name_font,size = await pill.get_text_size_frame(sets["name"],16,312)
-            d.text((int(199-size/2), 11), sets["name"], font=sets_name_font, fill=(110, 249, 123, 255))
+            d.text((int(199-size/2), 11), sets["name"], font=sets_name_font, fill=(247, 212, 168, 255))
             total_bg.alpha_composite(bg,position[i])
                 
         return total_bg
@@ -405,7 +407,8 @@ class Creat:
         icon_element = await pill.get_dowload_img(self.character.element.icon, thumbnail_size=(40,39))
         path = await pill.get_dowload_img(self.character.path.icon, thumbnail_size=(41,41))
         stars = await get_stars_icon(self.character.rarity, v = 2)
-        level = f"{self.lang.lvl}: {self.character.level}/80"
+        max_level = await max_lvl(self.character.promotion)
+        level = f"{self.lang.lvl}: {self.character.level}/{max_level}"
         name = self.character.name
         path_name = self.character.path.name
 

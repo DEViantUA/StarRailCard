@@ -2,7 +2,7 @@
 # All rights reserved.
 
 from pydantic import BaseModel
-from typing import List ,Optional
+from typing import List ,Optional,Union
 from PIL import Image
 
 class Avatar(BaseModel):
@@ -47,6 +47,8 @@ class Settings(BaseModel):
 class HSRCard(BaseModel):
     settings: Settings
     player: PlayerV2
-    card: List[Card]
+    card: Union[List[Card], Image.Image]
     name: Optional[str]
     id: Optional[str]
+    class Config:
+        arbitrary_types_allowed = True

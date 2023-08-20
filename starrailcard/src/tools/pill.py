@@ -1,31 +1,69 @@
 # Copyright 2023 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
-from PIL import ImageFont,Image,ImageDraw,ImageChops
+from PIL import ImageFont,Image,ImageDraw,ImageChops,ImageFilter
 from io import BytesIO
 from . import openFile
-import aiohttp,re
+import aiohttp,re, json
+from cachetools import TTLCache
 
 
 async def get_font(size):
     return ImageFont.truetype(openFile.font, size)
 
+
+xId = "91470304"
+ccokie = "first_visit_datetime_pc=2022-08-06+03:53:37; p_ab_id=1; p_ab_id_2=5; p_ab_d_id=1897822829; yuid_b=IFV4MVY; privacy_policy_agreement=5; c_type=23; privacy_policy_notification=0; a_type=0; b_type=1; __utmc=235335808; __utmz=235335808.1675712222.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); _gcl_au=1.1.1586580017.1675934633; _gid=GA1.2.67267752.1677021212; PHPSESSID=91470304_hbEoBFwL6Ss8hQHDiSkc26NAN2BgUaww; device_token=cbf72f380348bc4dcc9910df20a3b368; QSI_S_ZN_5hF4My7Ad6VNNAi=v:100:0; __utmv=235335808.|2=login ever=yes=1^3=plan=premium=1^5=gender=male=1^6=user_id=91470304=1^9=p_ab_id=1=1^10=p_ab_id_2=5=1^11=lang=en=1; _ga_MZ1NL4PHH0=GS1.1.1677021212.1.1.1677021635.0.0.0; __utma=235335808.1013236179.1675712222.1677021201.1677023923.4; login_ever=yes; __cf_bm=uIwLHChsA9lvfHUYdc_qU3KBp.pYrFxzrlv_4crFoE4-1677024971-0-AaFldWtGUM9OmDn1Kfcwc03QpGNuGGlE8Ev1PZtv6Q6PavyffvJ2dmVVIDVdeTM6cD8GNSLlL8ta93GxurhWiQqj+rxXEWgO3LDUqV0uXNORvDhI4+KP930Hf962s6ivFp1Zz6aG5fVGtpySkJBAEcVUAoxfpO6+KGijUP4sJAvftKvKK8NZaD6zcqDr47mOMJsHCvdck/DW4GqbSDeuIJo=; __utmt=1; tag_view_ranking=_EOd7bsGyl~ziiAzr_h04~azESOjmQSV~Ie2c51_4Sp~Lt-oEicbBr~WMwjH6DkQT~HY55MqmzzQ~yREQ8PVGHN~MnGbHeuS94~BSlt10mdnm~tgP8r-gOe_~fg8EOt4owo~b_rY80S-DW~1kqPgx5bT5~5oPIfUbtd6~KN7uxuR89w~QaiOjmwQnI~0Sds1vVNKR~pA1j4WTFmq~aPdvNeJ_XM~vzTU7cI86f~HHxwTpn5dx~pnCQRVigpy~eVxus64GZU~rOnsP2Q5UN~-98s6o2-Rp~EZQqoW9r8g~iAHff6Sx6z~jk9IzfjZ6n~PsltMJiybA~TqiZfKmSCg~IfWbVPYrW4~0TgyeJ7TQv~g2IyszmEaU~28gdfFXlY7~DCzSewSYcl~n15dndrA2h~CActc_bORM~U51WZv5L6G~-7RnTas_L3~zyKU3Q5L4C~QwUeUr8yRJ~j3leh4reoN~vgqit5QC27~t1Am7AQCDs~5cTBH7OrXg~-HnQonkV01~oCqKGRNl20~ba025Wj3s2~TAc-DD8LV2~p0NI-IYoo2~wqBB0CzEFh~U-RInt8VSZ~oiDfuNWtp4~fAWkkRackx~i54EuUSPdz~Js5EBY4gOW~ZQJ8wXoTHu~Cm1Eidma50~CMvJQbTsDH~ocDr8uHfOS~pzZvureUki~ZNRc-RnkNl~nWC-P2-9TI~q1r4Vd8vYK~hZzvvipTPD~DpYZ-BAzxm~096PrTDcN1~3WI2JuKHdp~faHcYIP1U0~1n-RsNEFpK~Bd2L9ZBE8q~txZ9z5ByU7~r01unnQL0a~EEUtbD_K_n~cb-9gnu4GK~npWJIbJroU~XbjPDXsKD-~lkoWqucyTw~P8OX_Lzc1b~RmnFFg7HS4~6rYZ-6JKHq~d80xTahBd1~OYl5wlor4w~2R7RYffVfj~1CWwi2xr7g~c7QmKEJ54V~rlExNugdTH~wO2lnVhO8m~vc2ipXnqbX~Is5E1jIZcw~c_aC4uL3np~vzxes78G4k; _ga=GA1.2.714813637.1675712223; _gat_UA-1830249-3=1; _ga_75BBYNYN9J=GS1.1.1677023923.4.1.1677025390.0.0.0; __utmb=235335808.52.9.1677024704913"
+
+headers = {
+    "accept-type": "application/json",
+    "accept-encoding": "ru,en-US;q=0.9,en;q=0.8,uk;q=0.7,af;q=0.6",
+    "language": "gzip, deflate, br",
+    "cookie": ccokie,
+    "dnt": "1",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "Windows",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
+    "x-user-id": xId,
+    "referer": "https://www.pixiv.net/",
+}
+
+cache = TTLCache(maxsize=1000, ttl=300)  
+
 async def get_dowload_img(link,size = None, thumbnail_size = None):
+    cache_key = json.dumps((link, size, thumbnail_size), sort_keys=True)  # Преобразовываем в строку
+        
+    if cache_key in cache:
+        return cache[cache_key]
+    
+
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(link) as response:
-                image = await response.read()
+        if "pximg" in link:
+            async with aiohttp.ClientSession(headers=headers) as session, session.get(link) as r:
+                image = await r.read()
+        else:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(link) as response:
+                    image = await response.read()
     except:
         raise
     
     image = Image.open(BytesIO(image)).convert("RGBA")
     if size:
-        return image.resize(size)
+        image = image.resize(size)
+        cache[cache_key] = image
+        return image
     elif thumbnail_size:
         image.thumbnail(thumbnail_size)
+        cache[cache_key] = image
         return image
     else:
+        cache[cache_key] = image
         return image
-    
+
+
 async def get_user_image(img):
     if type(img) != str:
         img = img
@@ -384,3 +422,37 @@ async def creat_user_image_tree(img):
 
     return grandient
 
+async def get_centr_honkai_art(size, file_name):
+    background_image = Image.new('RGBA', size, color=(0, 0, 0, 0))
+    foreground_image = file_name.convert("RGBA")
+
+    scale = max(size[0] / foreground_image.size[0], size[1] / foreground_image.size[1])
+    foreground_image = foreground_image.resize((int(foreground_image.size[0] * scale), int(foreground_image.size[1] * scale)), resample=Image.LANCZOS)
+
+    background_size = background_image.size
+    foreground_size = foreground_image.size
+
+    x = background_size[0] // 2 - foreground_size[0] // 2
+
+    if foreground_size[1] > background_size[1]:
+        y_offset = max(int(0.3 * (foreground_size[1] - background_size[1])), int(0.5 * (-foreground_size[1])))
+        y = -y_offset
+    else:
+        y = background_size[1] // 2 - foreground_size[1] // 2
+
+    background_image.alpha_composite(foreground_image, (x, y))
+
+    return background_image
+
+
+
+async def apply_blur_and_overlay(img, output_size):
+    background = Image.new("RGBA", (681, 459), (0, 0, 0, 0))
+
+    overlay = await get_centr_honkai_art((694, 802),img)
+
+    overlay_blurred = overlay.filter(ImageFilter.GaussianBlur(radius=10))
+
+    background.alpha_composite(overlay_blurred,(0,-343))
+
+    return background
