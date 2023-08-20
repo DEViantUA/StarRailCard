@@ -47,7 +47,7 @@ class Settings(BaseModel):
 class HSRCard(BaseModel):
     settings: Settings
     player: PlayerV2
-    card: Union[List[Card], Image.Image]
+    card: Optional[Union[List[Card], Image.Image]] 
     name: Optional[str]
     id: Optional[str]
     class Config:
