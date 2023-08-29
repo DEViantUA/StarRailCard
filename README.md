@@ -1,5 +1,5 @@
 <p align="center">
- <img src="https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/StarRailCardM.png" alt="Баннер"/>
+ <img src="https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/StarRailCardM.png" alt="Баннер"/>
 </p>
 
 ____
@@ -82,7 +82,7 @@ asyncio.run(mains())
  
 [![Adaptation][3]][3]
  
-[3]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-18.png
+[3]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-18.png
   
 </details>
 
@@ -92,7 +92,7 @@ asyncio.run(mains())
  
 [![Adaptation][4]][4]
  
-[4]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-19.png
+[4]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-19.png
  
 </details>
 
@@ -102,7 +102,7 @@ asyncio.run(mains())
  
 [![Adaptation][2]][2]
  
-[2]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-21.png
+[2]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-21.png
  
 </details>
 
@@ -112,6 +112,6 @@ asyncio.run(mains())
  
 [![Adaptation][1]][1]
  
-[1]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-22.png
+[1]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-22.png
  
 </details>
