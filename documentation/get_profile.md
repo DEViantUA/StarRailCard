@@ -51,10 +51,10 @@ import asyncio
 
 async def main(uid):
   async with honkaicard.MiHoMoCard() as hmhm
-    r = await hmhm.creat(uid)
-    for key in r.card:
-      print(f"{key.name} | {key.id}\nRarity: {key.rarity}")
-      key.card.show() #Show card image.
+    r = await hmhm.get_profile(uid)
+    print(f"{r.player.nickname} | {r.player.uid}\nSignature: {r.player.signature}\nWL: {r.player.world_level}\nSU: {r.player.space_info.pass_area_progress}\nAchievement: {r.player.space_info.achievement_count}")
+    if not r.card is None:
+      r.card.show() #Show card image.
 
 asyncio.run(main(700649319))
 ```
