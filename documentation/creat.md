@@ -16,6 +16,7 @@ import asyncio
 async def main(uid):
   async with honkaicard.MiHoMoCard() as hmhm
     r = await hmhm.creat(uid)
+    print(r)
 
 asyncio.run(main(700649319))
 ```
@@ -35,11 +36,28 @@ id='1209, 1105, 1001, 1106, '
   - ``avatar`` - Profile picture information.
   - ``space_info`` - Contains information about achievements, the number of light cones, characters and the SU.
 * ``card`` - List of character cards.
-  - ``id`` - character id.
-  - ``name`` - character name.
-  - ``rarity`` - character rarity.
-  - ``card`` - character card image.
+  - ``id`` - Character id.
+  - ``name`` - Character name.
+  - ``rarity`` - Character rarity.
+  - ``card`` - Character card image.
+  - ``size`` - Card size.
 * ``name`` - Showcase character names.
 * ``id`` - Showcase character id.
 
 
+### How to work with this data?
+---
+
+```py
+from starrailcard import honkaicard 
+import asyncio
+
+async def main(uid):
+  async with honkaicard.MiHoMoCard() as hmhm
+    r = await hmhm.creat(uid)
+    for key in r.card:
+      print(f"{key.name} | {key.id}\nRarity: {key.rarity}")
+      key.card.show() #Show card image.
+
+asyncio.run(main(700649319))
+```
