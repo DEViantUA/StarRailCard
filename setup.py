@@ -33,7 +33,7 @@ package_data = \
                       'assets/teample_two/stats/*']}
 
 install_requires = \
-['Pillow>=9.4.0,<10.0.0', 'honkairail>=1.1.0,<2.0.0']
+['Pillow>=10.0.1,<10.0.2', 'honkairail>=1.1.0,<2.0.0']
 
 setup_kwargs = {
     'name': 'starrailcard',
