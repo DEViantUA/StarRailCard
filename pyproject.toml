@@ -12,7 +12,7 @@ homepage = "https://github.com/DEViantUA/StarRailCard"
 keywords = ["honkai", "cards", "generation", "honkaistarraill","raill", "starraill", "builds"] 
 
 [tool.poetry.dependencies]
-Pillow = "^9.4.0"
+Pillow = "^10.0.1"
 honkairail = "^1.1.0"
 python = "^3.9"
 
