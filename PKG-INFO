@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: starrailcard
-Version: 0.1.5
+Version: 1.1.0
 Summary: Module for generating Honkai Star Rail character cards
 Home-page: https://github.com/DEViantUA/StarRailCard
 Keywords: honkai,cards,generation,honkaistarraill,raill,starraill,builds
@@ -10,13 +10,13 @@ Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.9
 Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: 3.11
-Requires-Dist: Pillow (>=9.4.0,<10.0.0)
+Requires-Dist: Pillow (>=10.0.1,<11.0.0)
 Requires-Dist: honkairail (>=1.1.0,<2.0.0)
 Project-URL: Repository, https://github.com/DEViantUA/StarRailCard
 Description-Content-Type: text/markdown
 
 <p align="center">
- <img src="https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/StarRailCardM.png" alt="Баннер"/>
+ <img src="https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/StarRailCardM.png" alt="Баннер"/>
 </p>
 
 ____
@@ -99,7 +99,7 @@ asyncio.run(mains())
  
 [![Adaptation][3]][3]
  
-[3]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-18.png
+[3]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-18.png
   
 </details>
 
@@ -109,7 +109,7 @@ asyncio.run(mains())
  
 [![Adaptation][4]][4]
  
-[4]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-19.png
+[4]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-19.png
  
 </details>
 
@@ -119,7 +119,27 @@ asyncio.run(mains())
  
 [![Adaptation][2]][2]
  
-[2]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-21.png
+[2]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-21.png
+ 
+</details>
+
+
+<details>
+<summary>Sample 4 template</summary>
+ 
+[![Adaptation][5]][5]
+ 
+[5]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-25.png
+ 
+</details>
+
+
+<details>
+<summary>Sample 5 template</summary>
+ 
+[![Adaptation][6]][6]
+ 
+[6]: https://github.com/DEViantUA/StarRailCard/blob/main/documentation/a-26.png?raw=true
  
 </details>
 
@@ -129,7 +149,7 @@ asyncio.run(mains())
  
 [![Adaptation][1]][1]
  
-[1]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/a-22.png
+[1]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-22.png
  
 </details>
 
