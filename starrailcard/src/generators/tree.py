@@ -1,6 +1,6 @@
 # Copyright 2023 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
-import asyncio, time
+import asyncio
 from PIL import ImageDraw,Image
 from ..tools import pill, openFile, calculator
 
@@ -52,14 +52,14 @@ async def get_stars_icon(x, v = 1):
 async def ups(x):
     if x == 5:
         return "V"
-    elif x == 5:
+    elif x == 4:
         return "IV"
-    elif x == 5:
+    elif x == 3:
         return "III"
-    elif x == 5:
+    elif x == 2:
         return "II"
-    elif x == 5:
-        return "I"
+    elif x == 1:
+        return " I"
     else:
         return "O"
 

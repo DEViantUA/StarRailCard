@@ -1,6 +1,6 @@
 # Copyright 2023 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
-import asyncio, time
+import asyncio
 from PIL import ImageDraw,Image
 from ..tools import pill, openFile, treePaths, calculator
 
@@ -16,7 +16,7 @@ async def bg_element(name):
         return _of.bg_fire.copy()
     if name == "Ice":
         return _of.bg_ice.copy()
-    if name == "Lightning":
+    if name == "Thunder":
         return _of.bg_electro.copy()
     if name == "Quantum":
         return _of.bg_quantom.copy()
@@ -32,7 +32,7 @@ async def bg_relic_element(name):
         return _of.bg_relic_FIRE.copy()
     if name == "Ice":
         return _of.bg_relic_ICE.copy()
-    if name == "Lightning":
+    if name == "Thunder":
         return _of.bg_relic_ELECTRO.copy()
     if name == "Quantum":
         return _of.bg_relic_QUANTOM.copy()
@@ -73,26 +73,26 @@ async def max_lvl(x):
     return max
 
 
-def get_quality_color(rank):
+async def get_quality_color(rank):
     if rank == "SSS":
-        return (255, 0, 0, 255)  # Красный цвет (Red)
+        return (255, 0, 0, 255)  # Ярко-красный цвет (Bright Red)
     elif rank == "SS":
-        return (255, 140, 0, 255)  # Оранжевый цвет (Orange)
+        return (255, 69, 0, 255)  # Ярко-оранжевый цвет (Bright Orange)
     elif rank == "S":
-        return (255, 215, 0, 255)  # Желтый цвет (Yellow)
+        return (255, 215, 0, 255)  # Ярко-желтый цвет (Bright Yellow)
     elif rank == "A":
-        return (50, 205, 50, 255)  # Зеленый цвет (Green)
+        return (0, 255, 0, 255)  # Ярко-зеленый цвет (Bright Green)
     elif rank == "B":
-        return (0, 128, 0, 255)  # Темно-зеленый цвет (Dark Green)
+        return (50, 205, 50, 255)  # Зеленый цвет (Green)
     elif rank == "C":
-        return (0, 139, 139, 255)  # Темно-голубой цвет (Dark Cyan)
+        return (0, 255, 255, 255)  # Ярко-голубой цвет (Bright Cyan)
     elif rank == "D":
-        return (0, 0, 128, 255)  # Темно-синий цвет (Dark Blue)
+        return (0, 0, 255, 255)  # Ярко-синий цвет (Bright Blue)
     else:
         return (128, 128, 128, 255)  # Серый цвет (Gray)
     
 
-def get_eff_color(rank):
+async def get_eff_color(rank):
     if rank == 4:
         return (168, 234, 8, 255)
     elif rank == 3:
@@ -105,7 +105,7 @@ def get_eff_color(rank):
         return (128, 128, 128, 255)
 
 
-def get_path_img(path):
+async def get_path_img(path):
     if path == "Rogue":
         return _of.Rogue.copy()
     elif path == "Knight":
@@ -146,6 +146,7 @@ class Creat:
     async def creat_name_banner(self):
         background_name = Image.new("RGBA", (335,113), (0,0,0,0))
         font = await pill.get_font(35)
+
         icon_element = await pill.get_dowload_img(self.character.element.icon, thumbnail_size=(56,56))
         stars = await get_stars_icon(self.character.rarity)
         level = f"{self.lang.lvl}: {self.character.level}/80"
@@ -261,8 +262,7 @@ class Creat:
         d.text((236 - x, position), str(value), font=font, fill=(255, 255, 255, 255))
         bg.alpha_composite(icon, (138, position))
 
-    async def creat_relics(self, relics, indx):
-        indx += 1
+    async def creat_relics(self, relics):
         bg = await bg_relic_element(self.character.element.id)
         bg_two = Image.new("RGBA", (261,198), (0,0,0,0))
         bg_r = Image.new("RGBA", (261,198), (0,0,0,0))
@@ -300,11 +300,11 @@ class Creat:
 
         await asyncio.gather(*tasks)
 
-        score, rank, eff = await calculator.get_rating(relics,self.character.id,str(indx))
+        score, rank, eff = await calculator.get_rating(relics,self.character.id,str(relics.id[-1:]))
         
         rank_bg = _of.rank.copy()
-        color = get_quality_color(rank)
-        color_eff = get_eff_color(eff)
+        color = await get_quality_color(rank)
+        color_eff = await get_eff_color(eff)
 
         d = ImageDraw.Draw(rank_bg)
         font = await pill.get_font(14)
@@ -330,6 +330,7 @@ class Creat:
             else:
                 dop[field] = {"main": attribute.display, "dop": 0}
                 combined_attributes[field] = attribute
+                
         dop = {key: value for key, value in dop.items() if value['dop'] != 0}
         position_icon = [
             (0,0), (200,0),
@@ -423,7 +424,7 @@ class Creat:
         PATH = self.character.path.id
 
         font = await pill.get_font(16)
-        bg = get_path_img(PATH)
+        bg = await get_path_img(PATH)
         dop_path_closed = _of.path_closed
 
         position = treePaths.point_map.get(PATH)
@@ -535,7 +536,7 @@ class Creat:
         stats = await self.creat_stats()
         mainSkill = await self.main_skills() #-
         '''
-        relic_tasks = [self.creat_relics(key, _) for _, key in enumerate(self.character.relics)]
+        relic_tasks = [self.creat_relics(key) for key in self.character.relics]
         relics = await asyncio.gather(*relic_tasks)
         bg_two.alpha_composite(bg, (0, 33))
         bg_two.alpha_composite(const, (25, 147))
@@ -561,8 +562,8 @@ class Creat:
         d = ImageDraw.Draw(total_stats_frame)
         font = await pill.get_font(23)
         rank = await calculator.get_total_rank(total_score)
-        color = get_quality_color(rank)
-        color_eff = get_eff_color(total_eff)
+        color = await  get_quality_color(rank)
+        color_eff = await  get_eff_color(total_eff)
 
         d.text((250, -6), rank, font=font, fill=color)
         d.text((374, -6), str(total_eff), font=font, fill=color_eff)

@@ -1,6 +1,6 @@
 # Copyright 2023 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
-from PIL import ImageFont,Image,ImageDraw,ImageChops,ImageFilter
+from PIL import ImageFont,Image,ImageDraw,ImageChops,ImageFilter,ImageStat
 from io import BytesIO
 from . import openFile
 import aiohttp,re, json
@@ -235,6 +235,23 @@ async def creat_bg_teample_two(image,bg,maska = None, teample = 2):
         frme_splash = await get_centr_honkai((582,802),splash)
         frme_splash.alpha_composite(openFile.ImageCache().shadow_art,(0,0))
         bg_element.alpha_composite(frme_splash,(1342,0))
+    elif teample == 4:
+        splash = await get_dowload_img(link=image)
+        frme_splash = await get_centr_honkai((685,802),splash)
+        bg_frame = Image.new('RGBA', (685,802), color= (255,255,255,0))
+        bg_frame.alpha_composite(frme_splash,(0,0))
+        bg_element = bg.copy().convert("RGBA")
+        maska_bg =  bg.copy()
+        bg_element.alpha_composite(bg_frame,(0,0))
+        bg_element.paste(maska_bg,(0,0),maska)
+        bg_element.alpha_composite(openFile.ImageCache().shadow_enc,(0,0))
+    elif teample == 5:
+        splash = await get_dowload_img(link=image)
+        frme_splash = await get_centr_honkai((370,663),splash)
+        bg_element = Image.new('RGBA', (370,663), color= (255,255,255,0))
+        bg_element.paste(frme_splash,(0,0),maska)
+        bg.alpha_composite(bg_element,(0,0))        
+        return bg
     else:
         splash = await get_dowload_img(link=image)
         frme_splash = await get_centr_honkai((719,719),splash)
@@ -248,11 +265,15 @@ async def creat_bg_teample_two(image,bg,maska = None, teample = 2):
 
     return bg_element
 
-
+async def light_level(img):
+    stat = ImageStat.Stat(img)
+    return stat.mean[0]
 
 async def recolor_image(image, target_color):
     if image.mode != 'RGBA':
         image = image.convert('RGBA')
+
+    image = image.copy()
 
     pixels = image.load()
     for i in range(image.width):
@@ -291,8 +312,14 @@ class GradientGenerator:
 
         # Получаем цвета для каждой полосы
         top_color = await self._get_pixel_color(left, top_1, right, bottom_1)
+        if top_color[0] > 209 and top_color[1] > 209 and top_color[2] >  209:
+           top_color = (209,209,209)
         center_color = await self._get_pixel_color(left, top_2, right, bottom_2)
+        if center_color[0] > 209 and center_color[1] > 209 and center_color[2] >  209:
+           center_color = (209,209,209)
         bottom_color = await self._get_pixel_color(left, top_3, right, bottom_3)
+        if bottom_color[0] > 209 and bottom_color[1] > 209 and bottom_color[2] >  209:
+           bottom_color = (209,209,209)
 
         # Заполняем каждую полосу соответствующим цветом
         for y in range(top_height):
@@ -354,7 +381,7 @@ class ImageCreat():
             # Квадрат
             hpercent = baseheight / float(y)
             wsize = int(float(x) * float(hpercent))
-            resized_img = self.source_img.resize((wsize, baseheight), Image.ANTIALIAS)
+            resized_img = self.source_img.resize((wsize, baseheight), Image.LANCZOS)
         elif x > y:
             # Широкоформат
             hpercent = baseheight_wide / float(y)
@@ -364,7 +391,7 @@ class ImageCreat():
             # Вертикаль
             wpercent = basewidth / float(x)
             hsize = int(float(y) * float(wpercent))
-            resized_img = self.source_img.resize((basewidth, hsize), Image.ANTIALIAS)
+            resized_img = self.source_img.resize((basewidth, hsize), Image.LANCZOS)
 
             if hsize < baseheight:
                 hpercent = baseheight / float(y)
@@ -421,6 +448,35 @@ async def creat_user_image_tree(img):
     grandient.alpha_composite(userImagess,(1342,0))
 
     return grandient
+
+async def creat_user_image_five(img):
+    bg = Image.new("RGBA", (370,663), (0,0,0,0))
+    userImagess = await ImageCreat((370,663),img).get_centry_image(baseheight = 663, basewidth = 370, baseheight_wide = None, centry = 185)
+    bg.paste(userImagess,(0,0),openFile.ImageCache().mask_bg_five.convert("L"))
+    bg.alpha_composite(openFile.ImageCache().shadow_bg_five,(0,0))
+    
+    return bg
+    
+
+async def creat_user_image_four(img):
+    bg = Image.new("RGBA", (1924,802), (0,0,0,0))
+    userImagess = await get_centr_honkai_art((685,802),img) #await ImageCreat((685,803),img).get_centry_image(baseheight = 1082, basewidth = 582, baseheight_wide = None, centry = 342)
+    grandient = await GradientGenerator(userImagess).generate(1,802)
+    grandient = grandient.resize((1924,802)).convert("RGBA")
+    
+    light = await light_level(grandient)
+
+    if light > 100:
+        #МЯГКИЙ СВЕТ
+        grandient = ImageChops.soft_light(grandient, openFile.ImageCache().effect_soft.convert("RGBA"))
+    else:
+        grandient = ImageChops.overlay(grandient, openFile.ImageCache().effect_overlay.convert("RGBA"))
+        #ЭКРАН
+    bg.alpha_composite(grandient,(0,0))
+    bg.alpha_composite(userImagess,(0,0))
+    bg.paste(grandient.resize((1924,802)),(0,0),openFile.ImageCache().maska_background.convert("L"))
+    bg.alpha_composite(openFile.ImageCache().shadow_enc,(0,0))
+    return bg
 
 async def get_centr_honkai_art(size, file_name):
     background_image = Image.new('RGBA', size, color=(0, 0, 0, 0))

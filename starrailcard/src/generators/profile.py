@@ -3,6 +3,7 @@
 import asyncio, time
 from PIL import ImageDraw,Image
 from ..tools import pill, openFile, calculator
+from collections import defaultdict
 
 _of = openFile.ImageCache()
 
@@ -10,14 +11,14 @@ _of = openFile.ImageCache()
 async def ups(x):
     if x == 5:
         return "V"
-    elif x == 5:
+    elif x == 4:
         return "IV"
-    elif x == 5:
+    elif x == 3:
         return "III"
-    elif x == 5:
+    elif x == 2:
         return "II"
-    elif x == 5:
-        return "I"
+    elif x == 1:
+        return " I"
     else:
         return "O"
 
@@ -35,7 +36,7 @@ async def open_element_panel(name):
         return _of.element_fire.copy()
     if name == "Ice":
         return _of.element_ice.copy()
-    if name == "Lightning":
+    if name == "Thunder":
         return _of.element_electro.copy()
     if name == "Quantum":
         return _of.element_quantom.copy()
@@ -132,6 +133,8 @@ class Creat:
 
     async def creat_lc(self,data):
         bg = Image.new("RGBA", (149, 60), (0, 0, 0, 0))
+        if data is None:
+            return bg
         icon = await pill.get_dowload_img(data.icon, size= (60,60))
         bg.alpha_composite(icon,(0,0))
 
@@ -141,8 +144,6 @@ class Creat:
         level = f"{self.lang.lvl}: {data.level}/{max_level}"
         sets_name_font,size = await pill.get_text_size_frame(level,12,88)
         d.text((59, 10), level, font=sets_name_font, fill=(219, 194, 145, 255))
-        
-
         ups_info = await ups(data.rank)
         font = await pill.get_font(17)
         up = _of.ups.copy()
@@ -159,7 +160,6 @@ class Creat:
 
     async def creat_charters(self, character):
         name = character.name
-
         element_panel_task = open_element_panel(character.element.id)
         path_task = pill.get_dowload_img(character.path.icon, size=(31, 30))
         icon_task = pill.get_dowload_img(character.preview, size=(149, 202))
@@ -198,8 +198,15 @@ class Creat:
             (25, 27),
             (102, 27),
         ]
-        for i, key in enumerate(character.attributes[:4]):
-            draw.text(position[i], key.display, font=font, fill=(255, 255, 255, 255))
+
+        combined_attributes = defaultdict(float)
+
+        for attribute in character.attributes[:4] + character.additions:
+            if attribute.field in ["hp", "def", "atk", "spd"]:
+                combined_attributes[attribute.field] += attribute.value
+
+        for i, (key, value) in enumerate(combined_attributes.items()):
+            draw.text(position[i], str(round(value)), font=font, fill=(255, 255, 255, 255))
         
         bg.alpha_composite(stats_bg, (175, 63))
 

@@ -8,12 +8,15 @@ from pathlib import Path
 assets = Path(__file__).parent.parent / 'assets'
 font = str(assets / 'font' / 'NotoSansKR-Bold.otf')
 
-async def change_font(x):
+async def change_font(x,genshin_font = False):
     global font
-    if x == "cn":
-        font = str(assets / 'font' / 'NotoSansCJKsc-Bold.otf')
+    if genshin_font:
+        font = str(assets / 'font' / 'Genshin_Impact.ttf')
     else:
-        font = str(assets / 'font' / 'NotoSansKR-Bold.otf')
+        if x == "cn":
+            font = str(assets / 'font' / 'NotoSansCJKsc-Bold.otf')
+        else:
+            font = str(assets / 'font' / 'NotoSansKR-Bold.otf')
 
 
 mapping = {
@@ -102,7 +105,7 @@ mapping = {
     "path_count": assets/'teample_two'/'path'/'count.png',
 
 
-
+    #TEAMPLE TREE
     "shadow_bg": assets/'teample_tree'/'bg'/'shadow_bg.png',
     "splash_art": assets/'teample_tree'/'bg'/'splash_art.png',
     "shadow_art": assets/'teample_tree'/'bg'/'shadow_art.png',
@@ -146,7 +149,7 @@ mapping = {
 
     "seeleland": assets/"seeleland.png",
 
-    
+    #TEAMPLE PROFILE
     "default_bg": assets/'teample_profile'/"bg"/'default_bg.png',
     "bg_shadow": assets/'teample_profile'/"bg"/'shadow.png',
     "name_frame":assets/'teample_profile'/"bg"/'name_frame.png',
@@ -165,6 +168,133 @@ mapping = {
     "element_psyhical":assets/'teample_profile'/"element"/'psyhical.png',
     "element_quantom":assets/'teample_profile'/"element"/'quantom.png',
     "element_wind":assets/'teample_profile'/"element"/'wind.png',
+
+
+    #TEAMPLE FOUR
+
+    'ANEMO': assets/'teample_enkcard'/'background'/'ANEMO2.png',
+    'CRYO': assets/'teample_enkcard'/'background'/'CRYO.png',
+    'Electro': assets/'teample_enkcard'/'background'/'Electro.png',
+    'imaginary': assets/'teample_enkcard'/'background'/'imaginary.png',
+    'psyhical': assets/'teample_enkcard'/'background'/'psyhical.png',
+    'PYRO': assets/'teample_enkcard'/'background'/'PYRO2.png',
+    'quantom': assets/'teample_enkcard'/'background'/'quantom.png',
+
+    'CONST_CLOSED': assets/'teample_enkcard'/'const'/'Closed.png',
+    'CONST_CLOSED_LOCK': assets/'teample_enkcard'/'const'/'Lock.png',
+
+    'CONST_ANEMO': assets/'teample_enkcard'/'const'/'const_wind.png',
+    'CONST_CRYO': assets/'teample_enkcard'/'const'/'const_ice.png',
+    'CONST_Electro': assets/'teample_enkcard'/'const'/'const_electro.png',
+    'CONST_imaginary': assets/'teample_enkcard'/'const'/'const_imaginary.png',
+    'CONST_psyhical': assets/'teample_enkcard'/'const'/'const_psyhical.png',
+    'CONST_PYRO': assets/'teample_enkcard'/'const'/'const_pyro.png',
+    'CONST_quantom': assets/'teample_enkcard'/'const'/'const_quantom.png',
+
+    'maska_background': assets/'teample_enkcard'/'background'/'maska.png',
+    
+    'shadow_enc': assets/'teample_enkcard'/'background'/'shadow.png',
+    'effect_soft': assets/'teample_enkcard'/'background'/'soft.png',
+    'effect_overlay': assets/'teample_enkcard'/'background'/'overlay.png',
+
+    'lc_frame': assets/'teample_enkcard'/'lc_frame.png',
+
+    'strs_5_shadow': assets/'teample_enkcard'/'stars'/'strs_5.png',
+    'strs_4_shadow': assets/'teample_enkcard'/'stars'/'strs_4.png',
+    'strs_3_shadow': assets/'teample_enkcard'/'stars'/'strs_3.png',
+
+    'artifact_bg': assets/'teample_enkcard'/'artifact'/'bg.png',
+    'artifact_mask': assets/'teample_enkcard'/'artifact'/'mask.png',
+    'artifact_count': assets/'teample_enkcard'/'artifact'/'count.png',
+    'artifact_sets_count': assets/'teample_enkcard'/'artifact'/'sets_count.png',
+    'artifact_sets': assets/'teample_enkcard'/'artifact'/'set.png',
+
+
+
+    'talants_bg': assets/'teample_enkcard'/'talants'/'bg.png',
+    'talants_count': assets/'teample_enkcard'/'talants'/'count.png',
+    'dop_stats': assets/'teample_enkcard'/'talants'/'dop_stats.png',
+
+
+    'cryo_stats': assets/'teample_enkcard'/'talants'/'cryo_stats.png',
+    'electro_stats': assets/'teample_enkcard'/'talants'/'electro_stats.png',
+    'imaginari_stats': assets/'teample_enkcard'/'talants'/'imaginari_stats.png',
+    'psyhical_stats': assets/'teample_enkcard'/'talants'/'psyhical_stats.png',
+    'pyro_stats': assets/'teample_enkcard'/'talants'/'pyro_stats.png',
+    'quantom_stats': assets/'teample_enkcard'/'talants'/'quantom_stats.png',
+    'wind_stats': assets/'teample_enkcard'/'talants'/'wind_stats.png',
+
+
+    'stats_frame_enc': assets/'teample_enkcard'/'stats'/'frame.png',
+
+
+    'relict_total_bg': assets/'relict'/'total_bg.png',
+    'relict_stats': assets/'relict'/'stats.png',
+
+    'relict_1_stars': assets/'relict'/'1_stars.png',
+    'relict_2_stars': assets/'relict'/'2_stars.png',
+    'relict_3_stars': assets/'relict'/'3_stars.png',
+    'relict_4_stars': assets/'relict'/'4_stars.png',
+    'relict_5_stars': assets/'relict'/'5_stars.png',
+
+    
+    #TEAMPLE FIVE
+    'mask_bg_five': assets/'teample_teams'/'background'/'mask.png',
+    'shadow_bg_five': assets/'teample_teams'/'background'/'shadow.png',
+    'blink_bg_five': assets/'teample_teams'/'background'/'blink.png',
+    'stars_5_frame_up': assets/'teample_teams'/'background'/'5_stars_frame_up.png',
+    'stars_5_frame': assets/'teample_teams'/'background'/'5_stars_frame.png',
+    'stars_4_frame_up': assets/'teample_teams'/'background'/'4_stars_frame_up.png',
+    'stars_4_frame': assets/'teample_teams'/'background'/'4_stars_frame.png',
+    
+    'total_cards_bg':assets/'teample_teams'/'background'/'total_cards_bg.png',
+    
+    
+    'shadow_3_lc': assets/'teample_teams'/'lk'/'3_shadow_lc.png',
+    'star_3_frame': assets/'teample_teams'/'lk'/'3_star_frame.png',
+    'star_3_frame_lc': assets/'teample_teams'/'lk'/'3_star_frame_lc.png',
+    
+    'shadow_4_lc': assets/'teample_teams'/'lk'/'4_shadow_lc.png',
+    'star_4_frame': assets/'teample_teams'/'lk'/'4_star_frame.png',
+    'star_4_frame_lc': assets/'teample_teams'/'lk'/'4_star_frame_lc.png',
+    
+    'shadow_5_lc': assets/'teample_teams'/'lk'/'5_shadow_lc.png',
+    'star_5_frame': assets/'teample_teams'/'lk'/'5_star_frame.png',
+    'star_5_frame_lc': assets/'teample_teams'/'lk'/'5_star_frame_lc.png',
+    
+    'blic_lc': assets/'teample_teams'/'lk'/'blic.png',
+    'frame_lc': assets/'teample_teams'/'lk'/'frame_lc.png',
+    'mask_lc_all': assets/'teample_teams'/'lk'/'mask.png',
+    'maska_lc': assets/'teample_teams'/'lk'/'maska_lc.png',
+    'ranket': assets/'teample_teams'/'lk'/'ranket.png',
+    'stats_lc': assets/'teample_teams'/'lk'/'stats.png',
+    'def_bg': assets/'teample_teams'/'lk'/'def_bg.png',
+    'dark': assets/'teample_teams'/'lk'/'dark.png',
+    "stars_lc": assets/'teample_teams'/'lk'/'stars.png',
+    
+    'const_five': assets/'teample_teams'/'const'/'bg.png',
+    'bg_dop_skills': assets/'teample_teams'/'skills'/'bg_dop.png',
+    'bg_dop_closed': assets/'teample_teams'/'skills'/'closed.png',
+    
+    'stars_1_frame_relict': assets/'teample_teams'/'relic'/'1_stars.png',
+    'stars_2_frame_relict': assets/'teample_teams'/'relic'/'2_stars.png',
+    'stars_3_frame_relict': assets/'teample_teams'/'relic'/'3_stars.png',
+    'stars_4_frame_relict': assets/'teample_teams'/'relic'/'4_stars.png',
+    'stars_5_frame_relict': assets/'teample_teams'/'relic'/'5_stars.png',
+    'shadow_frame_relict': assets/'teample_teams'/'relic'/'shadow.png',
+    
+    
+    'wind_five': assets/'teample_teams'/'background'/'wind.png',
+    'quantom_five': assets/'teample_teams'/'background'/'quantom.png',
+    'imaginary_five': assets/'teample_teams'/'background'/'imaginary.png',
+    'ice_five': assets/'teample_teams'/'background'/'ice.png',
+    'fire_five': assets/'teample_teams'/'background'/'fire.png',
+    'electro_five': assets/'teample_teams'/'background'/'electro.png',
+    'psyhical_five': assets/'teample_teams'/'background'/'psyhical.png',
+    
+    
+
+    
 }
 
 
