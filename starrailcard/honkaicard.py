@@ -2,7 +2,7 @@
 # All rights reserved.
 
 from .src.tools import translation, pill, modal, openFile
-from .src.generators import one, two, tree, author, profile
+from .src.generators import one, two, tree,four,five, author, profile, relicts
 from honkairail import starrailapi
 import asyncio,re,os,datetime
 
@@ -35,7 +35,7 @@ async def saveBanner(uid, res, name):
     res.save(file_path)
 
 class MiHoMoCard():
-    def __init__(self,lang = "ru", characterImgs = None, characterName = None, hide = False, save = False, background = True, template = 1, seeleland = False):
+    def __init__(self,lang = "en", characterImgs = None, characterName = None, hide = False, save = False, background = True, template = 3, seeleland = False):
 
         """
         :param lang: str, What language to receive information supported:  en, ru, vi, th, pt, kr, jp, zh, id, fr, es, de, chs, cht.
@@ -50,8 +50,8 @@ class MiHoMoCard():
         
         self.template = template
 
-        if not int(template) in [1,2,3]:
-            self.template = 1
+        if not int(template) in [1,2,3,4,5]:
+            self.template = 3
 
         if not lang in translation.supportLang:
             self.lang = "en"
@@ -89,7 +89,10 @@ class MiHoMoCard():
             self.img = await pill.get_user_image(self.characterImgs[ids])
     
     async def creat(self, uid):
-        await openFile.change_font(self.lang)
+        if self.template == 4:
+            await openFile.change_font(self.lang, genshin_font = True)
+        else:
+            await openFile.change_font(self.lang)
         task = []
         data = await self.API.get_full_data(uid)
         user = {
@@ -102,6 +105,7 @@ class MiHoMoCard():
             },
             "player": data.player,
             "card": [],
+            "cards": "",
             "name": "",
             "id": "",
         }
@@ -122,12 +126,21 @@ class MiHoMoCard():
                 task.append(one.Creat(key, self.translateLang,self.img,self.hide,int(uid),remove_html_tags(data.player.nickname),self.background).start())
             elif self.template == 3:
                 task.append(tree.Creat(key, self.translateLang,self.img,self.hide,int(uid),self.seeleland).start())
+            elif self.template == 4:
+                task.append(four.Creat(key, self.translateLang,self.img,self.hide,int(uid),self.seeleland).start())
+            elif self.template == 5:
+                task.append(five.Creat(key, self.translateLang, self.img).start())
             else:
                 task.append(two.Creat(key, self.translateLang,self.img,self.hide,int(uid)).start())
 
         user["card"] = await asyncio.gather(*task)
 
+        if self.template == 5:
+            user["cards"] = await five.get_bg(self.background,user["card"])
+
         if self.save:
+            if self.template == 5:
+                await saveBanner(uid,user["cards"], "total")
             for keys in user["card"]:
                 await saveBanner(uid,keys["card"], keys["name"])
 
@@ -135,6 +148,7 @@ class MiHoMoCard():
     
     async def get_profile(self, uid, banner = None, card = False):
         data = await self.API.get_full_data(uid)
+        
         user = {
             "settings": {
                 "uid": int(uid),
@@ -159,6 +173,54 @@ class MiHoMoCard():
             
 
         return modal.HSRCard(**user)
+
+    async def get_relict(self,uid,charter_id, position = None):
+        """
+        :param position: int, Relic position from 1 to 6.
+        :param charter_id: int, The character ID of the relic to get.
+        """
+        if not position is None:
+            if position < 1 and position > 6:
+                raise TypeError("Argument: position expects a number between 1 and 6")
+
+        await openFile.change_font(self.lang, genshin_font = True)
+
+        result = {
+            "uid": uid,
+            "card": None,
+            "charter_id": charter_id,
+            "relict": [],
+        }
+
+        data = await self.API.get_full_data(uid)
+        for character in data.characters:
+            if int(character.id) == int(charter_id):
+                if not position is None:
+                    for z in character.relics:
+                        if z.id[-1:] == str(position):
+                            result["relict"] = [await relicts.creat(z,character.id,position,name_charter= character.name)]
+                else:
+                    relic_tasks = [relicts.creat(key,character.id,key.id[-1:], name_charter= character.name) for key in character.relics]
+                    result["relict"] = await asyncio.gather(*relic_tasks)
+
+        if not position is None:
+            result["card"] = result["relict"][0].card
+        else:
+            positione = [
+                (40,40),(593,40),
+                (40,401),(593,401),
+                (1146,40),(1146,401),
+            ]
+
+            card_bg = openFile.ImageCache().relict_total_bg.convert("RGBA")
+
+            for key in result["relict"]:
+                card_bg.alpha_composite(key.card, positione[key.position-1])
+            
+            result["card"] = card_bg
+
+        return modal.StarRailRelict(**result)
+
 
     async def add_author(self, card, link = "", name = "", profile = False):
         """
@@ -201,8 +263,28 @@ class MiHoMoCard():
         
         return card
             
+
+class StarRaillScore:
+    def __init__(self, chart_id, relict) -> None:
+        """
+        :param chart_id: int, Character id
+        :param relict: class, the object you get from the method: get_relict()
+        """
         
-
-
-
+        if relict == []:
+            raise TypeError("Doesn't accept lists. Only 1 relic")
         
+        if not relict.position:
+            raise TypeError("Pass an object of the RelictData class, you can get it using the method: get_relict()")
+        
+        self.relict = relict
+        self.chart_id = chart_id
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        pass
+
+    async def calculate(self):
+        return await relicts.creat(self.relict.relict,self.chart_id,self.relict.position)
