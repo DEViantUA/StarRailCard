@@ -118,6 +118,16 @@ asyncio.run(mains())
 
 
 <details>
+<summary>Sample 5 template</summary>
+ 
+[![Adaptation][6]][6]
+ 
+[6]: https://github.com/DEViantUA/StarRailCard/blob/main/documentation/a-26.png?raw=true
+ 
+</details>
+
+
+<details>
 <summary>Sample profile template</summary>
  
 [![Adaptation][1]][1]
