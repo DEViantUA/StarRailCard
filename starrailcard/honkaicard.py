@@ -105,7 +105,7 @@ class MiHoMoCard():
             },
             "player": data.player,
             "card": [],
-            "cards": "",
+            "cards": None,
             "name": "",
             "id": "",
         }
