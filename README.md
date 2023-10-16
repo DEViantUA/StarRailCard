@@ -135,3 +135,6 @@ asyncio.run(mains())
 [1]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-22.png
  
 </details>
+
+# Thank the author for the code: 
+* [Patreon](patreon.com/deviantapi)
