@@ -137,4 +137,4 @@ asyncio.run(mains())
 </details>
 
 # Thank the author for the code: 
-* [Patreon](https://www.patreon.com/deviantapi)
+* **Patreon**: https://www.patreon.com/deviantapi
