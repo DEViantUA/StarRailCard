@@ -4,20 +4,48 @@ from PIL import Image
 import threading
 from weakref import WeakValueDictionary
 from pathlib import Path
+import os
+
+def determine_font_path_automatically(font_file = 'Times New Roman.ttf'):
+    font_dirs = [
+        '/usr/share/fonts',          
+        '/usr/local/share/fonts',    
+        '/Library/Fonts',           
+    ]
+        
+    for font_dir in font_dirs:
+        font_path = os.path.join(font_dir, font_file)
+        if os.path.isfile(font_path):
+            return font_path
+
+    return None
 
 assets = Path(__file__).parent.parent / 'assets'
 font = str(assets / 'font' / 'NotoSansKR-Bold.otf')
 
-async def change_font(x,genshin_font = False):
-    global font
-    if genshin_font:
-        font = str(assets / 'font' / 'Genshin_Impact.ttf')
-    else:
-        if x == "cn":
-            font = str(assets / 'font' / 'NotoSansCJKsc-Bold.otf')
-        else:
-            font = str(assets / 'font' / 'NotoSansKR-Bold.otf')
 
+
+async def change_font(x,genshin_font = False, font_path = None):
+    global font
+    if font_path is None:
+        if genshin_font:
+            font = str(assets / 'font' / 'Genshin_Impact.ttf')
+        else:
+            if x == "cn":
+                font = str(assets / 'font' / 'NotoSansCJKsc-Bold.otf')
+            else:
+                font = str(assets / 'font' / 'NotoSansKR-Bold.otf')
+    else:
+        font_path = os.path.abspath(font_path)
+        if os.path.isfile(font_path):
+            font = font_path 
+        else:
+            font_path = determine_font_path_automatically(font_path)
+            if font_path is None:
+                if x == "cn":
+                    font = str(assets / 'font' / 'NotoSansCJKsc-Bold.otf')
+                else:
+                    font = str(assets / 'font' / 'NotoSansKR-Bold.otf')
 
 mapping = {
     'total_bg': assets/'bg'/'bg.png',
@@ -265,7 +293,7 @@ mapping = {
     'blic_lc': assets/'teample_teams'/'lk'/'blic.png',
     'frame_lc': assets/'teample_teams'/'lk'/'frame_lc.png',
     'mask_lc_all': assets/'teample_teams'/'lk'/'mask.png',
-    'maska_lc': assets/'teample_teams'/'lk'/'maska_lc.png',
+    'maska_lc_teams': assets/'teample_teams'/'lk'/'maska_lc.png',
     'ranket': assets/'teample_teams'/'lk'/'ranket.png',
     'stats_lc': assets/'teample_teams'/'lk'/'stats.png',
     'def_bg': assets/'teample_teams'/'lk'/'def_bg.png',

@@ -42,11 +42,17 @@ async def get_dowload_img(link,size = None, thumbnail_size = None):
     try:
         if "pximg" in link:
             async with aiohttp.ClientSession(headers=headers) as session, session.get(link) as r:
-                image = await r.read()
+                try:
+                    image = await r.read()
+                finally:
+                    await session.close()
         else:
             async with aiohttp.ClientSession() as session:
                 async with session.get(link) as response:
-                    image = await response.read()
+                    try:
+                        image = await response.read()
+                    finally:
+                        await session.close()
     except:
         raise
     
@@ -436,16 +442,39 @@ async def creat_user_image(img, teampl = "1", shadow = None, bg = None):
     
     return bg
 
-async def creat_user_image_tree(img):
+async def creat_user_image_tree(img,characterBackgroundimg,backgroundBlur):
     bg = Image.new("RGBA", (1924,802), (36,36,36,255))
     userImagess = await ImageCreat((582,802),img).get_centry_image(baseheight = 802, basewidth = 582, baseheight_wide = None, centry = 291)
-    grandient = await GradientGenerator(userImagess).generate(1,802, left= True)
-    grandient = grandient.resize((1350,802))
-    bg.alpha_composite(grandient.convert("RGBA"),(0,0))
-    grandient = ImageChops.soft_light(bg, openFile.ImageCache().overlay.convert("RGBA"))
-    grandient.alpha_composite(openFile.ImageCache().art_frame,(0,0))
-    userImagess.alpha_composite(openFile.ImageCache().shadow_art,(0,0))
-    grandient.alpha_composite(userImagess,(1342,0))
+    if characterBackgroundimg is None:
+        grandient = await GradientGenerator(userImagess).generate(1,802, left= True)
+        grandient = grandient.resize((1350,802))
+        bg.alpha_composite(grandient.convert("RGBA"),(0,0))
+        grandient = ImageChops.soft_light(bg, openFile.ImageCache().overlay.convert("RGBA"))
+        grandient.alpha_composite(openFile.ImageCache().art_frame,(0,0))
+        userImagess.alpha_composite(openFile.ImageCache().shadow_art,(0,0))
+        grandient.alpha_composite(userImagess,(1342,0))
+    else:
+        #ТУТ ДОБАВЛЯЕМ ФОН ПОЛЬЗОВАТЕЛЯ
+        if backgroundBlur:
+            shadow = Image.new("RGBA", (1350,802), (0,0,0,20))
+            bgmagess = await ImageCreat((1350,802),characterBackgroundimg).get_centry_image(baseheight = 802, basewidth = 1350, baseheight_wide = None, centry = 675)
+            grandient = bgmagess.filter(ImageFilter.GaussianBlur(5))
+            grandient.alpha_composite(shadow,(0,0))
+            bg.alpha_composite(grandient.convert("RGBA"),(0,0))
+            grandient = ImageChops.soft_light(bg, openFile.ImageCache().overlay.convert("RGBA"))
+            grandient.alpha_composite(openFile.ImageCache().art_frame,(0,0))
+            userImagess.alpha_composite(openFile.ImageCache().shadow_art,(0,0))
+            grandient.alpha_composite(userImagess,(1342,0))
+            #ТУТ РАЗМЫВАЕМ и ДОБАВЛЕМ ТЕНЬ
+        else:
+            shadow = Image.new("RGBA", (1350,802), (0,0,0,20))
+            grandient = await ImageCreat((1350,802),characterBackgroundimg).get_centry_image(baseheight = 802, basewidth = 1350, baseheight_wide = None, centry = 675)
+            grandient.alpha_composite(shadow,(0,0))
+            bg.alpha_composite(grandient.convert("RGBA"),(0,0))
+            grandient = ImageChops.soft_light(bg, openFile.ImageCache().overlay.convert("RGBA"))
+            grandient.alpha_composite(openFile.ImageCache().art_frame,(0,0))
+            userImagess.alpha_composite(openFile.ImageCache().shadow_art,(0,0))
+            grandient.alpha_composite(userImagess,(1342,0))
 
     return grandient
 
@@ -502,7 +531,7 @@ async def get_centr_honkai_art(size, file_name):
 
 
 
-async def apply_blur_and_overlay(img, output_size):
+async def apply_blur_and_overlay(img):
     background = Image.new("RGBA", (681, 459), (0, 0, 0, 0))
 
     overlay = await get_centr_honkai_art((694, 802),img)

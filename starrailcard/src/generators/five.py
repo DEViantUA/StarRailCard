@@ -182,7 +182,7 @@ class Creat:
         image = await pill.get_dowload_img(self.character.light_cone.portrait, size=(298, 410))
         lc_img.alpha_composite(image,(19,23))
         
-        lc.paste(lc_img,(0,0),_of.maska_lc.convert("L"))
+        lc.paste(lc_img,(0,0),_of.maska_lc_teams.convert("L"))
         
         lc_img = Image.new("RGBA", (337, 448), (0, 0, 0, 0))
         shadow,total_frame,frame, color  = await get_lc_res(self.character.light_cone.rarity)

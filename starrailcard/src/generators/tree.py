@@ -83,13 +83,15 @@ async def max_lvl(x):
 
 class Creat:
 
-    def __init__(self,characters, lang,img,hide,uid,seeleland) -> None:
+    def __init__(self,characters, lang,img,hide,uid,seeleland,characterBackgroundimg,backgroundBlur) -> None:
         self.seeleland = seeleland
         self.character = characters
         self.lang = lang
         self.img = img
         self.hide = hide
         self.uid = uid
+        self.characterBackgroundimg = characterBackgroundimg
+        self.backgroundBlur = backgroundBlur
 
     async def creat_lk(self):
         bg_new = Image.new("RGBA", (401, 238), (0, 0, 0, 0))
@@ -132,7 +134,7 @@ class Creat:
     async def creat_charters(self):
         bg = _of.splash_art.copy()
         if self.img:
-            bg = await pill.creat_user_image_tree(self.img)
+            bg = await pill.creat_user_image_tree(self.img,self.characterBackgroundimg,self.backgroundBlur)
         else:
             bg = await pill.creat_bg_teample_two(self.character.portrait, bg, teample = 3)
         

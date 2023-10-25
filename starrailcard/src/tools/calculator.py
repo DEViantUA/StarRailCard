@@ -61,27 +61,27 @@ async def get_rating(relict,chart_id, position):
     Eff_Stat = 0
     value_main = 0
     if str(chart_id):
-        if relict.main_affix.type in data[str(chart_id)]["main"][position]:
-            value_main = data[str(chart_id)]["main"][position][relict.main_affix.type]
-    
-        i = 0
-        score = 0
-        for key in relict.sub_affix:
-            value = 0
-            if key.type in data[str(chart_id)]["weight"]:
-                if data[str(chart_id)]["weight"][key.type] > 0:
-                    Eff_Stat += 1
-                value = data[str(chart_id)]["weight"][key.type]
+        if str(chart_id) in data:
+            if relict.main_affix.type in data[str(chart_id)]["main"][position]:
+                value_main = data[str(chart_id)]["main"][position][relict.main_affix.type]
+        
+            i = 0
+            score = 0
+            for key in relict.sub_affix:
+                value = 0
+                if key.type in data[str(chart_id)]["weight"]:
+                    if data[str(chart_id)]["weight"][key.type] > 0:
+                        Eff_Stat += 1
+                    value = data[str(chart_id)]["weight"][key.type]
 
-            i += 1
-            score += value
+                i += 1
+                score += value
 
-        score += Eff_Stat * value_main
-        score = 55/10.0*score
+            score += Eff_Stat * value_main
+            score = 55/10.0*score
 
-        return score, await get_rank(score), Eff_Stat
-    else:
-        return 0, await get_rank(0), 0
+            return score, await get_rank(score), Eff_Stat
+    return 0, await get_rank(0), 0
 
 
 from pydantic import BaseModel

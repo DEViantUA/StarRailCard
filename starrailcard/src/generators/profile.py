@@ -124,7 +124,7 @@ class Creat:
         return bg
 
     async def creat_bg_banner(self):
-        frame_bg = await pill.apply_blur_and_overlay(self.img, (681, 459))
+        frame_bg = await pill.apply_blur_and_overlay(self.img)
         dark_shadow = Image.new("RGBA", (681, 459), (0, 0, 0, 190))
         frame_bg.alpha_composite(dark_shadow, (0,0))
 
