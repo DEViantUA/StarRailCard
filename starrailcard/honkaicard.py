@@ -6,20 +6,27 @@ from .src.generators import one, two, tree,four,five, author, profile, relicts
 from honkairail import starrailapi
 import asyncio,re,os,datetime
 
-def process_input(characterImgs, characterName):
+def process_input(characterImgs, characterName,characterBackground):
     if characterImgs:
         if isinstance(characterImgs, dict):
             characterImgs = {key.lower(): value for key, value in characterImgs.items()}
         else:
             raise TypeError("The charterImg parameter must be a dictionary, where the key is the name of the character, and the parameter is an image.\nExample: charterImg = {'Himeko': 'img.png'} or {'Himeko': 'img.png', 'Seele': 'img2.jpg', ...}")
 
+    if characterBackground:
+        if isinstance(characterBackground, dict):
+            characterBackground = {key.lower(): value for key, value in characterBackground.items()}
+        else:
+            raise TypeError("The characterBackground parameter must be a dictionary, where the key is the name of the character, and the parameter is an image.\nExample: charterImg = {'Himeko': 'img.png'} or {'Himeko': 'img.png', 'Seele': 'img2.jpg', ...}")
+
+    
     if characterName:
         if isinstance(characterName, str):
             characterName = [name.strip().lower() for name in characterName.split(",")]
         else:
             raise TypeError("The name parameter must be a string, to pass multiple names, list them separated by commas.\nExample: name = 'Himeko' or name = 'Himeko, Seele',..")
     
-    return characterImgs, characterName
+    return characterImgs, characterName,characterBackground
 
 
 def remove_html_tags(text):
@@ -35,7 +42,7 @@ async def saveBanner(uid, res, name):
     res.save(file_path)
 
 class MiHoMoCard():
-    def __init__(self,lang = "en", characterImgs = None, characterName = None, hide = False, save = False, background = True, template = 3, seeleland = False):
+    def __init__(self,lang = "en", characterImgs = None, characterName = None, characterBackground = None, backgroundBlur = False, hide = False, save = False, background = True, template = 3, seeleland = False, font = None):
 
         """
         :param lang: str, What language to receive information supported:  en, ru, vi, th, pt, kr, jp, zh, id, fr, es, de, chs, cht.
@@ -45,11 +52,14 @@ class MiHoMoCard():
         :param save: bool, Save images or not.
         :param background: bool, Generate image with or without background.
         :param seeleland: bool, Get information from the site: seeleland.com (Only for 3 patterns).
+        :param font: str, Name or path to the font file to replace.
 
         """        
-        
+        self.font = font
         self.template = template
-
+        self.backgroundBlur = backgroundBlur
+        
+        
         if not int(template) in [1,2,3,4,5]:
             self.template = 3
 
@@ -62,7 +72,7 @@ class MiHoMoCard():
         self.background = background
         
         try:
-            self.characterImgs, self.characterName = process_input(characterImgs, characterName)
+            self.characterImgs, self.characterName,self.characterBackground = process_input(characterImgs, characterName,characterBackground)
         except Exception as e:
             print(e.message)
             return
@@ -71,6 +81,8 @@ class MiHoMoCard():
         self.save = save
         self.hide = hide
         self.img = None
+        self.characterBackgroundimg = None
+        self.b = None
         self.seeleland = seeleland
 
     async def __aenter__(self):
@@ -79,6 +91,15 @@ class MiHoMoCard():
     async def __aexit__(self, *args):
         pass
     
+    async def get_characterBackgroundImg(self,name,ids):
+        if name in self.characterBackground:
+            self.characterBackgroundimg = await pill.get_user_image(self.characterBackground[name])
+        else:
+            self.characterBackgroundimg = None
+        
+        if ids in self.characterBackground:
+            self.characterBackgroundimg = await pill.get_user_image(self.characterBackground[ids])
+        
     async def characterImg(self,name,ids):
         if name in self.characterImgs:
             self.img = await pill.get_user_image(self.characterImgs[name])
@@ -89,10 +110,13 @@ class MiHoMoCard():
             self.img = await pill.get_user_image(self.characterImgs[ids])
     
     async def creat(self, uid):
-        if self.template == 4:
-            await openFile.change_font(self.lang, genshin_font = True)
+        if self.font is None:
+            if self.template == 4:
+                await openFile.change_font(self.lang, genshin_font = True)
+            else:
+                await openFile.change_font(self.lang)
         else:
-            await openFile.change_font(self.lang)
+            await openFile.change_font(self.lang, font_path = self.font)
         task = []
         data = await self.API.get_full_data(uid)
         user = {
@@ -122,10 +146,12 @@ class MiHoMoCard():
 
             if self.characterImgs:
                 await self.characterImg(key.name.lower(), str(key.id))
+            if self.characterBackground:
+                await self.get_characterBackgroundImg(key.name.lower(), str(key.id))
             if self.template == 1:
                 task.append(one.Creat(key, self.translateLang,self.img,self.hide,int(uid),remove_html_tags(data.player.nickname),self.background).start())
             elif self.template == 3:
-                task.append(tree.Creat(key, self.translateLang,self.img,self.hide,int(uid),self.seeleland).start())
+                task.append(tree.Creat(key, self.translateLang,self.img,self.hide,int(uid),self.seeleland,self.characterBackgroundimg,self.backgroundBlur).start())
             elif self.template == 4:
                 task.append(four.Creat(key, self.translateLang,self.img,self.hide,int(uid),self.seeleland).start())
             elif self.template == 5:
@@ -148,7 +174,10 @@ class MiHoMoCard():
     
     async def get_profile(self, uid, banner = None, card = False):
         data = await self.API.get_full_data(uid)
-        
+        if not self.font is None:
+            print(self.font)
+            await openFile.change_font(self.lang, font_path = self.font)
+            
         user = {
             "settings": {
                 "uid": int(uid),
