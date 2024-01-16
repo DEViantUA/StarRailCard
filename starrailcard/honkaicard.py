@@ -2,7 +2,7 @@
 # All rights reserved.
 
 from .src.tools import translation, pill, modal, openFile
-from .src.generators import one, two, tree,four,five, author, profile, relicts
+from .src.generators import one, two, tree,four,five, author, profile, relicts,two_new
 from honkairail import starrailapi
 import asyncio,re,os,datetime
 
@@ -113,6 +113,8 @@ class MiHoMoCard():
         if self.font is None:
             if self.template == 4:
                 await openFile.change_font(self.lang, genshin_font = True)
+            elif self.template == 2:
+                await openFile.change_font(self.lang, comf = True)
             else:
                 await openFile.change_font(self.lang)
         else:
@@ -157,7 +159,7 @@ class MiHoMoCard():
             elif self.template == 5:
                 task.append(five.Creat(key, self.translateLang, self.img).start())
             else:
-                task.append(two.Creat(key, self.translateLang,self.img,self.hide,int(uid)).start())
+                task.append(two_new.Creat(key, self.translateLang,self.img,self.hide,int(uid), self.seeleland).start())
 
         user["card"] = await asyncio.gather(*task)
 
@@ -175,7 +177,6 @@ class MiHoMoCard():
     async def get_profile(self, uid, banner = None, card = False):
         data = await self.API.get_full_data(uid)
         if not self.font is None:
-            print(self.font)
             await openFile.change_font(self.lang, font_path = self.font)
             
         user = {
