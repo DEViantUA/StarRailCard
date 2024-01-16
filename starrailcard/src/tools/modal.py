@@ -25,7 +25,6 @@ class PlayerV2(BaseModel):
     signature: Optional[str]
     friend_count: Optional[int]
     world_level: Optional[int]
-    birthday: Optional[str]
     space_info: SpaceInfo
 
 

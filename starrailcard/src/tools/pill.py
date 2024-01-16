@@ -4,8 +4,11 @@ from PIL import ImageFont,Image,ImageDraw,ImageChops,ImageFilter,ImageStat
 from io import BytesIO
 from . import openFile
 import aiohttp,re, json
+import colorsys
 from cachetools import TTLCache
-
+import numpy as np
+import colorsys
+from more_itertools import chunked
 
 async def get_font(size):
     return ImageFont.truetype(openFile.font, size)
@@ -55,8 +58,11 @@ async def get_dowload_img(link,size = None, thumbnail_size = None):
                         await session.close()
     except:
         raise
-    
-    image = Image.open(BytesIO(image)).convert("RGBA")
+    try:
+        image = Image.open(BytesIO(image)).convert("RGBA")
+    except:
+        #print(link)
+        image = Image.new("RGBA",(1,1),(0,0,0,0))
     if size:
         image = image.resize(size)
         cache[cache_key] = image
@@ -271,11 +277,15 @@ async def creat_bg_teample_two(image,bg,maska = None, teample = 2):
 
     return bg_element
 
-async def light_level(img):
-    stat = ImageStat.Stat(img)
-    return stat.mean[0]
+async def light_level(pixel_color):
+    h, l, s = colorsys.rgb_to_hls(*(x / 255 for x in pixel_color[:3]))    
+    return l
 
-async def recolor_image(image, target_color):
+async def recolor_image(image, target_color, light = False):
+    if light:
+        ll = await light_level(target_color)
+        if ll < 45:
+            target_color = await _get_light_pixel_color(target_color,up = True)
     if image.mode != 'RGBA':
         image = image.convert('RGBA')
 
@@ -287,7 +297,26 @@ async def recolor_image(image, target_color):
             r, g, b, a = pixels[i, j]
             if a != 0:  # Проверяем, является ли текущий пиксель непрозрачным
                 pixels[i, j] = target_color + (a,)  # Заменяем цвет, включая прозрачность
+    if light:
+        return image, target_color
     return image
+
+
+async def _get_light_pixel_color(pixel_color, up = False):
+    h, l, s = colorsys.rgb_to_hls(*(x / 255 for x in pixel_color[:3]))
+    if up:
+        l = min(max(0.6, l), 0.9)
+    else:
+        l = min(max(0.3, l), 0.8)
+    return tuple(round(x * 255) for x in colorsys.hls_to_rgb(h, l, s))
+  
+async def _get_dark_pixel_color(pixel_color):
+    h, l, s = colorsys.rgb_to_hls(*(x / 255 for x in pixel_color[:3]))
+    l = min(max(0.8, l), 0.2)
+    a = tuple(round(x * 255) for x in colorsys.hls_to_rgb(h, l, s))
+    
+    return  a
+
 
 class GradientGenerator:
     def __init__(self, source_img_path):
@@ -297,18 +326,15 @@ class GradientGenerator:
 
     async def generate(self, width, height, left = False):
         gradient_img = Image.new("RGB", (width, height))
-
-        # Вычисляем ширину и высоту каждой полосы градиента
         top_height = height // 3
         bottom_height = height // 3
         center_height = height - top_height - bottom_height
-        # Определяем координаты точек, с которых будем брать цвета
         if left:
             left = 3
             right = 4
         else:
-            left = self.source_width - 3
-            right = self.source_width - 2
+            left = self.source_width - 142
+            right = self.source_width - 141
         top_1 = 1
         bottom_1 = top_height - 1
         top_2 = top_height + 1
@@ -316,18 +342,28 @@ class GradientGenerator:
         top_3 = top_height + center_height + 1
         bottom_3 = height - 2
 
-        # Получаем цвета для каждой полосы
         top_color = await self._get_pixel_color(left, top_1, right, bottom_1)
-        if top_color[0] > 209 and top_color[1] > 209 and top_color[2] >  209:
-           top_color = (209,209,209)
-        center_color = await self._get_pixel_color(left, top_2, right, bottom_2)
-        if center_color[0] > 209 and center_color[1] > 209 and center_color[2] >  209:
-           center_color = (209,209,209)
-        bottom_color = await self._get_pixel_color(left, top_3, right, bottom_3)
-        if bottom_color[0] > 209 and bottom_color[1] > 209 and bottom_color[2] >  209:
-           bottom_color = (209,209,209)
+        ll = await light_level(top_color)
+        if ll < 45:
+            top_color = await _get_light_pixel_color(top_color)
+        elif ll > 200:
+            top_color = await _get_dark_pixel_color(top_color)
 
-        # Заполняем каждую полосу соответствующим цветом
+        center_color = await self._get_pixel_color(left, top_2, right, bottom_2)
+        
+        ll = await light_level(center_color)
+        if ll < 45:
+            center_color = await _get_light_pixel_color(center_color)
+        elif ll > 200:
+            center_color = await _get_dark_pixel_color(center_color)
+
+        bottom_color = await self._get_pixel_color(left, top_3, right, bottom_3)
+        ll = await light_level(bottom_color)
+        if ll < 45:
+            bottom_color = await _get_light_pixel_color(bottom_color)
+        elif ll > 200:
+            bottom_color = await _get_dark_pixel_color(bottom_color)
+
         for y in range(top_height):
             for x in range(width):
                 ratio = y / (top_height - 1)
@@ -345,17 +381,25 @@ class GradientGenerator:
                 gradient_color = bottom_color
                 gradient_img.putpixel((x, y + top_height + center_height), gradient_color)
 
-        gradient_img
         return gradient_img
 
     async def _get_pixel_color(self, left, top, right, bottom):
         cropped_img = self.source_img.crop((left, top, right, bottom))
         resized_img = cropped_img.convert("RGB").resize((1, 1))
-        return resized_img.getpixel((0, 0))
-
+        pixel_color = resized_img.getpixel((0, 0))
+        
+        return pixel_color
+    
     def _get_interpolated_color(self, start_color, end_color, ratio):
         return tuple(int(start_color[i] + (end_color[i] - start_color[i]) * ratio) for i in range(3))
 
+async def apply_opacity(image, opacity=0.2):
+    result_image = image.copy()
+    alpha = result_image.split()[3]
+    alpha = alpha.point(lambda p: int(p * opacity))
+    result_image.putalpha(alpha)
+
+    return result_image
 
 class ImageCreat():
     def __init__(self, size, source_img):
@@ -457,7 +501,7 @@ async def creat_user_image_tree(img,characterBackgroundimg,backgroundBlur):
         #ТУТ ДОБАВЛЯЕМ ФОН ПОЛЬЗОВАТЕЛЯ
         if backgroundBlur:
             shadow = Image.new("RGBA", (1350,802), (0,0,0,20))
-            bgmagess = await ImageCreat((1350,802),characterBackgroundimg).get_centry_image(baseheight = 802, basewidth = 1350, baseheight_wide = None, centry = 675)
+            bgmagess = await ImageCreat((1350,802),characterBackgroundimg).get_centry_image(baseheight = 802, basewidth = 1350, baseheight_wide = 900, centry = 675)
             grandient = bgmagess.filter(ImageFilter.GaussianBlur(5))
             grandient.alpha_composite(shadow,(0,0))
             bg.alpha_composite(grandient.convert("RGBA"),(0,0))
@@ -468,7 +512,7 @@ async def creat_user_image_tree(img,characterBackgroundimg,backgroundBlur):
             #ТУТ РАЗМЫВАЕМ и ДОБАВЛЕМ ТЕНЬ
         else:
             shadow = Image.new("RGBA", (1350,802), (0,0,0,20))
-            grandient = await ImageCreat((1350,802),characterBackgroundimg).get_centry_image(baseheight = 802, basewidth = 1350, baseheight_wide = None, centry = 675)
+            grandient = await ImageCreat((1350,802),characterBackgroundimg).get_centry_image(baseheight = 802, basewidth = 1350, baseheight_wide = 900, centry = 675)
             grandient.alpha_composite(shadow,(0,0))
             bg.alpha_composite(grandient.convert("RGBA"),(0,0))
             grandient = ImageChops.soft_light(bg, openFile.ImageCache().overlay.convert("RGBA"))
@@ -493,14 +537,7 @@ async def creat_user_image_four(img):
     grandient = await GradientGenerator(userImagess).generate(1,802)
     grandient = grandient.resize((1924,802)).convert("RGBA")
     
-    light = await light_level(grandient)
-
-    if light > 100:
-        #МЯГКИЙ СВЕТ
-        grandient = ImageChops.soft_light(grandient, openFile.ImageCache().effect_soft.convert("RGBA"))
-    else:
-        grandient = ImageChops.overlay(grandient, openFile.ImageCache().effect_overlay.convert("RGBA"))
-        #ЭКРАН
+    grandient = ImageChops.soft_light(grandient, openFile.ImageCache().effect_soft.convert("RGBA"))
     bg.alpha_composite(grandient,(0,0))
     bg.alpha_composite(userImagess,(0,0))
     bg.paste(grandient.resize((1924,802)),(0,0),openFile.ImageCache().maska_background.convert("L"))
@@ -512,7 +549,7 @@ async def get_centr_honkai_art(size, file_name):
     foreground_image = file_name.convert("RGBA")
 
     scale = max(size[0] / foreground_image.size[0], size[1] / foreground_image.size[1])
-    foreground_image = foreground_image.resize((int(foreground_image.size[0] * scale), int(foreground_image.size[1] * scale)), resample=Image.LANCZOS)
+    foreground_image = foreground_image.resize((int(foreground_image.size[0] * scale), int(foreground_image.size[1] * scale)))
 
     background_size = background_image.size
     foreground_size = foreground_image.size
@@ -541,3 +578,152 @@ async def apply_blur_and_overlay(img):
     background.alpha_composite(overlay_blurred,(0,-343))
 
     return background
+
+
+
+async def get_average_color(image):
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+    
+    channels = image.split()
+    
+    return (
+        round(np.average(channels[0], weights=channels[-1])),
+        round(np.average(channels[1], weights=channels[-1])),
+        round(np.average(channels[2], weights=channels[-1])),
+    )
+
+
+async def get_dominant_colors(
+    image,
+    number,
+    *,
+    dither=Image.Quantize.FASTOCTREE,
+    common=True,
+):
+    if image.mode != 'RGB':
+        if image.mode != 'RGBA':
+            image = image.convert('RGBA')
+        
+        if not common:
+            width = image.width
+            height = image.height
+            
+            image = Image.fromarray(np.array([np.repeat(
+                np.reshape(image.convert('RGB'), (width * height, 3)),
+                np.reshape(image.split()[-1], width * height),
+                0,
+            )]), 'RGB')
+    
+    if image.mode == 'RGBA':
+        if dither == Image.Quantize.FASTOCTREE:
+            simple_image = image.copy()
+            simple_image.putalpha(255)
+        else:
+            simple_image = image.convert('RGB')
+    else:
+        simple_image = image
+    
+    reduced = simple_image.quantize(dither=dither, colors=number)
+    
+    palette = [*chunked(reduced.getpalette(), 3)]
+    
+    if common and image.mode == 'RGBA':
+        alpha = np.array(image.split()[-1])
+        
+        colors = sorted((
+            (
+                np.sum(alpha * reduced.point([0] * i + [1] + [0] * (255 - i))),
+                tuple(palette[i]),
+            )
+            for _, i in reduced.getcolors()
+        ), reverse=True)
+    else:
+        colors = [
+            (n, tuple(palette[i]))
+            for n, i in sorted(reduced.getcolors(), reverse=True)
+        ]
+    
+    return tuple(colors)
+
+
+async def get_distance_alpha(image, converter=(lambda x: x)):
+    width = image.width
+    height = image.height
+    
+    radius = np.hypot(1, 1)
+    
+    return Image.fromarray(np.fromfunction(
+        lambda y, x: np.uint8(255 * converter(np.hypot(
+            2 * x / (width - 1) - 1,
+            2 * y / (height - 1) - 1,
+        ) / radius)),
+        (height, width),
+    ), 'L')
+
+
+async def get_background_alpha(image):
+    return await get_distance_alpha(
+        image,
+        lambda x: x * np.sin(x * np.pi / 2),
+    )
+
+
+async def get_foreground_alpha(image):
+    return await get_distance_alpha(
+        image,
+        lambda x: 1 - x * np.sin(x * np.pi / 2),
+    )
+
+async def get_background_colors(image,number,*,common=False,radius=1,quality=None):
+    if quality is not None:
+        image = image.copy()
+        image.thumbnail((quality, quality), 0)
+    
+    if radius > 1:
+        image = image.filter(ImageFilter.BoxBlur(radius))
+    
+    filtered_image = image.convert('RGB')
+    
+    if image.mode != 'RGBA':
+        filtered_image.putalpha(await get_background_alpha(image))
+    else:
+        filtered_image.putalpha(Image.fromarray(np.uint8(
+            np.uint16(await get_background_alpha(image))
+            * image.split()[-1]
+            / 255
+        ), 'L'))
+    
+    color_palette = await get_dominant_colors(filtered_image, number, common=common)
+    color_palette = color_palette[0][1]
+    ll = await light_level(color_palette)
+    if ll < 0.15:
+        color_palette = await _get_light_pixel_color(color_palette)
+    elif ll > 0.80:
+        color_palette = await _get_dark_pixel_color(color_palette)
+        
+        
+    return color_palette
+     
+
+
+async def get_foreground_colors(image,number,*,common=False,radius=1,quality=None):
+    if quality is not None:
+        image = image.copy()
+        image.thumbnail((quality, quality), 0)
+    
+    if radius > 1:
+        image = image.filter(ImageFilter.BoxBlur(radius))
+    
+    filtered_image = image.convert('RGB')
+    
+    if image.mode != 'RGBA':
+        filtered_image.putalpha(await get_foreground_alpha(image))
+    else:
+        filtered_image.putalpha(Image.fromarray(np.uint8(
+            np.uint16(await  get_foreground_alpha(image))
+            * image.split()[-1]
+            / 255
+        ), 'L'))
+    
+    return await  get_dominant_colors(filtered_image, number, common=common)

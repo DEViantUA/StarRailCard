@@ -21,20 +21,19 @@ def determine_font_path_automatically(font_file = 'Times New Roman.ttf'):
     return None
 
 assets = Path(__file__).parent.parent / 'assets'
-font = str(assets / 'font' / 'NotoSansKR-Bold.otf')
+font = str(assets / 'font' / 'NotoSansKR-Bold.ttf')
 
 
 
-async def change_font(x,genshin_font = False, font_path = None):
+async def change_font(x,genshin_font = False, comf = False, font_path = None):
     global font
     if font_path is None:
         if genshin_font:
             font = str(assets / 'font' / 'Genshin_Impact.ttf')
+        elif comf:
+            font = str(assets / 'font' / 'font_hsr.ttf')
         else:
-            if x == "cn":
-                font = str(assets / 'font' / 'NotoSansCJKsc-Bold.otf')
-            else:
-                font = str(assets / 'font' / 'NotoSansKR-Bold.otf')
+            font = str(assets / 'font' / 'NotoSansKR-Bold.ttf')
     else:
         font_path = os.path.abspath(font_path)
         if os.path.isfile(font_path):
@@ -42,10 +41,7 @@ async def change_font(x,genshin_font = False, font_path = None):
         else:
             font_path = determine_font_path_automatically(font_path)
             if font_path is None:
-                if x == "cn":
-                    font = str(assets / 'font' / 'NotoSansCJKsc-Bold.otf')
-                else:
-                    font = str(assets / 'font' / 'NotoSansKR-Bold.otf')
+                font = str(assets / 'font' / 'NotoSansKR-Bold.ttf')
 
 mapping = {
     'total_bg': assets/'bg'/'bg.png',
@@ -87,51 +83,13 @@ mapping = {
 
     #TEAMPLE TWO
 
-    "bg_wind": assets/'teample_two'/'bg'/'ANEMO.png',
-    "bg_electro": assets/'teample_two'/'bg'/'ELECTRO.png',
-    "bg_fire": assets/'teample_two'/'bg'/'FIRE.png',
-    "bg_ice": assets/'teample_two'/'bg'/'ICE.png',
-    "bg_imaginary": assets/'teample_two'/'bg'/'IMAGINARY.png',
-    "bg_quantom": assets/'teample_two'/'bg'/'QUANTOM.png',
-    "bg_psyhical": assets/'teample_two'/'bg'/'PSYHICAL.png',
-    "MASKA_ART": assets/'teample_two'/'bg'/'MASKA_ART.png',
-    "MASKA_ART_CUSTUM": assets/'teample_two'/'bg'/'MASKA_ART_CUSTUM.png',
-    "MASKA_ARTS": assets/'teample_two'/'bg'/'MASKA_ARTS.png',
-    "shadow": assets/'teample_two'/'bg'/'SHADOW.png',
-    "effect_stars": assets/'teample_two'/'bg'/'stars.png',
-
-    "Maska_LC": assets/'teample_two'/'LC'/'Maska.png',
-    "shadow_LC": assets/'teample_two'/'LC'/'shadow.png',
-    "icons_LC": assets/'teample_two'/'LC'/'icons.png',
-
-    "bg_relic_ANEMO": assets/'teample_two'/'artifact'/'ANEMO.png',
-    "bg_relic_ELECTRO": assets/'teample_two'/'artifact'/'ELECTRO.png',
-    "bg_relic_FIRE": assets/'teample_two'/'artifact'/'FIRE.png',
-    "bg_relic_ICE": assets/'teample_two'/'artifact'/'ICE.png',
-    "bg_relic_IMAGINARY": assets/'teample_two'/'artifact'/'IMAGINARY.png',
-    "bg_relic_PSYHICAL": assets/'teample_two'/'artifact'/'PSYHICAL.png',
-    "bg_relic_QUANTOM": assets/'teample_two'/'artifact'/'QUANTOM.png',
-    "relic_mask": assets/'teample_two'/'artifact'/'maska.png',
-    "relic_frame": assets/'teample_two'/'artifact'/'frame.png',
-    "rank": assets/'teample_two'/'artifact'/'rank.png',
-    "sets_relic": assets/'teample_two'/'artifact'/'sets.png',
-
-    "stats_frame": assets/'teample_two'/'stats'/'bg.png',
-    "total_stats_frame": assets/'teample_two'/'artifact'/'rank_total.png',
-
-
-    "Knight": assets/'teample_two'/'path'/'Knight.png',
-    "Mage": assets/'teample_two'/'path'/'Mage.png',
-    "Priest": assets/'teample_two'/'path'/'Priest.png',
-    "Rogue": assets/'teample_two'/'path'/'Rogue.png',
-    "Shaman": assets/'teample_two'/'path'/'Shaman.png',
-    "Warlock": assets/'teample_two'/'path'/'Warlock.png',
-    "Warrior": assets/'teample_two'/'path'/'Warrior.png',
-
-    "path_closed": assets/'teample_two'/'path'/'closed.png',
-    "path_closed_dop": assets/'teample_two'/'path'/'closed_dop.png',
-    "path_count": assets/'teample_two'/'path'/'count.png',
-
+    "Knight": assets/'teample_two_new'/'path'/'Knight.png',
+    "Mage": assets/'teample_two_new'/'path'/'Mage.png',
+    "Priest": assets/'teample_two_new'/'path'/'Priest.png',
+    "Rogue": assets/'teample_two_new'/'path'/'Rogue.png',
+    "Shaman": assets/'teample_two_new'/'path'/'Shaman.png',
+    "Warlock": assets/'teample_two_new'/'path'/'Warlock.png',
+    "Warrior": assets/'teample_two_new'/'path'/'Warrior.png',
 
     #TEAMPLE TREE
     "shadow_bg": assets/'teample_tree'/'bg'/'shadow_bg.png',
@@ -176,6 +134,7 @@ mapping = {
 
 
     "seeleland": assets/"seeleland.png",
+    "seeleland_v2": assets/"seeleland_v2.png",
 
     #TEAMPLE PROFILE
     "default_bg": assets/'teample_profile'/"bg"/'default_bg.png',
@@ -321,7 +280,43 @@ mapping = {
     'psyhical_five': assets/'teample_teams'/'background'/'psyhical.png',
     
     
-
+    'background_default': assets/'teample_two_new'/'background'/'background_default.png',
+    'background_line': assets/'teample_two_new'/'background'/'line.png',
+    'background_maska_art': assets/'teample_two_new'/'background'/'maska_art.png',
+    'background_maska_blur': assets/'teample_two_new'/'background'/'maska_blur.png',
+    'background_overlay': assets/'teample_two_new'/'background'/'overlay.png',
+    'background_shadow': assets/'teample_two_new'/'background'/'shadow.png',
+    
+    
+    'light_cone_frame': assets/'teample_two_new'/'light_cone'/'frame.png',
+    'light_cone_frame_five': assets/'teample_two_new'/'light_cone'/'frame_five.png',
+    'light_cone_frame_four': assets/'teample_two_new'/'light_cone'/'frame_four.png',
+    'light_cone_frame_three': assets/'teample_two_new'/'light_cone'/'frame_three.png',
+    'light_cone_stats': assets/'teample_two_new'/'light_cone'/'stats.png',
+    'light_cone_ups': assets/'teample_two_new'/'light_cone'/'ups.png',
+    
+    
+    'relict_backgroundl_score_line': assets/'teample_two_new'/'relict'/'backgroundl_score_line.png',
+    'relict_full_score_line': assets/'teample_two_new'/'relict'/'full_score_line.png',
+    'relict_count_sets': assets/'teample_two_new'/'relict'/'count_sets.png',
+    'relict_frame_line': assets/'teample_two_new'/'relict'/'frame_line.png',    
+    'relict_line': assets/'teample_two_new'/'relict'/'line.png',
+    'relict_frame': assets/'teample_two_new'/'relict'/'relict_frame.png',
+    'relict_maska': assets/'teample_two_new'/'relict'/'relict_maska.png',
+    'relict_score_frame': assets/'teample_two_new'/'relict'/'score_frame.png',
+    'none_relict': assets/'teample_two_new'/'relict'/'none_relict.png',
+    
+    'g_five': assets/'teample_two_new'/'stars'/'g_five.png',
+    'g_four': assets/'teample_two_new'/'stars'/'g_four.png',
+    'g_three': assets/'teample_two_new'/'stars'/'g_three.png',
+    'g_two': assets/'teample_two_new'/'stars'/'g_two.png',
+    'g_one': assets/'teample_two_new'/'stars'/'g_one.png',
+    
+    'LOGO_GIT': assets/'teample_two_new'/'LOGO.png',
+    
+    'path_count': assets/'teample_two_new'/'path'/'count.png',
+    'path_closed_main': assets/'teample_two_new'/'path'/'closed_main.png',
+    'path_closed_dop': assets/'teample_two_new'/'path'/'closed_dop.png',
     
 }
 

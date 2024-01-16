@@ -15,11 +15,13 @@ supportLang= {"en":"en",
         "de":"de",
         "chs":"zh-cn",
         "cht":"zh-tw",
-        "kh":"en"
+        "kh":"en",
+        "ua":"ru"
     }
 
 translationLang = {"en":{"lvl": "LVL", "AR":"AR", "WL":"WL", "AC": "Achievements", "AB": "Abyss"}, 
         "ru": {"lvl": "Уровень", "AR":"РП", "WL":"УМ", "AC": "Достижения", "AB": "Бездна"},
+        "ua": {"lvl": "Рівень", "AR": "РП", "WL": "РС", "AC": "Досягнення", "AB": "Безодня"},
         "vi": {'lvl': 'Cấp độ ', 'AR': 'AR', 'WL': 'WL', 'AC': 'Thành tích ', 'AB': 'Vực thẳm'},
         "th": {'lvl': 'ระดับ ', 'AR': 'AR', 'WL': 'WL', 'AC': ' ความสำเร็จ ', 'AB': 'Abyss'},
         "pt": {'lvl': 'Nível ', 'AR': 'AR', 'WL': 'WL', 'AC': ' Conquistas ', 'AB': 'Abismo'},
