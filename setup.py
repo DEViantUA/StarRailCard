@@ -34,7 +34,7 @@ setup(
     long_description_content_type='text/markdown',
     package_data={
     'starrailcard': [
-        'src/Tools/**/*',
+        'src/tools/**/*',
         'src/generators/**/*',
         'src/assets/**/*',
     ],
