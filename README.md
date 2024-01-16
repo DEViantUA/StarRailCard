@@ -74,7 +74,6 @@ asyncio.run(mains())
 |  português  |     pt  | 한국어      |     kr  | deutsch    |     de  |
 |  日本語      |     jp  | 中文        |     zh  | español    |     es  |
 |  中文        |     zh  | Indonesian |     id  | français   |     fr  |
-|  Українська       |     ua  |  |       |    |       |
 
 
 
@@ -93,7 +92,7 @@ asyncio.run(mains())
  
 [![Adaptation][4]][4]
  
-[4]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-27.png
+[4]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-19.png
  
 </details>
 
