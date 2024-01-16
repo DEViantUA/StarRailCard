@@ -92,7 +92,7 @@ asyncio.run(mains())
  
 [![Adaptation][4]][4]
  
-[4]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-19.png
+[4]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-27.png
  
 </details>
 
