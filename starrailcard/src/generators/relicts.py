@@ -2,7 +2,7 @@
 # All rights reserved.
 import json
 from PIL import ImageDraw,Image
-from ..tools import pill, openFile, calculator, modal
+from ..tools import calculators, pill, openFile, modal
 
 _of = openFile.ImageCache()
 
@@ -129,7 +129,7 @@ async def creat(relics,character_id, indx, name_charter = None):
 
     bg_score = _of.relict_stats.copy()
 
-    score, rank, eff = await calculator.get_rating(relics,character_id,str(indx))
+    score, rank, eff = await calculators.get_rating(relics,character_id,str(indx))
     color = await get_quality_color(rank)
     color_eff = await get_eff_color(eff)
 

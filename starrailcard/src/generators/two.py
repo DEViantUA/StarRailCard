@@ -2,7 +2,7 @@
 # All rights reserved.
 import asyncio
 from PIL import ImageDraw,Image
-from ..tools import pill, openFile, treePaths, calculator
+from ..tools import calculators, pill, openFile, treePaths
 
 _of = openFile.ImageCache()
 
@@ -164,7 +164,6 @@ class Creat:
         draw.text((60,30), level, font=font, fill=(255, 255, 255, 255))
         return background_name
 
-
     async def creat_constant(self):
         background_skills = Image.new("RGBA", (68, 498), (0, 0, 0, 0))
         y = 0
@@ -195,7 +194,6 @@ class Creat:
         bg.alpha_composite(icon, (17, 16))
         bg.alpha_composite(loock, (0, 0))
         background.alpha_composite(bg.resize((68, 68)), (0, position))
-
 
     async def creat_charters(self):
         bg = await bg_element(self.character.element.id)
@@ -251,7 +249,6 @@ class Creat:
 
         return frame
 
-
     async def create_sub_affix_image(self, sub_affix, bg, position):
         icon = await pill.get_dowload_img(sub_affix.icon, size=(26, 26))
         value = sub_affix.display
@@ -300,7 +297,7 @@ class Creat:
 
         await asyncio.gather(*tasks)
 
-        score, rank, eff = await calculator.get_rating(relics,self.character.id,str(relics.id[-1:]))
+        score, rank, eff = await calculators.get_rating(relics,self.character.id,str(relics.id[-1:]))
         
         rank_bg = _of.rank.copy()
         color = await get_quality_color(rank)
@@ -527,15 +524,6 @@ class Creat:
             self.main_skills()
         )
 
-        '''
-        sets =  await self.create_sets()
-        bg =  await self.creat_charters() #-
-        const =  await self.creat_constant()
-        name = await self.creat_name_banner()
-        lc = await self.creat_lc() #-
-        stats = await self.creat_stats()
-        mainSkill = await self.main_skills() #-
-        '''
         relic_tasks = [self.creat_relics(key) for key in self.character.relics]
         relics = await asyncio.gather(*relic_tasks)
         bg_two.alpha_composite(bg, (0, 33))
@@ -561,7 +549,7 @@ class Creat:
         total_stats_frame = _of.total_stats_frame.copy()
         d = ImageDraw.Draw(total_stats_frame)
         font = await pill.get_font(23)
-        rank = await calculator.get_total_rank(total_score)
+        rank = await calculators.get_total_rank(total_score)
         color = await  get_quality_color(rank)
         color_eff = await  get_eff_color(total_eff)
 

@@ -2,7 +2,7 @@
 # All rights reserved.
 import asyncio, time
 from PIL import ImageDraw,Image
-from ..tools import pill, openFile, calculator
+from ..tools import calculators, pill, openFile
 from collections import defaultdict
 
 _of = openFile.ImageCache()

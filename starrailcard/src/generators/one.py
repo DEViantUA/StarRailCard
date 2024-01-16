@@ -304,7 +304,7 @@ class Creat:
 
         tasks = []
         for key in self.character.skill_trees:
-            res = await treePaths.get_tree(path, key.id)  # ["08", "09", "10"]
+            res = await treePaths.get_tree(path, key.id, key.anchor)  # ["08", "09", "10"]
             if res is None:
                 continue
             tasks.append(self.create_dop_stats_icon(bg_full, key, res, position.copy(), y))

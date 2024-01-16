@@ -2,11 +2,9 @@
 # All rights reserved.
 import asyncio
 from PIL import ImageDraw,Image
-from ..tools import pill, openFile, calculator
+from ..tools import calculators, pill, openFile
 
 _of = openFile.ImageCache()
-
-
 
 
 async def open_frame_lc(x):
@@ -434,13 +432,16 @@ class Creat:
     async def creat_seeleland(self):
         bg = _of.seeleland.copy()
         font = await pill.get_font(13)
-        data = await calculator.get_seeleland(self.uid, self.character.id)
+        data = await calculators.get_seeleland(self.uid, self.character.id)
         if data is None:
+            return None
+        if not "rank" in data:
+            print("Not Data")
             return None
         draw = ImageDraw.Draw(bg)
         draw.text((143, 3), str(data["sc"]), font=font, fill=(255, 255, 255, 255))
-        draw.text((136, 20), data["rank"], font=font, fill=(255, 255, 255, 255))
-        draw.text((127, 38), data["percrank"].replace("top ", ""), font=font, fill=(255, 255, 255, 255))
+        draw.text((136, 20), str(data["rank"]), font=font, fill=(255, 255, 255, 255))
+        draw.text((127, 38), data["rank"].replace("top ", ""), font=font, fill=(255, 255, 255, 255))
 
         return bg
 

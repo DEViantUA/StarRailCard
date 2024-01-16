@@ -2,7 +2,7 @@
 # All rights reserved.
 import asyncio
 from PIL import ImageDraw,Image
-from ..tools import pill, openFile, calculator
+from ..tools import calculators, pill, openFile
 
 _of = openFile.ImageCache()
 
@@ -246,7 +246,7 @@ class Creat:
             bg.alpha_composite(icon,position[i])
             d.text((position[i][0]+51, position[i][1]+4), str(k.display), font=font, fill=(255,255,255, 255))
         
-        score, rank, eff = await calculator.get_rating(relics,self.character.id,relics.id[-1:])
+        score, rank, eff = await calculators.get_rating(relics,self.character.id,relics.id[-1:])
         
 
         return {"img": bg, "stats": {"eff": eff, "score": score}}
@@ -385,7 +385,6 @@ class Creat:
 
         return total_bg
     
-
     async def creat_stats(self):
         bg_new = Image.new("RGBA", (745,492), (0,0,0,0))
         dop_bg = Image.new("RGBA", (745,300), (0,0,0,0))
@@ -439,7 +438,7 @@ class Creat:
                 bg_main_frame.alpha_composite(icon,position_icon_main[im])
 
 
-                name_text = await pill.create_image_text(f"{stat.name}:", 25, max_width=533, max_height=34, color=(255, 255, 255, 255))
+                name_text = await pill.create_image_text(f"{stat.name}:", 25, max_width=199, max_height=34, color=(255, 255, 255, 255))
                 bg_main_frame.alpha_composite(name_text, (position_icon_main[im][0]+40,position_text_main[im][1]))
 
                 x = position_text_main[im][0] - int(font.getlength(str(value)))
@@ -473,7 +472,7 @@ class Creat:
     async def creat_seeleland(self):
         bg = _of.seeleland.copy()
         font = await pill.get_font(13)
-        data = await calculator.get_seeleland(self.uid, self.character.id)
+        data = await calculators.get_seeleland(self.uid, self.character.id)
         if data is None:
             return None
         draw = ImageDraw.Draw(bg)

@@ -2,7 +2,7 @@
 # All rights reserved.
 import asyncio
 from PIL import ImageDraw,Image, ImageFilter
-from ..tools import pill, openFile, calculator
+from ..tools import calculators, pill, openFile
 
 _of = openFile.ImageCache()
 
