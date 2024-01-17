@@ -11,6 +11,10 @@ Module for generating Honkai Star Rail character cards
 * Ability to set a custom image.<br>
 * Flexible map settings.
 
+## Api:
+> You can use the API to generate cards if you are using a different programming language.
+[Documentation](https://github.com/DEViantUA/StarRailCard/wiki/StarRailCard-API)
+
 ## Installation:
 ```
 pip install starrailcard
