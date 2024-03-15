@@ -6,12 +6,12 @@ async def main():
         data = await card.creat_profile(700649319, style=2, background= "https://images4.alphacoders.com/133/1335400.png")
 
     print("Settings:")
-    print(f"  UID: {data.profile.uid}")
-    print(f"  Lang: {data.profile.lang}")
-    print(f"  Hide UID: {data.profile.hide_uid}")
-    print(f"  Save: {data.profile.save}")
-    print(f"  Force Update: {data.profile.force_update}")
-    print(f"  Style: {data.profile.style}")
+    print(f"  UID: {data.settings.uid}")
+    print(f"  Lang: {data.settings.lang}")
+    print(f"  Hide UID: {data.settings.hide_uid}")
+    print(f"  Save: {data.settings.save}")
+    print(f"  Force Update: {data.settings.force_update}")
+    print(f"  Style: {data.settings.style}")
     
     print("\nPlayer:")
     print(f"  UID: {data.player.uid}")
@@ -40,5 +40,7 @@ async def main():
     print("\nCharacter IDs:")
     for cid in data.character_id:
         print(f"  - {cid}")
+
+    print(f"\nCard: {data.card}")
 
 asyncio.run(main())
