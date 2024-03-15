@@ -1,3 +1,6 @@
+import asyncio
+import starrailcard
+
 async def main():
     async with starrailcard.MiHoMoCard() as card:
         print(card)        
