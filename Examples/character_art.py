@@ -13,7 +13,7 @@ character_art = {
 }
 
 async def main():
-    async with starrailcard.MiHoMoCard(character_art = character_art) as card:
+    async with starrailcard.Card(character_art = character_art) as card:
         print(card)
         
 asyncio.run(main())
