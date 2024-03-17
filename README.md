@@ -22,123 +22,33 @@ pip install starrailcard
 
 ## Launch:
 ``` python
-from starrailcard import honkaicard 
 import asyncio
+import starrailcard
 
-async def mains():
-    async with honkaicard.MiHoMoCard(template=1) as hmhm:
-        r = await hmhm.creat(700649319)
-        print(r)
+async def main():
+    async with starrailcard.Card() as card:
+        data = await card.creat(700649319, style=2)
+    print(data)
 
-asyncio.run(mains())
+asyncio.run(main())
 ```
-
-<details>
-<summary>Add image author</summary>
-
-``` python
-from starrailcard import honkaicard 
-import asyncio
-
-async def mains():
-    async with honkaicard.MiHoMoCard(template=1) as hmhm:
-        r = await hmhm.creat(700649319)
-        for key in r.card:
-            cards = await hmhm.add_author(link= "https://www.deviantart.com/dezzso", card= key.card)
-            #cards.save(f"{key.id}.png") #A function to save an image with the author's stamp added.
-        print(r)
-
-asyncio.run(mains())
-```
-</details>
-
 
 <details>
 <summary>Create a profile card.</summary>
 
 ``` python
-from starrailcard import honkaicard 
 import asyncio
+import starrailcard
 
-async def mains():
-    async with honkaicard.MiHoMoCard(template=1) as hmhm:
-        r = await hmhm.get_profile(700649319,  card = True)
-        print(r)
+async def main():
+    async with starrailcard.Card() as card:
+        data = await card.creat_profile(700649319)
+    print(data)
 
-asyncio.run(mains())
+asyncio.run(main())
 ```
-</details>
-
-
-## Languages Supported
-| Languege    |  Code   | Languege    |  Code   | Languege    |  Code   |
-|-------------|---------|-------------|---------|-------------|---------|
-|  English    |     en  |  русский    |     ru  |  Chinese    |    chs  |
-|  Tiếng Việt |     vi  |  ไทย        |     th  | Taiwan     |    cht  |
-|  português  |     pt  | 한국어      |     kr  | deutsch    |     de  |
-|  日本語      |     jp  | 中文        |     zh  | español    |     es  |
-|  中文        |     zh  | Indonesian |     id  | français   |     fr  |
-
-
-
-<details>
-<summary>Sample 1 template</summary>
- 
-[![Adaptation][3]][3]
- 
-[3]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-18.png
-  
-</details>
-
-
-<details>
-<summary>Sample 2 template</summary>
- 
-[![Adaptation][4]][4]
- 
-[4]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-27.png
- 
-</details>
-
-
-<details>
-<summary>Sample 3 template</summary>
- 
-[![Adaptation][2]][2]
- 
-[2]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-21.png
- 
-</details>
-
-
-<details>
-<summary>Sample 4 template</summary>
- 
-[![Adaptation][5]][5]
- 
-[5]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-25.png
- 
-</details>
-
-
-<details>
-<summary>Sample 5 template</summary>
- 
-[![Adaptation][6]][6]
- 
-[6]: https://github.com/DEViantUA/StarRailCard/blob/main/documentation/a-26.png?raw=true
- 
-</details>
-
-
-<details>
-<summary>Sample profile template</summary>
- 
-[![Adaptation][1]][1]
- 
-[1]: https://raw.githubusercontent.com/DEViantUA/StarRailCard/main/documentation/a-22.png
- 
 </details>
 
 # Thank the author for the code: 
 * **Patreon**: https://www.patreon.com/deviantapi
+* **Ko-Fi**: https://ko-fi.com/dezzso
