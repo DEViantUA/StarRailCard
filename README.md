@@ -5,7 +5,7 @@
 ____
 
 ## StarRailCard
-Module for generating Honkai Star Rail character cards
+Welcome to the world of StarRailCard – your magical guide to the universe of Honkai Star Rail! This Python module provides the ability to create captivating character cards based on player data from Honkai Star Rail, obtained through their unique user identifiers (UIDs). StarRailCard streamlines the process of generating personalized character assembly cards, relying on the information provided by players.
 
 * Ability to generate with or without background.<br>
 * Ability to set a custom image.<br>
