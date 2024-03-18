@@ -1,6 +1,0 @@
-Pillow>=10.0.1
-honkairail>=1.1.4
-python>=3.9
-
-[dev]
-cachetools>=5.3.1
