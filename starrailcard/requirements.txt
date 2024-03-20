@@ -1,0 +1,10 @@
+aiofiles
+aiohttp
+cachetools
+imageio
+moviepy
+more-itertools
+numpy
+Pillow
+pydantic
+beautifulsoup4
