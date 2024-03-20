@@ -39,7 +39,7 @@ class Card:
         
     async def __aenter__(self):
         cashe.Cache.get_cache(maxsize = self.cashe.get("maxsize", 150), ttl = self.cashe.get("ttl", 300))
-        self.session = await http.AioSession.get_session()
+        self.session = await http.AioSession.creat_session()
         
         await git.ImageCache.set_assets_dowload(self.asset_save)
         
