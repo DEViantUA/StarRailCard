@@ -8,6 +8,16 @@ import json
 class AioSession:
     _session = None
     _semaphore = asyncio.Semaphore(5)
+
+    @classmethod
+    async def creat_session(cls):
+        """Creates a session
+        Returns:
+            aiohttp.ClientSession: The session instance.
+        """
+        cls._session = aiohttp.ClientSession()
+        
+        return cls._session
     
     @classmethod
     async def get_session(cls):
