@@ -5,7 +5,7 @@
 [![PyPi](https://img.shields.io/pypi/v/starrailcard?label=PyPi)](https://pypi.org/project/starrailcard/)
 [![Telegram](https://img.shields.io/badge/Telegram-gray)](https://t.me/enkacardchat)
 [![License](https://img.shields.io/badge/License-MIT%20with%20Additional%20Restrictions-blue)](https://github.com/DEViantUA/StarRailCard/blob/main/LICENSE)
-![GitHub size](https://img.shields.io/github/repo-size/DEViantUA/StarRailCard?label=GitHub%20size)
+![GitHub size](https://img.shields.io/github/repo-size/DEViantUA/StarRailCard?label=GitHub%20size&branch=main)
 ![GitHub issues](https://img.shields.io/github/issues/DEViantUA/StarRailCard?label=Issues%20Count)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/DEViantUA/StarRailCard?label=Pull%20Count)
 ![GitHub stars](https://img.shields.io/github/stars/DEViantUA/StarRailCard?label=Stars%20Count)
