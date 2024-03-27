@@ -5,7 +5,12 @@
 from pydantic import BaseModel
 from PIL import Image
 from typing import List ,Optional,Final, Union
-from moviepy.editor import ImageSequenceClip
+
+try:
+    from moviepy.editor import ImageSequenceClip
+except:
+    pass
+    
 import numpy as np
 
 from ..tools.ukrainization import TranslateDataManager
