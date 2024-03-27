@@ -61,6 +61,8 @@ class Calculator:
         }
     
     def get_rolls(self,rarity, stats):
+        if rarity < 3:
+            return 0
         low = self.rolls[stats.type][str(rarity)][0]
         mid = self.rolls[stats.type][str(rarity)][1]
         high = self.rolls[stats.type][str(rarity)][2]
