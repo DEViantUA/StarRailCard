@@ -1,10 +1,10 @@
 # Copyright 2024 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
 
-from enum import  StrEnum, Enum
+from enum import Enum
 from pathlib import Path
     
-class Ukrainization(StrEnum):
+class Ukrainization(Enum):
     STATS = "stats"
     WEAPON = "weapons"
     AVATAR = "avatar"
