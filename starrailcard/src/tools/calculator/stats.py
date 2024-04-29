@@ -19,6 +19,7 @@ k = "5ceb5d1b20945b82dd21c7`g2909g1e4711d802b"
 
 _LINK_SCORE = "https://raw.githubusercontent.com/"+decrypt_url(n,42)+"/"+decrypt_url(r,35)+"/"+"main"+"/generate/weight.json"
 _LINK_DATA = "https://raw.githubusercontent.com/"+decrypt_url(n,42)+"/"+decrypt_url(r,35)+"/"+"main"+"/generate/{name}.json"
+_LINK_SCORE_V2 = "https://raw.githubusercontent.com/"+decrypt_url(n,42)+"/StarRailScore/master/score.json"
 
 _PATH = Path(__file__).parent /"src"/"assets"
 
@@ -56,7 +57,7 @@ class Calculator:
 
         self.result = {
             "score": {},
-            "total_score": {"count": 0, "rank": {"name": "N/A", "color": None}},
+            "total_score": {"count": 0, "rank": {"name": "N/A", "color": (255,255,255)}},
             "bad": []
         }
     
@@ -103,9 +104,10 @@ class Calculator:
     async def start(self):
         
         if not self.data.id in self.score:
-            await self.update_score()
+            await self.update_score(self.data.id)
             self.score = open_score("score")
-
+        if not self.data.id in self.score:
+            return self.result
         for key in self.data.relics:
             relic_score_json, bad = await self.get_relic_score(self.data.id,key)
             self.result["bad"] = list(set(self.result["bad"] + bad))
@@ -125,12 +127,14 @@ class Calculator:
         return self.result
 
         
-    async def update_score(self):
+    async def update_score(self, charter_id = None):
         
         for key in _PATH_FILE_NAME:
             if key == "score":
                 data = await get_score(_LINK_SCORE)
+                if not charter_id is None:
+                    if data.get(str(charter_id)) is None:
+                        data = await get_score(_LINK_SCORE_V2)
             else:
                 data = await get_score(_LINK_DATA.format(name=key))
-        
             save(key,data)

@@ -1,7 +1,7 @@
 # Copyright 2024 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
 
-from enum import Enum
+from enum import  Enum
 from pathlib import Path
     
 class Ukrainization(Enum):
@@ -18,6 +18,8 @@ class Ukrainization(Enum):
     
 class PathData(Enum):
     UKRAINIZATION = Path(__file__).parent.parent / "data"
+    ENKA = Path(__file__).parent.parent / "assets" / "enka_api"
+    ENKA_INDEX = Path(__file__).parent.parent / "assets" / "enka_api" / "index"
     
 class Style(Enum):
     RELICT_SCORE = 1

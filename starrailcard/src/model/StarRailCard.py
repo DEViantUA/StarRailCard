@@ -10,7 +10,7 @@ try:
     from moviepy.editor import ImageSequenceClip
 except:
     pass
-    
+
 import numpy as np
 
 from ..tools.ukrainization import TranslateDataManager
@@ -38,7 +38,7 @@ class Avatar(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = MAIN_LINK.format(icon = self.icon)
+        #self.icon = MAIN_LINK.format(icon = self.icon)
     
         if UA_LANG:
             self.name = TranslateDataManager._data.avatar.get(self.id, self.name)
@@ -66,14 +66,14 @@ class Card(BaseModel):
         arbitrary_types_allowed = True
     
     async def get_info(self, lang = "en"):
-        await AioSession.get_session()
+        #await AioSession.get_session()
         url = f"https://api.yatta.top/hsr/v2/{lang}/avatar/{self.id}"
         data = await AioSession.get(url, response_format = "json")
         data["data"]["icon"] = {"icon": f'https://api.yatta.top/hsr/assets/UI/avatar/medium/{data["data"]["icon"]}.png', 
                                 "splash": f'https://api.yatta.top/hsr/assets/UI/avatar/large/{data["data"]["icon"]}.png',
                                 "avatar": f'https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/avatar/{data["data"]["icon"]}.png'
         }        
-        await AioSession.close_session()
+        #await AioSession.close_session()
         
         return data["data"]
     

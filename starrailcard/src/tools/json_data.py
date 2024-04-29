@@ -4,7 +4,6 @@
 import json
 import aiofiles
 
-
 class JsonManager:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -21,7 +20,7 @@ class JsonManager:
     
     async def write(self, data):
         try:
-            async with aiofiles.open(self.file_path, mode='w') as file:
+            async with aiofiles.open(self.file_path, mode='w', encoding="utf-8") as file:
                 await file.write(json.dumps(data, indent=4, ensure_ascii=False))
         except Exception as e:
             print(f"Error writing to file '{self.file_path}': {e}")

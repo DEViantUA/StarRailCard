@@ -1,16 +1,18 @@
 # Copyright 2024 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
 
-from PIL import Image
-from io import BytesIO
-
+import os
 import re
 import json
 
-
+from PIL import Image
+from io import BytesIO
+from ..git import assets
 from .. import cashe, http
 
 _caches = cashe.Cache.get_cache()
+_boost_speed = False
+
 
 async def resize_image(image, scale):
     width, height = image.size
@@ -62,40 +64,89 @@ async def get_centr_scale(size, file_name):
     return background_image
 
 
-async def get_dowload_img(link,size = None, thumbnail_size = None, gif = False):
+async def get_image_from_boost_speed(link):
+    path = f"/boost_speed/{link.split('master')[1]}"
+    full_path = os.path.join(assets, path.lstrip('/'))
+
+    if os.path.exists(full_path):
+        try:
+            return Image.open(full_path).convert("RGBA")
+        except Exception as e:
+            raise IOError(f"Error reading image file: {e}")  # Прекращаем выполнение функции
+    else:
+        return None
+
+async def download_image(link, headers=None):
+    try:
+        image = await http.AioSession.get(link, headers=headers, response_format="bytes")
+        return image
+    except:
+        raise TypeError(f"Error Dowload image: {link}")
+
+async def save_image(image, full_path):
+    directory = os.path.dirname(full_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    
+    with open(full_path, 'wb') as f:
+        f.write(image)
+
+async def open_image(image_data):
+    try:
+        return Image.open(BytesIO(image_data)).convert("RGBA")
+    except Exception as e:
+        raise TypeError(f"Error Open image: {e}")
+
+async def get_dowload_img(link, size=None, thumbnail_size=None, gif=False):
     cache_key = json.dumps((link, size, thumbnail_size), sort_keys=True)
-        
+    image_boost = None
+    
+    if _boost_speed:
+        if "StarRailRes" in link:
+            image_boost = await get_image_from_boost_speed(link)
+
     if not gif:
         if cache_key in _caches:
             return _caches[cache_key]
     
-    headers_p = None
     
-    if "pximg" in link:
-        headers_p = {
-            "referer": "https://www.pixiv.net/",
-        }
-    try:
-        image = await http.AioSession.get(link,headers=headers_p, response_format= "bytes")
-    except:
-        raise
     
+    if image_boost is None:
+        headers_p = None
+    
+        if "pximg" in link:
+            headers_p = {
+                "referer": "https://www.pixiv.net/",
+            }
+        image = await download_image(link, headers_p)
+        
+        if _boost_speed:
+            if "StarRailRes" in link:
+                full_path = os.path.join(assets, f"/boost_speed/{link.split('master')[1]}".lstrip('/'))
+                await save_image(image, full_path)
+                
+        image = await open_image(image)
+    else:
+        image = image_boost
+
     if gif:
         return image
-        
-    image = Image.open(BytesIO(image)).convert("RGBA")
-    if size:
-        image = image.resize(size)
-        _caches[cache_key] = image
-        return image
-    elif thumbnail_size:
-        image.thumbnail(thumbnail_size)
-        _caches[cache_key] = image
-        return image
-    else:
-        _caches[cache_key] = image
-        return image
-
+    
+    try:
+        if size:
+            image = image.resize(size)
+            _caches[cache_key] = image
+            return image
+        elif thumbnail_size:
+            image.thumbnail(thumbnail_size)
+            _caches[cache_key] = image
+            return image
+        else:
+            _caches[cache_key] = image
+            return image
+    except Exception as e:
+        raise TypeError(f"Error setting image: {link}")
+    
 async def crop_image(img):
     width, height = img.size
     target_pixel_x = 275

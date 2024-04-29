@@ -34,9 +34,9 @@ class Creat:
         background_image.alpha_composite(background_shadow)
         self.background_profile.paste(background_image,(0,0),maska.convert("L"))
         self.background_profile.alpha_composite(frame)
+        
 
     async def creat_charter(self,key):
-        
         if key.rarity == 5:
             charter_profile = await _of.avatar_five
         else:
@@ -55,7 +55,6 @@ class Creat:
         splash,mask = await asyncio.gather(pill.get_dowload_img(url_id),_of.maska_character)
         splash = await pill.get_centr_size((109,109),splash)
         charter_profile.paste(splash,(16,28),mask.convert("L"))
-        
         name = await pill.create_image_with_text(key.name,16, max_width=123, color=(255, 255, 255, 255)) 
         
         charter_profile.alpha_composite(name,(136,int(49-name.size[1]/2)))       
@@ -65,11 +64,9 @@ class Creat:
         
         element_icon = await pill.get_dowload_img(key.element.icon, size=(28,28))
         path_icon = await pill.get_dowload_img(key.path.icon, size=(28,28))
-        starts = await options.get_stars(key.light_cone.rarity)
         
         charter_profile.alpha_composite(path_icon,(263,28))
         charter_profile.alpha_composite(element_icon,(293,28))
-        charter_profile.alpha_composite(starts.resize((85,18)),(224,114))
         
         
         d = ImageDraw.Draw(charter_profile)
@@ -80,7 +77,8 @@ class Creat:
             icon = await pill.get_dowload_img(key.light_cone.icon, size = (66,66))
             charter_profile.alpha_composite(icon,(136,70))
             d.text((201,95), f"{self.lang.lvl}: {key.light_cone.level}/{options.max_lvl(key.light_cone.promotion)}", font=self.font_charter, fill=(255, 255, 255, 255))
-
+            starts = await options.get_stars(key.light_cone.rarity)
+            charter_profile.alpha_composite(starts.resize((85,18)),(224,114))
             
             background = await _of.light_cone_ups
             background = background.copy()
@@ -92,14 +90,14 @@ class Creat:
             d.text((10-x, 4), up, font= font_12, fill=(255, 217, 144, 255))
             
             charter_profile.alpha_composite(background.resize((17,17)), (202,114))
-        
+            
         return charter_profile
     
     async def get_charter(self):
         task = []
         for key in self.profile.characters:
             task.append(self.creat_charter(key))
-        
+            
         self.charter = await asyncio.gather(*task)
     
     async def creat_avatar(self):
@@ -130,7 +128,6 @@ class Creat:
         
     
     async def build(self):
-        
         self.background_profile.alpha_composite(self.background_profile_avatar,(29,53))
 
         x,y = 0,407  
@@ -144,12 +141,10 @@ class Creat:
         if not self.remove_logo:
             logo = await _of.LOGO_GIT_INV
             self.background_profile.alpha_composite(logo,(752,0))
-
                 
     async def start(self):
         
         _of.set_mapping(3)
-        
         self.font_charter = await pill.get_font(13)
         
         await asyncio.gather(self.creat_background(), self.get_charter(), self.creat_avatar())

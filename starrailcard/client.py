@@ -1,18 +1,22 @@
 # Copyright 2024 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
 
-import asyncio
+import anyio
+#import asyncio
 
 from .src.tools import http, ukrainization, options, translator, cashe, git
 from .src.generator import style_relict_score, style_ticket, style_profile_phone
-from .src.api import api
-from .src.model import StarRailCard
+from .src.api import api, enka
+from .src.model import StarRailCard,api_mihomo
+from .src.tools.pill import image_controle
+
 
 
 class Card:
-    def __init__(self, lang = "en", character_art = None, character_id = None, seeleland = False,
-                 user_font = None, save = False, asset_save = False, remove_logo = False,
-                 cashe = {"maxsize": 150, "ttl": 300}):
+    def __init__(self, lang: str = "en", character_art = None, character_id = None, seeleland: bool = False,
+                 user_font = None, save: bool = False, asset_save: bool = False, boost_speed: bool = False, remove_logo: bool = False,
+                 cashe = {"maxsize": 150, "ttl": 300}, enka: bool = False, api_data: api_mihomo.MiHoMoApi = None, proxy: str =  None, 
+                 user_agent: str = None):
         """Main class for generating cards
 
         Args:
@@ -23,10 +27,13 @@ class Card:
             user_font (srt, optional): Font path or font name. Defaults to None.
             save (bool, optional): Whether to save images or not (Does not work for animated cards). Defaults to False.
             asset_save (bool, optional): Save assets to the device so that in subsequent calls you do not have to download them, but open them from the device. Defaults to False.
+            boost_speed (bool, optional): Allows you to download generation resources to your device for further use without downloading. !!!Fills up the device memory!!!.
             remove_logo (bool, optional): Remove GItHub logo. Defaults to False.
             cashe (dict, optional): Set your cache settings. Defaults to {"maxsize": 150, "ttl": 300}.
+            api_data (MiHoMoApi, optional): Pass your data received via: api.ApiMiHoMo(uid,"en").get()
+            proxy (str, optional): Proxy as a string: http://111.111.111.111:8888
+            user_agent (str, optional): Custom User-Agent.
         """
-        self.session = None
         self.lang = lang
         self.character_art  = character_art
         self.character_id  = character_id
@@ -36,10 +43,16 @@ class Card:
         self.asset_save = asset_save
         self.remove_logo = remove_logo
         self.cashe = cashe
+        self.enka = enka
+        self.boost_speed = boost_speed
+        self.api_data = api_data
+        self.proxy = proxy
+        self.user_agent = options.get_user_agent(user_agent)
+
         
     async def __aenter__(self):
         cashe.Cache.get_cache(maxsize = self.cashe.get("maxsize", 150), ttl = self.cashe.get("ttl", 300))
-        self.session = await http.AioSession.creat_session()
+        await http.AioSession.enter(self.proxy)
         
         await git.ImageCache.set_assets_dowload(self.asset_save)
         
@@ -52,6 +65,7 @@ class Card:
             else:
                 self.character_art = await options.get_character_art(self.character_art)
         
+        
         if not self.lang in translator.SUPPORTED_LANGUAGES:
             self.lang = "en"
         
@@ -60,9 +74,11 @@ class Card:
         
         self.translateLang = translator.Translator(self.lang)
 
-            
         if self.user_font:
             await git.change_font(font_path = self.user_font)
+        
+        image_controle._boost_speed = self.boost_speed
+
         
         if self.remove_logo:
             print("""
@@ -76,8 +92,8 @@ class Card:
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
-        await self.session.close()
-    
+        await http.AioSession.exit(exc_type, exc, tb)
+        
     async def set_lang(self, lang):
         """Sets the language
 
@@ -116,8 +132,23 @@ class Card:
         Returns:
             StarRail: A class object containing profile information and a profile card
         """
-        data = await api.ApiMiHoMo(uid, lang= self.lang, force_update = force_update).get()
-        
+        if self.api_data is None:
+            if self.enka:
+                try:
+                    data = await enka.ApiEnkaNetwork(uid, lang= self.lang).get()
+                except Exception as e:
+                    print("To use the EnkaNetwork API you need to download/update the asset\nExample: await enka.ApiEnkaNetwork().update_assets()")
+                    data = await api.ApiMiHoMo(uid, lang= self.lang, force_update = force_update, user_agent= self.user_agent).get()
+            else:
+                data = await api.ApiMiHoMo(uid, lang= self.lang, force_update = force_update, user_agent= self.user_agent).get()
+        else:
+            data = self.api_data
+            
+        try:
+            player = data.player.model_dump()
+        except:
+            player = data.player
+            
         response = {
             "settings": {
                 "uid": int(uid),
@@ -127,7 +158,7 @@ class Card:
                 "force_update": force_update,
                 "style": int(style)
             },
-            "player": data.player,
+            "player": player,
             "card": None,
             "character_name": [],
             "character_id": [],
@@ -143,7 +174,8 @@ class Card:
             response["character_id"].append(key.id)
             response["character_name"].append(key.name)
         
-        await options.save_card(uid,response["card"],"profile")
+        if self.save:
+            await options.save_card(uid,response["card"],"profile")
         
         return StarRailCard.StarRail(**response)
         
@@ -161,9 +193,20 @@ class Card:
             StarRail: A class object containing profile information and a character cards
         """
         
-        data = await api.ApiMiHoMo(uid, lang= self.lang, force_update = force_update).get()
-        task = []
-                
+        if self.api_data is None:
+            if self.enka:
+                try:
+                    data = await enka.ApiEnkaNetwork(uid, lang= self.lang).get()
+                except Exception as e:
+                    print("To use the EnkaNetwork API you need to download/update the asset")
+                    data = await api.ApiMiHoMo(uid, lang= self.lang, force_update = force_update, user_agent= self.user_agent).get()
+            else:
+                data = await api.ApiMiHoMo(uid, lang= self.lang, force_update = force_update, user_agent= self.user_agent).get()
+        else:
+            data = self.api_data
+
+        result = []
+        
         style, style_settings = await options.style_setting(style, style_settings)
         
         try:
@@ -186,37 +229,43 @@ class Card:
             "character_id": [],
         }
         
-        for key in data.characters:
-            response["character_id"].append(key.id)
-            response["character_name"].append(key.name)
+        async with anyio.create_task_group() as tasks:
             
-            if self.character_id:
-                if not str(key.id) in self.character_id:
-                    continue  
-            
-            art = None
-            if self.character_art:
-                if str(key.id) in self.character_art:
-                    art = self.character_art[str(key.id)]
+            for key in data.characters:
+                async def get_result(key):    
+                    try:               
+                        response["character_id"].append(key.id)
+                        response["character_name"].append(key.name)
+                        
+                        if self.character_id:
+                            if not str(key.id) in self.character_id:
+                                return  
+                        
+                        art = None
+                        if self.character_art:
+                            if str(key.id) in self.character_art:
+                                art = self.character_art[str(key.id)]
+                        if style == 1:
+                            result.append(await style_relict_score.Creat(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo).start())
+                        elif style == 2:
+                            result.append(await style_ticket.Creat(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo).start())
+                    except Exception as e:
+                        print(f"Error in get_result for character {key.id}: {e}")
+                        
+                tasks.start_soon(get_result, key)
                     
-            if style == 1:
-                task.append(style_relict_score.Creat(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo).start())
-            elif style == 2:
-                task.append(style_ticket.Creat(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo).start())
-        
-        response["card"] = await asyncio.gather(*task)
+        response["card"] = result
         
         if self.lang == "ua":
             StarRailCard.UA_LANG = True
         else:
             StarRailCard.UA_LANG = False
-        task_save = []
+        
         if self.save:
-            for key in response["card"]:
-                if key["animation"]:
-                    continue
-                task_save.append(options.save_card(uid,key["card"],key["id"]))
-        
-            await asyncio.gather(*task_save)
-        
+            async with anyio.create_task_group() as tasks:
+                for key in response["card"]:
+                    if key["animation"]:
+                        continue
+                    tasks.start_soon(options.save_card,uid,key["card"],key["id"])        
+                                
         return StarRailCard.StarRail(**response)

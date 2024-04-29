@@ -40,8 +40,8 @@ class Avatar(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = MAIN_LINK.format(icon = self.icon)
-    
+        #self.icon = MAIN_LINK.format(icon = self.icon)
+
         if UA_LANG:
             self.name = TranslateDataManager._data.avatar.get(self.id, self.name)
         
@@ -53,7 +53,7 @@ class Player(BaseModel):
     friend_count: int
     avatar: Avatar
     signature: Optional[str]
-    is_display: bool
+    is_display: Optional[bool]
     space_info: Optional[SpaceInfo]
 
 class RelicMainAffix(BaseModel):
@@ -68,7 +68,7 @@ class RelicMainAffix(BaseModel):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = MAIN_LINK.format(icon = self.icon)
+        #self.icon = MAIN_LINK.format(icon = self.icon)
     
         if UA_LANG:
             self.name = TranslateDataManager._data.stats.get(self.type, self.name)
@@ -86,7 +86,7 @@ class RelicSubAffix(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = MAIN_LINK.format(icon = self.icon)
+        #self.icon = MAIN_LINK.format(icon = self.icon)
     
         if UA_LANG:
             self.name = TranslateDataManager._data.stats.get(self.type, self.name)
@@ -104,7 +104,7 @@ class Relic(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = MAIN_LINK.format(icon = self.icon)
+        #self.icon = MAIN_LINK.format(icon = self.icon)
     
         if UA_LANG:
             self.set_name = TranslateDataManager._data.relict_sets.get(self.set_id, self.set_name)
@@ -121,7 +121,7 @@ class RelicSetProperties(BaseModel):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = MAIN_LINK.format(icon = self.icon)
+        #self.icon = MAIN_LINK.format(icon = self.icon)
     
         if UA_LANG:
             self.name = TranslateDataManager._data.stats.get(self.type, self.name)
@@ -136,7 +136,7 @@ class RelicSet(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = MAIN_LINK.format(icon = self.icon)
+        #self.icon = MAIN_LINK.format(icon = self.icon)
     
         if UA_LANG:
             self.name = TranslateDataManager._data.relict_sets.get(self.id, self.name)
@@ -151,7 +151,7 @@ class LightConeAttributes(BaseModel):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = MAIN_LINK.format(icon = self.icon)
+        #self.icon = MAIN_LINK.format(icon = self.icon)
     
         if UA_LANG:
             self.name = TranslateDataManager._data.stats.get(self.field, self.name)
@@ -163,7 +163,7 @@ class Path(BaseModel):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = MAIN_LINK.format(icon = self.icon)
+        #self.icon = MAIN_LINK.format(icon = self.icon)
     
         if UA_LANG:
             self.name = TranslateDataManager._data.paths.get(self.id, self.name)
@@ -180,13 +180,13 @@ class LightCone(BaseModel):
     portrait: Optional[str]
     path: Path
     attributes: List[LightConeAttributes]
-    properties: List[LightConeAttributes]
+    properties: Optional[List[LightConeAttributes]]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = MAIN_LINK.format(icon = self.icon)
-        self.preview = MAIN_LINK.format(icon = self.preview)
-        self.portrait = MAIN_LINK.format(icon = self.portrait)
+        #self.icon = MAIN_LINK.format(icon = self.icon)
+        #self.preview = MAIN_LINK.format(icon = self.preview)
+        #self.portrait = MAIN_LINK.format(icon = self.portrait)
     
         if UA_LANG:
             self.name = TranslateDataManager._data.weapons.get(self.id, self.name)
@@ -203,7 +203,7 @@ class Element(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = MAIN_LINK.format(icon = self.icon)
+        #self.icon = MAIN_LINK.format(icon = self.icon)
         self.color = ColorElement(hex = self.color, rgba = hex_to_rgba(self.color))
         
         if UA_LANG:
@@ -233,7 +233,7 @@ class SkillTree(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = MAIN_LINK.format(icon = self.icon)
+        #self.icon = MAIN_LINK.format(icon = self.icon)
         
 class CharacterAttributes(BaseModel):
     field: Optional[str]
@@ -245,7 +245,7 @@ class CharacterAttributes(BaseModel):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = MAIN_LINK.format(icon = self.icon)
+        #self.icon = MAIN_LINK.format(icon = self.icon)
 
         if UA_LANG:
             self.name = TranslateDataManager._data.stats.get(self.field, self.name)
@@ -270,19 +270,19 @@ class Character(BaseModel):
     relic_sets: Optional[List[RelicSet]]
     attributes: List[CharacterAttributes]
     additions: List[CharacterAttributes]
-    properties: List[CharacterAttributes]
+    properties: Optional[List[CharacterAttributes]]
     pos: list
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.icon = MAIN_LINK.format(icon = self.icon)
-        self.preview = MAIN_LINK.format(icon = self.preview)
-        self.portrait = MAIN_LINK.format(icon = self.portrait)
-        self.pos = self.pos[0]
-        new_rank_icons = []
-        for key in self.rank_icons:
-            new_rank_icons.append(MAIN_LINK.format(icon = key))
-        self.rank_icons = new_rank_icons
+        #self.icon = MAIN_LINK.format(icon = self.icon)
+        #self.preview = MAIN_LINK.format(icon = self.preview)
+        #self.portrait = MAIN_LINK.format(icon = self.portrait)
+        #self.pos = self.pos[0]
+        #new_rank_icons = []
+        #for key in self.rank_icons:
+            #new_rank_icons.append(MAIN_LINK.format(icon = key))
+        #self.rank_icons = new_rank_icons
         
         if UA_LANG:
             self.name = TranslateDataManager._data.avatar.get(self.id, self.name)
@@ -290,3 +290,68 @@ class Character(BaseModel):
 class MiHoMoApi(BaseModel):
     player: Player
     characters: List[Character]
+    dont_update_link: Optional[bool] = False
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.dont_update_link:
+            # Формирование новых ссылок на иконки
+            self.player.avatar.icon = MAIN_LINK.format(icon = self.player.avatar.icon)
+            for character in self.characters:
+                character.icon = MAIN_LINK.format(icon=character.icon)
+                character.preview = MAIN_LINK.format(icon=character.preview)
+                character.portrait = MAIN_LINK.format(icon=character.portrait)
+                character.rank_icons = [MAIN_LINK.format(icon=icon) for icon in character.rank_icons]
+
+                if character.light_cone:
+                    character.light_cone.icon = MAIN_LINK.format(icon=character.light_cone.icon)
+                    character.light_cone.preview = MAIN_LINK.format(icon=character.light_cone.preview)
+                    character.light_cone.portrait = MAIN_LINK.format(icon=character.light_cone.portrait)
+
+                for relic in character.relics:
+                    relic.icon = MAIN_LINK.format(icon=relic.icon)
+                    for sub_affix in relic.sub_affix:
+                        sub_affix.icon = MAIN_LINK.format(icon=sub_affix.icon)
+                    relic.main_affix.icon = MAIN_LINK.format(icon=relic.main_affix.icon)
+
+                for relic_set in character.relic_sets:
+                    relic_set.icon = MAIN_LINK.format(icon=relic_set.icon)
+                    for property in relic_set.properties:
+                        property.icon = MAIN_LINK.format(icon=property.icon)
+
+                for skill in character.skills:
+                    if skill.icon:
+                        skill.icon = MAIN_LINK.format(icon=skill.icon)
+
+                for skill_tree in character.skill_trees:
+                    if skill_tree.icon:
+                        skill_tree.icon = MAIN_LINK.format(icon=skill_tree.icon)
+
+                for attribute in character.attributes:
+                    attribute.icon = MAIN_LINK.format(icon=attribute.icon)
+
+                for addition in character.additions:
+                    addition.icon = MAIN_LINK.format(icon=addition.icon)
+
+                if character.properties:
+                    for property in character.properties:
+                        property.icon = MAIN_LINK.format(icon=property.icon)
+
+                character.element.icon = MAIN_LINK.format(icon = character.element.icon)
+
+                for skills in character.skills:
+                    if "icon" in skills:
+                        skills = MAIN_LINK.format(icon = skills)
+
+                character.path.icon = MAIN_LINK.format(icon=character.path.icon)
+
+                
+                
+                if not character.light_cone is None:
+                    for light_cone_attr in character.light_cone.attributes:
+                        light_cone_attr.icon = MAIN_LINK.format(icon=light_cone_attr.icon)
+                        
+                    if character.light_cone.properties:
+                        for property in character.light_cone.properties:
+                            property.icon = MAIN_LINK.format(icon=property.icon)
+

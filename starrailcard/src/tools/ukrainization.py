@@ -27,13 +27,13 @@ class TranslateDataManager:
     
     async def load_translate_data(self):
         for file in Ukrainization:
-            self.data[file] = await JsonManager(str(PathData.UKRAINIZATION.value / f'{file}.json')).read()
+            self.data[file.value] = await JsonManager(str(PathData.UKRAINIZATION.value / f'{file.value}.json')).read()
         TranslateDataManager._data = ukrainization_model.UkrainizationModel(**self.data)
         
     async def update(self):
         for file in Ukrainization:
-            data = await AioSession.get(MAIN_LINK.format(file = f"{file}.json"))
-            await JsonManager(str(PathData.UKRAINIZATION.value / f'{file}.json')).write(data)
+            data = await AioSession.get(MAIN_LINK.format(file = f"{file.value}.json"))
+            await JsonManager(str(PathData.UKRAINIZATION.value / f'{file.value}.json')).write(data)
         
     async def check_update(self):
         keys = await JsonManager(str(PathData.UKRAINIZATION.value / "keys.json")).read()

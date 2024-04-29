@@ -1,9 +1,11 @@
 # Copyright 2024 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
 
-import asyncio
+import anyio
+
 import io
 from PIL import ImageDraw,Image,ImageChops, ImageSequence
+import functools
 
 from ..tools import git, options
 from ..tools.calculator import stats
@@ -86,7 +88,8 @@ class Creat:
     
     async def creat_light_cone(self):
         if self.data.light_cone is None:
-            return Image.new(Ticket.RGBA, (0, 0), (0, 0, 0, 0))
+            self.light_cone_background = Image.new("RGBA", (447, 255), (0, 0, 0, 0))
+            return 
         
         maska = await _of.maska_light_cones
         frame_light_cones = await _of.frame_light_cones
@@ -122,17 +125,17 @@ class Creat:
         d = ImageDraw.Draw(background_stat)
         rank = options.ups(self.data.light_cone.rank)
         x = int(font.getlength(rank) / 2)
-        d.text((205 - x, 130), rank, font=font, fill=font_color)
+        d.text((17 - x, 2), rank, font=font, fill=font_color)
 
         font = await pill.get_font(19)
 
         max_level = options.max_lvl(self.data.light_cone.promotion)
 
-        d.text((226,134), f"{self.lang.lvl}: {self.data.light_cone.level}/{max_level}", font=font, fill=(255, 255, 255, 255))
+        d.text((40,9), f"{self.lang.lvl}: {self.data.light_cone.level}/{max_level}", font=font, fill=(255, 255, 255, 255))
         
-        d.text((238, 180), self.data.light_cone.attributes[0].display, font=font, fill=(255, 255, 255, 255)) #HP
-        d.text((341, 180), self.data.light_cone.attributes[1].display, font=font, fill=(255, 255, 255, 255)) #ATK
-        d.text((238, 226), self.data.light_cone.attributes[2].display, font=font, fill=(255, 255, 255, 255)) #DEF
+        d.text((49, 53), self.data.light_cone.attributes[0].display, font=font, fill=(255, 255, 255, 255)) #HP
+        d.text((152, 53), self.data.light_cone.attributes[1].display, font=font, fill=(255, 255, 255, 255)) #ATK
+        d.text((49, 100), self.data.light_cone.attributes[2].display, font=font, fill=(255, 255, 255, 255)) #DEF
         
         stars = await options.get_stars(self.data.light_cone.rarity,type=3)
         
@@ -144,13 +147,10 @@ class Creat:
         self.light_cone_background.alpha_composite(stars,(0,6))
         self.light_cone_background.alpha_composite(line, (191, 19))
         self.light_cone_background.alpha_composite(name_light_cone, (200, 23))
+        
+        y = int(22 + line.size[1])
 
-        if line.size[1] > 50:
-            y = int(0 - line.size[1] / 2)
-        else:
-            y = -45
-
-        self.light_cone_background.alpha_composite(background_stat, (0, y))
+        self.light_cone_background.alpha_composite(background_stat, (188, y))
     
     async def creat_relict(self,relict):
         
@@ -598,7 +598,6 @@ class Creat:
             self.background.alpha_composite(bg)
         
     async def start(self):
-        
         _of.set_mapping(2)
         
         if self.art:
@@ -608,7 +607,6 @@ class Creat:
             if self.gif:    
                 n = 2           
                 frame_count = 0
-                color = True
                 with io.BytesIO(self.art) as f:
                     self.art = Image.open(f)
                     for frame in ImageSequence.Iterator(self.art):
@@ -627,21 +625,39 @@ class Creat:
             self.element_color = (255,213,167,255)
             await self.creat_bacground()
         
-        await asyncio.gather(
-            self.creat_light_cone(),
-            self.creat_stats(),
-            self.creat_name(),
-            self.creat_constant(),
-            self.creat_relict_sets(),
-            self.get_score(),
-            self.creat_path(),
-            self.creat_seeleland()
-        )
-        relic_tasks = [self.creat_relict(key) for key in self.data.relics]
-        self.relict = await asyncio.gather(*relic_tasks)
+        async with anyio.create_task_group() as tasks:
+            tasks.start_soon(self.creat_light_cone)
+            tasks.start_soon(self.creat_stats)
+            tasks.start_soon(self.creat_name)
+            tasks.start_soon(self.creat_constant)
+            tasks.start_soon(self.creat_relict_sets)
+            tasks.start_soon(self.get_score)
+            tasks.start_soon(self.creat_path)
+            tasks.start_soon(self.creat_seeleland)
+        
+        async def wait_all(*funcs):
+            results = [None] * len(funcs)
+            
+            async with anyio.create_task_group() as tasks:
+                async def process(func, i):
+                    results[i] = await func()
+                
+                for i, func in enumerate(funcs):
+                    tasks.start_soon(process, func, i)
+            
+            return results
+        
+        self.relict = await wait_all(*[
+            functools.partial(self.creat_relict, key)
+            for key in self.data.relics
+        ])
+
+
+            #self.relict = await asyncio.gather(*relic_tasks)
+        
+        
         
         await self.creat_score_total()
-        
         await self.build_relict()
         await self.build()
         

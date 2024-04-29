@@ -1,7 +1,8 @@
 # Copyright 2024 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
 
-import asyncio
+import anyio
+import functools
 import io
 from PIL import ImageDraw,Image,ImageFilter,ImageChops, ImageSequence
 
@@ -435,7 +436,7 @@ class Creat:
         else:
             self.background.alpha_composite(bg)
                     
-    async def start(self):   
+    async def start(self):
         _of.set_mapping(1)
         
         if self.art:
@@ -465,20 +466,34 @@ class Creat:
                 self.element_color = await pill.get_colors(self.art, 15, common=True, radius=5, quality=800)
             
             await self.creat_bacground()
-            
-        await asyncio.gather(
-            self.creat_light_cone(),
-            self.creat_stats(),
-            self.creat_name(),
-            self.creat_constant(),
-            self.creat_relict_sets(),
-            self.get_score(),
-            self.get_path(),
-            self.creat_seeleland()
-        )
-        relic_tasks = [self.creat_relict(key) for key in self.data.relics]
-        self.relict = await asyncio.gather(*relic_tasks)
         
+        async with anyio.create_task_group() as tasks:
+            tasks.start_soon(self.creat_light_cone)
+            tasks.start_soon(self.creat_stats)
+            tasks.start_soon(self.creat_name)
+            tasks.start_soon(self.creat_constant)
+            tasks.start_soon(self.creat_relict_sets)
+            tasks.start_soon(self.get_score)
+            tasks.start_soon(self.get_path)
+            tasks.start_soon(self.creat_seeleland)
+        
+        async def wait_all(*funcs):
+            results = [None] * len(funcs)
+            
+            async with anyio.create_task_group() as tasks:
+                async def process(func, i):
+                    results[i] = await func()
+                
+                for i, func in enumerate(funcs):
+                    tasks.start_soon(process, func, i)
+            
+            return results
+        
+        self.relict = await wait_all(*[
+            functools.partial(self.creat_relict, key)
+            for key in self.data.relics
+        ])
+                
         await self.creat_score_total()
         
         await self.build_relict()
@@ -490,7 +505,8 @@ class Creat:
             "name": self.data.name,
             "rarity": self.data.rarity,
             "card": self.background,
-            "size": RelictScore.bacground_size
+            "size": RelictScore.bacground_size,
+            "color": self.element_color
         }
         
         return data

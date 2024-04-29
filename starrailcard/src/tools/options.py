@@ -1,17 +1,34 @@
 # Copyright 2024 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
-
 import random
 import aiofiles
 import io
 from PIL import Image
 import os
+import sys
 import datetime
 
 from .git import ImageCache
 from .http import AioSession
+from ... import __version__
 
 _git = ImageCache()
+
+def get_user_agent(user_agent):
+    python_version = sys.version_info
+    
+    if not user_agent is None:
+        if user_agent == "StarRailCard/{version} (Python {major}.{minor}.{micro})".format(version=__version__,major=python_version.major,minor=python_version.minor,micro=python_version.micro):
+            return user_agent
+        
+        return f"StarRailCad/{__version__}: {user_agent}"
+    
+    return "StarRailCard/{version} (Python {major}.{minor}.{micro})".format(
+        version=__version__,
+        major=python_version.major,
+        minor=python_version.minor,
+        micro=python_version.micro
+    )
 
 _DEFAULT_SCORE = {'count': 0, 
                   'rolls': {}, 
@@ -72,7 +89,7 @@ async def get_charter_id(data):
     return data
 
 async def style_setting(style, settings):
-    if str(style) in ["1","2","3"]:
+    if str(style) in ["1","2"]:
         return style, settings
     
     return 1, {}
@@ -202,7 +219,12 @@ async def get_seeleland(uid, charter_id):
         if type(data) == list:
             for key in data:
                 if "lb" in key:
-                    return key["lb"]["tutorial"]
+                    if "tutorial" in key["lb"]:
+                        return key["lb"]["tutorial"]
+                    else:
+                        '''for keys in key["lb"]:
+                            return key["lb"][keys]'''
+                        return None
         else:
             for key in data:
                 return data[key]
