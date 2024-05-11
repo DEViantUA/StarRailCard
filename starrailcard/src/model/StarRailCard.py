@@ -15,21 +15,12 @@ import numpy as np
 
 from ..tools.ukrainization import TranslateDataManager
 from ..tools.http import AioSession
+from .api_mihomo import Player
 
 UA_LANG = False
 MAIN_LINK: Final[str] = "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/{icon}"
 
-class MemoryInfo(BaseModel):
-    level: Optional[int]
-    chaos_id: Optional[int]
-    chaos_level: Optional[int]
-    
-class SpaceInfo(BaseModel):
-    memory_data: Optional[MemoryInfo]
-    universe_level: Optional[int]
-    light_cone_count: Optional[int]
-    avatar_count: Optional[int]
-    achievement_count: Optional[int]
+
 
 class Avatar(BaseModel):
     id: str
@@ -42,17 +33,6 @@ class Avatar(BaseModel):
     
         if UA_LANG:
             self.name = TranslateDataManager._data.avatar.get(self.id, self.name)
-
-class Player(BaseModel):
-    uid: Optional[str]
-    nickname: Optional[str]
-    level: int
-    world_level: int
-    friend_count: int
-    avatar: Avatar
-    signature: Optional[str]
-    is_display: bool
-    space_info: Optional[SpaceInfo]
 
 class Card(BaseModel):
     id: int

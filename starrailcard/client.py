@@ -2,20 +2,21 @@
 # All rights reserved.
 
 import anyio
+from typing import Union
 #import asyncio
 
-from .src.tools import http, ukrainization, options, translator, cashe, git
-from .src.generator import style_relict_score, style_ticket, style_profile_phone
+from .src.tools import cache, http, ukrainization, options, translator, git
+from .src.generator import style_relict_score, style_ticket, style_profile_phone, style_card
 from .src.api import api, enka
 from .src.model import StarRailCard,api_mihomo
-from .src.tools.pill import image_controle
+from .src.tools.pill import image_control
 
 
 
 class Card:
     def __init__(self, lang: str = "en", character_art = None, character_id = None, seeleland: bool = False,
                  user_font = None, save: bool = False, asset_save: bool = False, boost_speed: bool = False, remove_logo: bool = False,
-                 cashe = {"maxsize": 150, "ttl": 300}, enka: bool = False, api_data: api_mihomo.MiHoMoApi = None, proxy: str =  None, 
+                 cache = {"maxsize": 150, "ttl": 300}, enka: bool = False, api_data: api_mihomo.MiHoMoApi = None, proxy: str =  None, 
                  user_agent: str = None):
         """Main class for generating cards
 
@@ -42,7 +43,7 @@ class Card:
         self.save = save
         self.asset_save = asset_save
         self.remove_logo = remove_logo
-        self.cashe = cashe
+        self.cache = cache
         self.enka = enka
         self.boost_speed = boost_speed
         self.api_data = api_data
@@ -51,10 +52,10 @@ class Card:
 
         
     async def __aenter__(self):
-        cashe.Cache.get_cache(maxsize = self.cashe.get("maxsize", 150), ttl = self.cashe.get("ttl", 300))
+        cache.Cache.get_cache(maxsize = self.cache.get("maxsize", 150), ttl = self.cache.get("ttl", 300))
         await http.AioSession.enter(self.proxy)
         
-        await git.ImageCache.set_assets_dowload(self.asset_save)
+        await git.ImageCache.set_assets_download(self.asset_save)
         
         if self.character_id:
             self.character_id = await options.get_charter_id(self.character_id)
@@ -64,7 +65,6 @@ class Card:
                 raise TypeError(4,"The character_art parameter must be a dictionary, where the key is the name of the character, and the parameter is an image.\nExample: character_art = {'1235': 'img.png', '1235': ['img.png','http.../img2.png']} or {'123596': 'img.png', '123854': 'http.../img2.png', ...}")
             else:
                 self.character_art = await options.get_character_art(self.character_art)
-        
         
         if not self.lang in translator.SUPPORTED_LANGUAGES:
             self.lang = "en"
@@ -77,7 +77,7 @@ class Card:
         if self.user_font:
             await git.change_font(font_path = self.user_font)
         
-        image_controle._boost_speed = self.boost_speed
+        image_control._boost_speed = self.boost_speed
 
         
         if self.remove_logo:
@@ -111,15 +111,15 @@ class Card:
         
         self.translateLang = translator.Translator(lang)
                 
-    async def set_user_font(self, user_font):
+    async def set_user_font(self, user_font: str):
         """Will install a custom font
 
         Args:
             user_font (srt): Font path or font name.
         """
         await git.change_font(font_path = user_font)
-    
-    async def creat_profile(self, uid, style = 1, hide_uid = False, background = None, force_update = False):
+
+    async def create_profile(self, uid: Union[int,str], style: bool = 1, hide_uid: bool = False, background = None, force_update: bool = False):
         """Function for generating a user profile card
 
         Args:
@@ -168,7 +168,7 @@ class Card:
             style = 1
             
         if style == 1:
-            response["card"] = await style_profile_phone.Creat(data,self.translateLang,self.character_art,hide_uid,uid,background, self.remove_logo).start()
+            response["card"] = await style_profile_phone.Create(data,self.translateLang,self.character_art,hide_uid,uid,background, self.remove_logo).start()
 
         for key in data.characters:
             response["character_id"].append(key.id)
@@ -179,7 +179,7 @@ class Card:
         
         return StarRailCard.StarRail(**response)
         
-    async def creat(self, uid, style = 1, hide_uid = False, force_update = False, style_settings = None):
+    async def create(self, uid: Union[int,str], style: bool = 1, hide_uid: bool = False, force_update: bool = False, style_settings = None, log: bool = False):
         """Function for generating character cards
 
         Args:
@@ -208,7 +208,7 @@ class Card:
         result = []
         
         style, style_settings = await options.style_setting(style, style_settings)
-        
+                
         try:
             player = data.player.model_dump()
         except:
@@ -246,9 +246,11 @@ class Card:
                             if str(key.id) in self.character_art:
                                 art = self.character_art[str(key.id)]
                         if style == 1:
-                            result.append(await style_relict_score.Creat(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo).start())
+                            result.append(await style_relict_score.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo).start())
                         elif style == 2:
-                            result.append(await style_ticket.Creat(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo).start())
+                            result.append(await style_ticket.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo).start())
+                        elif style == 3:
+                            result.append(await style_card.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo).start())
                     except Exception as e:
                         print(f"Error in get_result for character {key.id}: {e}")
                         

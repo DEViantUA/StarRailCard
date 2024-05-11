@@ -31,15 +31,15 @@ async def get_character(lang = "en"):
         async with session.get(url) as response:
             return await response.json()
 
-async def get_name(characrer_id = None, lang = "en"):
+async def get_name(character_id = None, lang = "en"):
     avatar_data = await get_character(lang)
     if avatar_data.get("response") != 200:
         print("An error occurred while receiving data")
         return 
     data = {}
     for key in avatar_data.get("data", {}).get("items", {}):
-        if not characrer_id is None:
-            if int(key) == int(characrer_id):
+        if not character_id is None:
+            if int(key) == int(character_id):
                 return {key: avatar_data["data"]["items"][key].get("name")}
         data[key] = avatar_data["data"]["items"][key].get("name")
 

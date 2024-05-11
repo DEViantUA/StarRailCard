@@ -1,7 +1,7 @@
 # Copyright 2024 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional,Final
 
 from ..tools.ukrainization import TranslateDataManager
@@ -25,14 +25,25 @@ class MemoryInfo(BaseModel):
     level: Optional[int]
     chaos_id: Optional[int]
     chaos_level: Optional[int]
+    abyss_level: Optional[int] =  Field(0, alias= "abyssLevel")
+    abyss_star_count: Optional[int] =  Field(0, alias= "abyssStarCount")
+    
+    class Config:
+        populate_by_name = True
     
 class SpaceInfo(BaseModel):
+    relic_count: Optional[int] =  Field(0, alias= "relicCount")
+    music_count: Optional[int] =  Field(0, alias= "musicCount")
+    book_count: Optional[int] =  Field(0, alias= "bookCount")
     memory_data: Optional[MemoryInfo]
     universe_level: Optional[int]
     light_cone_count: Optional[int]
     avatar_count: Optional[int]
     achievement_count: Optional[int]
 
+    class Config:
+        populate_by_name = True
+        
 class Avatar(BaseModel):
     id: str
     name: str
@@ -250,6 +261,23 @@ class CharacterAttributes(BaseModel):
         if UA_LANG:
             self.name = TranslateDataManager._data.stats.get(self.field, self.name)
             
+class CharacterProperties(BaseModel):
+    type: Optional[str]
+    field: Optional[str]
+    name: Optional[str]
+    icon: Optional[str]
+    value: float
+    display: Optional[str]
+    percent: bool
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        #self.icon = MAIN_LINK.format(icon = self.icon)
+
+        if UA_LANG:
+            self.name = TranslateDataManager._data.stats.get(self.field, self.name)            
+
+        
 class Character(BaseModel):
     id: Optional[str]
     name: Optional[str]
@@ -270,7 +298,7 @@ class Character(BaseModel):
     relic_sets: Optional[List[RelicSet]]
     attributes: List[CharacterAttributes]
     additions: List[CharacterAttributes]
-    properties: Optional[List[CharacterAttributes]]
+    properties: Optional[List[CharacterProperties]]
     pos: list
     
     def __init__(self, *args, **kwargs):
@@ -295,7 +323,6 @@ class MiHoMoApi(BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.dont_update_link:
-            # Формирование новых ссылок на иконки
             self.player.avatar.icon = MAIN_LINK.format(icon = self.player.avatar.icon)
             for character in self.characters:
                 character.icon = MAIN_LINK.format(icon=character.icon)

@@ -53,6 +53,26 @@ color_scoreR = {
     0: (255, 255, 255, 255)   # Было (255, 255, 255, 255)
 }
 
+color_element_stat = {
+    'physical_dmg': (255, 255, 255, 255),
+    'fire_dmg': (248, 79, 54, 255),
+    'ice_dmg': (71, 199, 253, 255),
+    'lightning_dmg': (136, 114, 241, 255),
+    'wind_dmg': (0, 255, 156, 255),
+    'quantum_dmg': (28, 41, 186, 255),
+    'imaginary_dmg': (244, 210, 88, 255),
+}
+
+color_element_talant = {
+    'physical': (255, 255, 255, 255),
+    'fire': (248, 79, 54, 255),
+    'ice': (71, 199, 253, 255),
+    'lightning': (136, 114, 241, 255),
+    'thunder': (136, 114, 241, 255),
+    'wind': (0, 255, 156, 255),
+    'quantum': (28, 41, 186, 255),
+    'imaginary': (244, 210, 88, 255),
+}
 
 color_element = {
     'PhysicalAddedRatio': (255, 255, 255, 255),
@@ -89,7 +109,7 @@ async def get_charter_id(data):
     return data
 
 async def style_setting(style, settings):
-    if str(style) in ["1","2"]:
+    if str(style) in ["1","2","3"]:
         return style, settings
     
     return 1, {}
@@ -129,14 +149,27 @@ def max_lvl(x):
     return max
 
 
-async def get_character_art(character_art):
+
+async def get_character_art(character_art, style=None):
     processed_dict = {}
     for key, value in character_art.items():
         if isinstance(value, list):
-            processed_dict[key] = random.choice(value)
+            if isinstance(value[0], dict):
+                if style is not None:
+                    matching_art = [v['art'] for v in value if v['style'] == style]
+                    if matching_art:
+                        processed_dict[key] = random.choice(matching_art)
+                else:
+                    processed_dict[key] = random.choice([v['art'] for v in value])
+            else:
+                processed_dict[key] = random.choice(value)
+        elif isinstance(value, dict):
+            if 'style' in value and value['style'] == style:
+                processed_dict[key] = value['art']
         else:
             processed_dict[key] = value
 
+    
     return processed_dict
 
 async def get_stars(x, type = 1):
@@ -214,22 +247,17 @@ async def get_seeleland(uid, charter_id):
     for key in data:
         if key["k"] == str(charter_id):
             data = key.get("lb")
-    
-    if data != {} and data is not None:
-        if type(data) == list:
-            for key in data:
-                if "lb" in key:
-                    if "tutorial" in key["lb"]:
-                        return key["lb"]["tutorial"]
-                    else:
-                        '''for keys in key["lb"]:
-                            return key["lb"][keys]'''
-                        return None
-        else:
-            for key in data:
-                return data[key]
-    else:
+
+    if data == {} or data is None:
         return None
+    if type(data) == list:
+        for key in data:
+            if "lb" in key:
+                return key["lb"]["tutorial"] if "tutorial" in key["lb"] else None
+    else:
+        for key in data:
+            return data[key]
+
 
 async def save_card(uid, image_data, name):
     data = datetime.datetime.now().strftime("%d_%m_%Y %H_%M")

@@ -9,7 +9,7 @@ from ..tools import pill, git, options
 
 _of = git.ImageCache()
 
-class Creat:
+class Create:
     def __init__(self,profile,lang,img,hide,uid,background, remove_logo) -> None:
         self.remove_logo = remove_logo
         self.profile = profile
@@ -19,24 +19,24 @@ class Creat:
         self.uid = uid
         self.background = background
     
-    async def creat_background(self):
+    async def create_background(self):
         self.background_profile = Image.new("RGBA", (828, 1078), (0,0,0,0))
         
-        maska,frame = await asyncio.gather(_of.maska_prof_bg,_of.menu)
+        mask,frame = await asyncio.gather(_of.maska_prof_bg,_of.menu)
         if self.background is None:
             background_image = random.choice([await _of.bg_1, await  _of.bg_2, await  _of.bg_3, await  _of.bg_5])
             background_shadow = Image.new("RGBA", (828, 1078), (0,0,0,100))
         else:
-            background_image = await pill.get_dowload_img(self.background)
-            background_image = await pill.get_centr_size((828,1078),background_image)
+            background_image = await pill.get_download_img(self.background)
+            background_image = await pill.get_center_size((828,1078),background_image)
             background_shadow = Image.new("RGBA", (828, 1078), (0,0,0,150))
         background_image = background_image.convert("RGBA")
         background_image.alpha_composite(background_shadow)
-        self.background_profile.paste(background_image,(0,0),maska.convert("L"))
+        self.background_profile.paste(background_image,(0,0),mask.convert("L"))
         self.background_profile.alpha_composite(frame)
         
 
-    async def creat_charter(self,key):
+    async def create_charter(self,key):
         if key.rarity == 5:
             charter_profile = await _of.avatar_five
         else:
@@ -52,8 +52,8 @@ class Creat:
         else:
             url_id = f'https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/icon/avatar/{key.id}.png'
             
-        splash,mask = await asyncio.gather(pill.get_dowload_img(url_id),_of.maska_character)
-        splash = await pill.get_centr_size((109,109),splash)
+        splash,mask = await asyncio.gather(pill.get_download_img(url_id),_of.maska_character)
+        splash = await pill.get_center_size((109,109),splash)
         charter_profile.paste(splash,(16,28),mask.convert("L"))
         name = await pill.create_image_with_text(key.name,16, max_width=123, color=(255, 255, 255, 255)) 
         
@@ -62,8 +62,8 @@ class Creat:
         max_level = options.max_lvl(key.promotion)
         level = f"{self.lang.lvl}: {key.level}/{max_level}"
         
-        element_icon = await pill.get_dowload_img(key.element.icon, size=(28,28))
-        path_icon = await pill.get_dowload_img(key.path.icon, size=(28,28))
+        element_icon = await pill.get_download_img(key.element.icon, size=(28,28))
+        path_icon = await pill.get_download_img(key.path.icon, size=(28,28))
         
         charter_profile.alpha_composite(path_icon,(263,28))
         charter_profile.alpha_composite(element_icon,(293,28))
@@ -74,7 +74,7 @@ class Creat:
         
         
         if not key.light_cone is None:
-            icon = await pill.get_dowload_img(key.light_cone.icon, size = (66,66))
+            icon = await pill.get_download_img(key.light_cone.icon, size = (66,66))
             charter_profile.alpha_composite(icon,(136,70))
             d.text((201,95), f"{self.lang.lvl}: {key.light_cone.level}/{options.max_lvl(key.light_cone.promotion)}", font=self.font_charter, fill=(255, 255, 255, 255))
             starts = await options.get_stars(key.light_cone.rarity)
@@ -96,15 +96,15 @@ class Creat:
     async def get_charter(self):
         task = []
         for key in self.profile.characters:
-            task.append(self.creat_charter(key))
+            task.append(self.create_charter(key))
             
         self.charter = await asyncio.gather(*task)
     
-    async def creat_avatar(self):
+    async def create_avatar(self):
         self.background_profile_avatar = Image.new("RGBA", (625, 254), (0,0,0,0))
         avatar = self.profile.player.avatar.icon
             
-        avatar,font_20,desc_frame = await asyncio.gather(pill.get_dowload_img(avatar, size= (134,134)),pill.get_font(18),_of.desc_frame)
+        avatar,font_20,desc_frame = await asyncio.gather(pill.get_download_img(avatar, size= (134,134)),pill.get_font(18),_of.desc_frame)
             
         self.background_profile_avatar.alpha_composite(avatar)
         
@@ -147,7 +147,7 @@ class Creat:
         _of.set_mapping(3)
         self.font_charter = await pill.get_font(13)
         
-        await asyncio.gather(self.creat_background(), self.get_charter(), self.creat_avatar())
+        await asyncio.gather(self.create_background(), self.get_charter(), self.create_avatar())
         await self.build()        
         
         return self.background_profile

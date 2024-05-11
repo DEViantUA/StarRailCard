@@ -6,7 +6,7 @@ from more_itertools import chunked
 
 import numpy as np
 
-from .color_controle import light_level, _get_light_pixel_color, _get_dark_pixel_color
+from .color_control import light_level, get_light_pixel_color, _get_dark_pixel_color
 
 async def get_average_color(image):
     if image.mode != 'RGBA':
@@ -125,7 +125,7 @@ async def get_colors(image,number,*,common=False,radius=1,quality=None):
     color_palette = color_palette[0][1]
     ll = await light_level(color_palette)
     if ll < 0.15:
-        color_palette = await _get_light_pixel_color(color_palette)
+        color_palette = await get_light_pixel_color(color_palette)
     elif ll > 0.80:
         color_palette = await _get_dark_pixel_color(color_palette)
         

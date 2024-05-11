@@ -8,6 +8,7 @@ from ..tools.json_data import JsonManager
 from ..tools.enums import PathData
 
 _API_MIHOMO: str = "https://api.mihomo.me/sr_info_parsed/{uid}"
+_API_MIHOMO_NAKED: str = "https://api.mihomo.me/sr_info/{uid}"
 
 
 
@@ -29,6 +30,10 @@ class ApiMiHoMo:
             
         self.v = v
 
+    async def recollect(self, data):
+        
+        pass
+    
     async def get(self) -> Optional[api_mihomo.MiHoMoApi]:
         """Get data from the MiHoMo API."""
         try:
@@ -41,7 +46,6 @@ class ApiMiHoMo:
             headers = {
                 "User-Agent": self.user_agent
             }
-            
             data = await http.AioSession.get(_API_MIHOMO.format(uid=self.uid), headers = headers, params=params, proxy= self.proxy)
             
             if data is None:
@@ -63,7 +67,24 @@ class ApiMiHoMo:
         except aiohttp.ClientResponseError as e:
             raise StarRailCardError(e.status, f"Server returned status code {e.status}")
         
+        if data["player"]["space_info"].get("book_count") is None:
+            self.dop_info = await http.AioSession.get(_API_MIHOMO_NAKED.format(uid=self.uid), headers = headers, params=params, proxy= self.proxy)
+            data = await self.add_info(data)
+        
         if self.ua_lang:
             await ukrainization.TranslateDataManager().load_translate_data()
         
         return api_mihomo.MiHoMoApi(player=data["player"], characters=data["characters"], dont_update_link= False)
+    
+    async def add_info(self, data):
+        info = self.dop_info["detailInfo"]["recordInfo"]
+        
+        data["player"]["space_info"]["relicCount"] = info.get("relicCount", 0)
+        data["player"]["space_info"]["musicCount"] = info.get("musicCount", 0)
+        data["player"]["space_info"]["bookCount"] = info.get("bookCount", 0)
+        
+        memory_data = info.get("challengeInfo", {})
+        data["player"]["space_info"]["memory_data"]["abyssStarCount"] = memory_data.get("abyssStarCount")
+        data["player"]["space_info"]["memory_data"]["abyssLevel"] = memory_data.get("abyssLevel")
+        
+        return data

@@ -3,18 +3,18 @@
 
 from PIL import Image,ImageDraw
 from .. import git, options, treePaths
-from .text_controle import get_font, create_image_with_text
-from .image_controle import get_dowload_img
-from .color_controle import  recolor_image, apply_opacity
+from .text_control import get_font, create_image_with_text
+from .image_control import get_download_img
+from .color_control import  recolor_image, apply_opacity
 
 
 
-async def creat_stats(combined_attributes, dop, 
+async def create_stats(combined_attributes, dop, 
                       font_dop,font,
                       line_size, name_size, max_width, icon_size,
                       icon_position, name_position, x_position,
                       color_font, stat_value_font,
-                      stat_y_no_dop = 13, stat_y_yes_dop = 6, stat_y_dop = 25):
+                      stat_y_no_dop = 13, stat_y_yes_dop = 6, stat_y_dop = 25, line = False):
     
     font = await get_font(font)
     font_dop = await get_font(font_dop)
@@ -22,14 +22,15 @@ async def creat_stats(combined_attributes, dop,
     
     for i, attribute in enumerate(combined_attributes):
         stat = combined_attributes[attribute]
-        icon = await get_dowload_img(stat.icon, size= icon_size)
+        icon = await get_download_img(stat.icon, size= icon_size)
+        if attribute in ["physical_dmg","fire_dmg","ice_dmg","lightning_dmg","wind_dmg","quantum_dmg", "imaginary_dmg"]:
+            icon = await recolor_image(icon.copy(), options.color_element_stat.get(attribute, (255,255,255,255))[:3])
         background = Image.new("RGBA", line_size, (0, 0, 0, 0))
         d = ImageDraw.Draw(background)
         value = "{:.1f}%".format(stat.value * 100) if stat.percent else round(stat.value)
         name_text = await create_image_with_text(stat.name, name_size, max_width=max_width, color=(255, 255, 255, 255)) #max_height=45,
         background.alpha_composite(name_text, (name_position[0],(int(name_position[1]-name_text.size[1]/2))))
-        background.alpha_composite(icon,icon_position)
-        
+        background.alpha_composite(icon,icon_position)        
         if attribute in dop: 
             x = x_position - int(stat_value_font.getlength(str(value)))
             d.text((x, stat_y_yes_dop), str(value), font=stat_value_font, fill=(255, 255, 255, 255))
@@ -43,16 +44,22 @@ async def creat_stats(combined_attributes, dop,
             x = x_position - int(stat_value_font.getlength(str(value)))
             d.text((x, stat_y_no_dop), str(value), font=stat_value_font, fill=(255, 255, 255, 255))
 
+        if line:
+            x = line_size[0] - (int(stat_value_font.getlength(str(value))) + name_position[0] + name_text.size[0] + 10 * 3)   
+            line_stat = Image.new("RGBA", (x,2), (255,255,255,50))
+            background.alpha_composite(line_stat,(name_text.size[0]+icon_size[0] + 15, int(line_size[1]/2)))
+            
+            
         yield i, background
         
 
-async def creat_path(character):
+async def create_path(character):
     background_path = await options.get_background_path(character.path.id)
     path = treePaths.map_new.get(character.path.id)
     font_15 = await get_font(15) 
     for key in character.skill_trees:
         if key.anchor in ['Point01','Point02','Point03','Point04','Point05']:
-            icon = await get_dowload_img(key.icon, size=(47,47))
+            icon = await get_download_img(key.icon, size=(47,47))
             icon = await recolor_image(icon, (255,212,173))
             count = await git.ImageCache().path_count
             count = count.copy()
@@ -69,7 +76,7 @@ async def creat_path(character):
             background_path.alpha_composite(icon, path[key.anchor]["icon"])
             background_path.alpha_composite(count, path[key.anchor]["count"])
         elif key.anchor in ['Point06','Point07','Point08']:
-            icon = await get_dowload_img(key.icon, size=(47,47))
+            icon = await get_download_img(key.icon, size=(47,47))
             icon = await recolor_image(icon, (0,0,0))
             if key.level == key.max_level:
                 background_path.alpha_composite(icon, path[key.anchor]["icon"])
@@ -79,7 +86,7 @@ async def creat_path(character):
                 background_path.alpha_composite(icon, path[key.anchor]["icon"])
                 background_path.alpha_composite(closed, path[key.anchor]["closed"])
         else:
-            icon = await get_dowload_img(key.icon, size=(35,35))
+            icon = await get_download_img(key.icon, size=(35,35))
             icon = await recolor_image(icon, (0,0,0))
             if key.level == key.max_level:
                 background_path.alpha_composite(icon, path[key.anchor]["icon"])
@@ -95,7 +102,7 @@ async def creat_path(character):
 _of = git.ImageCache()
 _of.set_mapping(2)
 
-async def get_resurs_light_cones(x):
+async def get_resource_light_cones(x):
     if x == 3:
         return await _of.shadow_3_light_cone, await _of.star_3_frame_light_cone, (150, 202, 255, 255)
     elif x == 4:

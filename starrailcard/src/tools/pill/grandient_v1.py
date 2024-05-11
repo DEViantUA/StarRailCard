@@ -3,7 +3,7 @@
 
 from PIL import Image
 
-from .color_controle import light_level, _get_light_pixel_color, _get_dark_pixel_color
+from .color_control import light_level, get_light_pixel_color, _get_dark_pixel_color
 
 class GradientGenerator:
     def __init__(self, source_img_path):
@@ -32,7 +32,7 @@ class GradientGenerator:
         top_color = await self._get_pixel_color(left, top_1, right, bottom_1)
         ll = await light_level(top_color)
         if ll < 45:
-            top_color = await _get_light_pixel_color(top_color)
+            top_color = await get_light_pixel_color(top_color)
         elif ll > 200:
             top_color = await _get_dark_pixel_color(top_color)
 
@@ -40,14 +40,14 @@ class GradientGenerator:
         
         ll = await light_level(center_color)
         if ll < 45:
-            center_color = await _get_light_pixel_color(center_color)
+            center_color = await get_light_pixel_color(center_color)
         elif ll > 200:
             center_color = await _get_dark_pixel_color(center_color)
 
         bottom_color = await self._get_pixel_color(left, top_3, right, bottom_3)
         ll = await light_level(bottom_color)
         if ll < 45:
-            bottom_color = await _get_light_pixel_color(bottom_color)
+            bottom_color = await get_light_pixel_color(bottom_color)
         elif ll > 200:
             bottom_color = await _get_dark_pixel_color(bottom_color)
 

@@ -29,12 +29,12 @@ async def get_cone_frame(x):
     else:
         return await _of.light_cone_frame_three
 
-class Creat:
+class Create:
     def __init__(self, data, lang, art, hide_uid, uid, seeleland,remove_logo) -> None:
         self.remove_logo = remove_logo
         self.data = data
         self.lang = lang
-        self.art = art #Image.open("modified_exampl.gif")#art
+        self.art = art
         self.hide_uid = hide_uid
         self.uid = uid
         
@@ -42,14 +42,14 @@ class Creat:
         self.GIFT_BG = []
         
         self.seeleland = seeleland
-        self.totall_eff = 0
+        self.total_eff = 0
         self.element_color = self.data.element.color.rgba
     
-    async def creat_bacground(self):
-        self.background = Image.new(RelictScore.RGBA, RelictScore.bacground_size, (0,0,0,0))
-        background_dark = Image.new(RelictScore.RGBA, RelictScore.bacground_size, (0,0,0,100))
-        background_art = Image.new(RelictScore.RGBA, RelictScore.bacground_size, (0,0,0,0))
-        background_blur = Image.new(RelictScore.RGBA, RelictScore.bacground_size, (0,0,0,0))
+    async def create_bacground(self):
+        self.background = Image.new(RelictScore.RGBA, RelictScore.background_size, (0,0,0,0))
+        background_dark = Image.new(RelictScore.RGBA, RelictScore.background_size, (0,0,0,100))
+        background_art = Image.new(RelictScore.RGBA, RelictScore.background_size, (0,0,0,0))
+        background_blur = Image.new(RelictScore.RGBA, RelictScore.background_size, (0,0,0,0))
         lines = await _of.background_line
         logo = await _of.LOGO_GIT
         shadow = await _of.background_shadow
@@ -59,9 +59,9 @@ class Creat:
         background_default = await _of.background_default
                 
         if self.art:
-            user_image = await pill.get_centr_size(RelictScore.art_size, self.art)
-            bg = await pill.GradientGenerator(user_image).generate(1,RelictScore.bacground_size[1])       
-            bg = bg.resize(RelictScore.bacground_size)
+            user_image = await pill.get_center_size(RelictScore.art_size, self.art)
+            bg = await pill.GradientGenerator(user_image).generate(1,RelictScore.background_size[1])       
+            bg = bg.resize(RelictScore.background_size)
             user_image_op = await pill.apply_opacity(user_image, opacity = RelictScore.opacity_art)
 
             background_blur.alpha_composite(bg.convert("RGBA"))
@@ -71,7 +71,7 @@ class Creat:
             line,self.element_color = await pill.recolor_image(lines, self.element_color[:3], light = True)            
         else:
             bg = background_default.copy() 
-            user_image = await pill.get_centr_scale(RelictScore.splash_size, await pill.get_dowload_img(self.data.portrait))
+            user_image = await pill.get_center_scale(RelictScore.splash_size, await pill.get_download_img(self.data.portrait))
             user_image_op = await pill.apply_opacity(user_image, opacity = RelictScore.opacity_splash)
             background_blur.alpha_composite(bg.convert("RGBA"))
             background_blur.alpha_composite(user_image_op)
@@ -92,20 +92,20 @@ class Creat:
             self.background.alpha_composite(logo)
         
         if not self.hide_uid:
-            uid = Image.new(RelictScore.RGBA, RelictScore.bacground_size, (0,0,0,0))
+            uid = Image.new(RelictScore.RGBA, RelictScore.background_size, (0,0,0,0))
             d = ImageDraw.Draw(uid)
             
             font_10 = await pill.get_font(RelictScore.font_uid)
             d.text((0,0), f"UID: {self.uid}", font=font_10, fill=(255, 255, 255, 75))
             self.background.alpha_composite(uid,RelictScore.position_uid)
     
-    async def creat_light_cone(self):
+    async def create_light_cone(self):
         self.background_light_cones = Image.new(RelictScore.RGBA, (330, 190), (0, 0, 0, 0))
         if self.data.light_cone is None:
             return
         
         background = Image.new(RelictScore.RGBA, (139, 190), (0, 0, 0, 0))
-        image = await pill.get_dowload_img(self.data.light_cone.portrait, size=(118, 169))
+        image = await pill.get_download_img(self.data.light_cone.portrait, size=(118, 169))
         background.alpha_composite(image,(9,9))
         light_cone_frame_stars = await get_cone_frame(self.data.light_cone.rarity)
         background.alpha_composite(light_cone_frame_stars)
@@ -146,7 +146,7 @@ class Creat:
         self.background_light_cones.alpha_composite(line,(140,9))
         self.background_light_cones.alpha_composite(names,(146,int(34-names.size[1]/2)))   
     
-    async def creat_stats(self):
+    async def create_stats(self):
         self.background_stats = Image.new(RelictScore.RGBA, (563, 290), (0, 0, 0, 0))
 
         combined_attributes = {}
@@ -165,7 +165,7 @@ class Creat:
         
         xp,y = 0,0
 
-        async for i, background in pill.creat_stats(combined_attributes, dop, 
+        async for i, background in pill.create_stats(combined_attributes, dop, 
                       RelictScore.stat_font_dop,RelictScore.stat_font,
                       RelictScore.stat_line_size, RelictScore.stat_name_size, RelictScore.stat_max_width, RelictScore.stat_icon_size,
                       RelictScore.stat_icon_position, RelictScore.stat_name_position, RelictScore.stat_x_position,
@@ -176,7 +176,7 @@ class Creat:
                 xp = 290
                 y = 0
  
-    async def creat_name(self):
+    async def create_name(self):
         self.background_name = Image.new(RelictScore.RGBA, RelictScore.name_size, (0, 0, 0, 0))
         d = ImageDraw.Draw(self.background_name)
         names = await pill.create_image_with_text(self.data.name, RelictScore.font_name_size , max_width=RelictScore.name_with, color= RelictScore.name_color)
@@ -192,13 +192,13 @@ class Creat:
         starts = await options.get_stars(self.data.rarity)
         self.background_name.alpha_composite(starts,RelictScore.position_name_star)
        
-    async def creat_constant(self):
+    async def create_constant(self):
         self.background_skills = Image.new(RelictScore.RGBA, RelictScore.constant_size_background, (0, 0, 0, 0))
         x = 0
         rank = self.data.rank
         for key in self.data.rank_icons[:rank]:
             bg = Image.new(RelictScore.RGBA, RelictScore.constant_size, (0, 0, 0, 0))
-            icon = await pill.get_dowload_img(key, size=RelictScore.constant_size_icon)
+            icon = await pill.get_download_img(key, size=RelictScore.constant_size_icon)
             icon_blur = icon.filter(ImageFilter.GaussianBlur(RelictScore.constant_blur))
             icon_blur = await pill.recolor_image(icon_blur, self.element_color[:3])
             bg.alpha_composite(icon_blur,RelictScore.constant_icon_position)
@@ -208,38 +208,38 @@ class Creat:
 
         for key in self.data.rank_icons[rank:]:
             bg = Image.new(RelictScore.RGBA, RelictScore.constant_size, (0, 0, 0, 0))
-            icon = await pill.get_dowload_img(key, size= RelictScore.constant_size_icon)
+            icon = await pill.get_download_img(key, size= RelictScore.constant_size_icon)
             icon = await pill.apply_opacity(icon, opacity=RelictScore.constant_size_icon_opacity)
             bg.alpha_composite(icon,RelictScore.constant_icon_position)
             self.background_skills.alpha_composite(bg,(x,0))
             x += 68
      
-    async def creat_relict_sets(self):
+    async def create_relict_sets(self):
         rel_set = options.calculator_relict_sets(self.data.relic_sets)
 
         self.background_sets = Image.new(RelictScore.RGBA, RelictScore.sets_background, (0,0,0,0))
         
-        font = await pill.get_font(RelictScore.setst_font)
+        font = await pill.get_font(RelictScore.sets_font)
         
         line_items = []
         i = 0
         for key in rel_set:
             sets = rel_set[key]
-            holst_line = Image.new(RelictScore.RGBA, RelictScore.setst_line_size, (0,0,0,0))
+            holst_line = Image.new(RelictScore.RGBA, RelictScore.sets_line_size, (0,0,0,0))
             background_count = await _of.relict_count_sets
             background_count = background_count.copy()
             d = ImageDraw.Draw(background_count)
-            d.text(RelictScore.setst_count_position, str(sets["num"]), font=font, fill= RelictScore.setst_name_color)
+            d.text(RelictScore.sets_count_position, str(sets["num"]), font=font, fill= RelictScore.sets_name_color)
             d = ImageDraw.Draw(holst_line)
             sets_name_font,size = await pill.get_text_size_frame(sets["name"],15,492)
             if key[:1] == "1":
                 holst_line.alpha_composite(background_count)
-                d.text((36, 4), sets["name"], font=sets_name_font, fill=RelictScore.setst_name_color)
+                d.text((36, 4), sets["name"], font=sets_name_font, fill=RelictScore.sets_name_color)
                 line_items.append({"setap": i, "line": holst_line})
                 i += 1
             else:
-                holst_line.alpha_composite(background_count,(532,0))
-                d.text((int(521-size), 4), sets["name"], font=sets_name_font, fill=RelictScore.setst_name_color)
+                holst_line.alpha_composite(background_count,(530 - background_count.size[0],0))
+                d.text((int(521 - background_count.size[0] -size), 4), sets["name"], font=sets_name_font, fill=RelictScore.sets_name_color)
                 line_items.append({"setap": 1, "line": holst_line})
                 
         for key in line_items:
@@ -250,7 +250,7 @@ class Creat:
             else:
                 self.background_sets.alpha_composite(key["line"],(0,0))
     
-    async def creat_relict(self,relict):
+    async def create_relict(self,relict):
         background_main = Image.new(RelictScore.RGBA,RelictScore.relict_size, (0,0,0,0))
         background = Image.new(RelictScore.RGBA,RelictScore.relict_size, (0,0,0,0))
         background_image = Image.new("RGBA",RelictScore.relict_size, (0,0,0,0))
@@ -261,7 +261,7 @@ class Creat:
         
         background_main.alpha_composite(relict_frame)
         
-        image = await pill.get_dowload_img(relict.icon, size= RelictScore.relict_icon_size)
+        image = await pill.get_download_img(relict.icon, size= RelictScore.relict_icon_size)
         background_image.alpha_composite(image,RelictScore.relict_icon_position)
         background.paste(background_image,(0,0),relict_maska.convert("L"))
         
@@ -270,7 +270,7 @@ class Creat:
         background_main.alpha_composite(relict_line)
         score = self.score_info["score"].get(str(relict.id),_DEFAULT_SCORE)
         
-        main_stat_icon = await pill.get_dowload_img(relict.main_affix.icon, size= RelictScore.relict_main_stat_icon_size)
+        main_stat_icon = await pill.get_download_img(relict.main_affix.icon, size= RelictScore.relict_main_stat_icon_size)
         color = options.color_element.get(relict.main_affix.type, None)
         if not color is None:
             main_stat_icon = await pill.recolor_image(main_stat_icon, color[:3])
@@ -297,7 +297,7 @@ class Creat:
         eff = 0
         
         for k in relict.sub_affix:
-            icon = await pill.get_dowload_img(k.icon, size=RelictScore.relict_sub_icon_size)
+            icon = await pill.get_download_img(k.icon, size=RelictScore.relict_sub_icon_size)
             background_main.alpha_composite(icon,(142,y_icon))
             scoreR = score["rolls"].get(k.type,0)
             if k.type in self.score_info["bad"]:
@@ -319,7 +319,7 @@ class Creat:
         d.text((187, 4), "Eff Stat:", font=font_14, fill = (255,255,255,255))
         d.text((247, 4), str(eff), font=font_14, fill = options.color_scoreR.get(eff,(255,255,255,255)))
         
-        self.totall_eff += eff
+        self.total_eff += eff
         
         line_f = await _of.relict_frame_line
         line_f = line_f.copy()
@@ -329,7 +329,7 @@ class Creat:
         return {"position": str(relict.id)[-1:] , "img": background_main}
     
     async def get_path(self):
-        self.background_path = await pill.creat_path(self.data)
+        self.background_path = await pill.create_path(self.data)
     
     async def get_score(self):
         self.score_info = await stats.Calculator(self.data).start()
@@ -359,7 +359,7 @@ class Creat:
         self.background_relict.alpha_composite(self.background_score,(0,112))
         self.background_relict.alpha_composite(self.background_sets,(0,45))
     
-    async def creat_seeleland(self):
+    async def create_seeleland(self):
         self.seelelen = Image.new("RGBA",(1,1), (0,0,0,0))
         
         if self.seeleland:
@@ -378,7 +378,7 @@ class Creat:
             draw.text((136, 24), f'{data["rank"][:-2]}..', font=font, fill=(255, 255, 255, 255))
             draw.text((127, 42), data["percrank"].replace("top ", ""), font=font, fill=(255, 255, 255, 255))
     
-    async def creat_score_total(self):
+    async def create_score_total(self):
         self.background_score = Image.new("RGBA",(559,43), (0,0,0,0))
         
         sclor_bg = await _of.relict_backgroundl_score_line
@@ -416,17 +416,17 @@ class Creat:
         d.text((189, -2), str(self.score_info["total_score"]["rank"]["name"]), font=font_21, fill = self.score_info["total_score"]["rank"]["color"])
         
         d.text((393, -2), "Eff Stat:", font=font_21, fill = (255,255,255,255))
-        d.text((497, -2), str(self.totall_eff), font=font_21, fill = options.color_scoreR.get(self.totall_eff,(255,255,255,255)))   
+        d.text((497, -2), str(self.total_eff), font=font_21, fill = options.color_scoreR.get(self.total_eff,(255,255,255,255)))   
     
     async def build(self):
-        bg = Image.new(RelictScore.RGBA, RelictScore.bacground_size, (0,0,0,0))
-        bg.alpha_composite(self.background_light_cones,(782,16))
-        bg.alpha_composite(self.background_stats,(781,220))
-        bg.alpha_composite(self.background_name,(6,654))
-        bg.alpha_composite(self.background_skills.resize((320,47)),(1033,134))
-        bg.alpha_composite(self.background_path.resize((488,428)),(1409,16))
-        bg.alpha_composite(self.background_relict,(781,473))
-        bg.alpha_composite(self.seelelen,(1120,35))
+        bg = Image.new(RelictScore.RGBA, RelictScore.background_size, (0,0,0,0))
+        bg.alpha_composite(self.background_light_cones,RelictScore.build_lc_position)
+        bg.alpha_composite(self.background_stats,RelictScore.build_stats_position)
+        bg.alpha_composite(self.background_name,RelictScore.build_name_position)
+        bg.alpha_composite(self.background_skills.resize(RelictScore.build_constant_size),RelictScore.build_constant_position)
+        bg.alpha_composite(self.background_path.resize(RelictScore.build_skill_size),RelictScore.build_skill_position)
+        bg.alpha_composite(self.background_relict,RelictScore.build_relict_position)
+        bg.alpha_composite(self.seelelen,RelictScore.build_seelelen_position)
         
         if self.gif:
             self.background = []
@@ -458,24 +458,26 @@ class Creat:
                         break
                     if frame_count % n != 0:
                         self.art = frame.convert("RGBA")
-                        await self.creat_bacground()
+                        await self.create_bacground()
                         self.GIFT_BG.append(self.background.copy())
                     frame_count += 1            
         else:
             if self.art:
                 self.element_color = await pill.get_colors(self.art, 15, common=True, radius=5, quality=800)
             
-            await self.creat_bacground()
+            await self.create_bacground()
+        
+        
         
         async with anyio.create_task_group() as tasks:
-            tasks.start_soon(self.creat_light_cone)
-            tasks.start_soon(self.creat_stats)
-            tasks.start_soon(self.creat_name)
-            tasks.start_soon(self.creat_constant)
-            tasks.start_soon(self.creat_relict_sets)
+            tasks.start_soon(self.create_light_cone)
+            tasks.start_soon(self.create_stats)
+            tasks.start_soon(self.create_name)
+            tasks.start_soon(self.create_constant)
+            tasks.start_soon(self.create_relict_sets)
             tasks.start_soon(self.get_score)
             tasks.start_soon(self.get_path)
-            tasks.start_soon(self.creat_seeleland)
+            tasks.start_soon(self.create_seeleland)
         
         async def wait_all(*funcs):
             results = [None] * len(funcs)
@@ -488,13 +490,13 @@ class Creat:
                     tasks.start_soon(process, func, i)
             
             return results
-        
+
         self.relict = await wait_all(*[
-            functools.partial(self.creat_relict, key)
+            functools.partial(self.create_relict, key)
             for key in self.data.relics
         ])
                 
-        await self.creat_score_total()
+        await self.create_score_total()
         
         await self.build_relict()
         await self.build()
@@ -505,7 +507,7 @@ class Creat:
             "name": self.data.name,
             "rarity": self.data.rarity,
             "card": self.background,
-            "size": RelictScore.bacground_size,
+            "size": RelictScore.background_size,
             "color": self.element_color
         }
         

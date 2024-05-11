@@ -126,7 +126,9 @@ class Calculator:
          
         return self.result
 
-        
+    async def get_score(self):
+        return self.score
+    
     async def update_score(self, charter_id = None):
         
         for key in _PATH_FILE_NAME:

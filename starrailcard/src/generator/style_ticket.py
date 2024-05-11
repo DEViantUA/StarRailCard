@@ -24,7 +24,7 @@ _of = git.ImageCache()
 _of.set_mapping(2)
 
 
-class Creat:
+class Create:
     def __init__(self, data, lang, art, hide_uid, uid, seeleland, remove_logo) -> None:
         self.data = data
         self.remove_logo = remove_logo
@@ -33,15 +33,14 @@ class Creat:
         self.hide_uid = hide_uid
         self.uid = uid
         self.seeleland = seeleland
-        self.totall_eff = 0
-        self.seeleland = seeleland
+        self.total_eff = 0
         self.element_color = self.data.element.color.rgba
         self.gif = False
         self.GIFT_BG = []
         
-    async def creat_bacground(self):
-        self.background = Image.new(Ticket.RGBA, Ticket.bacground_size, (0,0,0,0))
-        background_splash = Image.new(Ticket.RGBA, Ticket.background_splash_size, Ticket.bacground_default_color)
+    async def create_background(self):
+        self.background = Image.new(Ticket.RGBA, Ticket.background_size, (0,0,0,0))
+        background_splash = Image.new(Ticket.RGBA, Ticket.background_splash_size, Ticket.background_default_color)
         background_dark = Image.new(Ticket.RGBA, Ticket.background_splash_size, (0,0,0,100))       
         
         line = await _of.background_line
@@ -51,12 +50,12 @@ class Creat:
         background_overlay = await _of.background_overlay
         
         if self.art:
-            user_image = await pill.get_centr_size(Ticket.art_size, self.art)
-            self.background = pill.grandiend_v2.GrandientBackground(user_image,(1,Ticket.bacground_size[1])).start(left= True,overlay_add = False)
+            user_image = await pill.get_center_size(Ticket.art_size, self.art)
+            self.background = pill.gradient_v2.GradientBackground(user_image,(1,Ticket.background_size[1])).start(left= True,overlay_add = False)
             line,self.element_color = await pill.recolor_image(line, self.element_color[:3], light = True)
             
                 
-            self.background = self.background.resize(Ticket.bacground_size)
+            self.background = self.background.resize(Ticket.background_size)
             position_art = Ticket.position_art
             splash = False
             self.background = ImageChops.soft_light(self.background, background_overlay.convert(Ticket.RGBA))
@@ -64,12 +63,10 @@ class Creat:
             if ll > 0.6:
                 self.background.alpha_composite(background_dark)
         else:
-            self.background = Image.new(Ticket.RGBA, Ticket.bacground_size, Ticket.bacground_default_color)
-            user_image = await pill.get_centr_scale(Ticket.splash_size, await pill.get_dowload_img(self.data.portrait))
+            self.background = Image.new(Ticket.RGBA, Ticket.background_size, Ticket.background_default_color)
+            user_image = await pill.get_center_scale(Ticket.splash_size, await pill.get_download_img(self.data.portrait))
             position_art = Ticket.position_splash_art
-            
-        
-        
+
         self.background.alpha_composite(user_image.convert(Ticket.RGBA),position_art)
         if splash:
             self.background.alpha_composite(background_splash)
@@ -79,33 +76,33 @@ class Creat:
             self.background.alpha_composite(logo,(1845,0))
         
         if not self.hide_uid:
-            uid = Image.new(Ticket.RGBA, Ticket.bacground_size, (0,0,0,0))
+            uid = Image.new(Ticket.RGBA, Ticket.background_size, (0,0,0,0))
             d = ImageDraw.Draw(uid)
             
             font_10 = await pill.get_font(Ticket.font_uid)
             d.text((0,0), f"UID: {self.uid}", font=font_10, fill=(255, 255, 255, 100))
             self.background.alpha_composite(uid,Ticket.position_uid)
     
-    async def creat_light_cone(self):
+    async def create_light_cone(self):
         if self.data.light_cone is None:
             self.light_cone_background = Image.new("RGBA", (447, 255), (0, 0, 0, 0))
             return 
         
-        maska = await _of.maska_light_cones
+        mask = await _of.maska_light_cones
         frame_light_cones = await _of.frame_light_cones
         blic_light_cones = await _of.blic_light_cones
         
-        light_cone_holst = Image.new(Ticket.RGBA, Ticket.lc_bacgrount_size, (0, 0, 0, 0))
-        light_cone_holst_image = Image.new(Ticket.RGBA, Ticket.lc_bacgrount_size, (0, 0, 0, 0))
+        light_cone_holst = Image.new(Ticket.RGBA, Ticket.lc_background_size, (0, 0, 0, 0))
+        light_cone_holst_image = Image.new(Ticket.RGBA, Ticket.lc_background_size, (0, 0, 0, 0))
 
-        image = await pill.get_dowload_img(self.data.light_cone.portrait, size=Ticket.lc_image_size)
+        image = await pill.get_download_img(self.data.light_cone.portrait, size=Ticket.lc_image_size)
         light_cone_holst_image.alpha_composite(image, Ticket.lc_image_position)
 
-        light_cone_holst.paste(light_cone_holst_image, (0, 0), maska.convert("L"))
+        light_cone_holst.paste(light_cone_holst_image, (0, 0), mask.convert("L"))
 
-        light_cone_holst_image = Image.new(Ticket.RGBA, Ticket.lc_bacgrount_size, (0, 0, 0, 0))
+        light_cone_holst_image = Image.new(Ticket.RGBA, Ticket.lc_background_size, (0, 0, 0, 0))
         
-        shadow, frame, self.color = await pill.get_resurs_light_cones(self.data.light_cone.rarity)
+        shadow, frame, self.color = await pill.get_resource_light_cones(self.data.light_cone.rarity)
         
         light_cone_holst_image.alpha_composite(shadow)
         light_cone_holst_image.alpha_composite(frame, Ticket.lc_frame_position)
@@ -152,7 +149,7 @@ class Creat:
 
         self.light_cone_background.alpha_composite(background_stat, (188, y))
     
-    async def creat_relict(self,relict):
+    async def create_relict(self,relict):
         
         font_15 = await pill.get_font(15)
         font_26 = await pill.get_font(26)
@@ -169,7 +166,7 @@ class Creat:
         relict_score_frame = await _of.relict_score_frame
         
         relict_background_icon = Image.new(Ticket.RGBA, (387,88), (0,0,0,0))
-        image = await pill.get_dowload_img(relict.icon, size= (108,108))
+        image = await pill.get_download_img(relict.icon, size= (108,108))
         relict_background_icon.alpha_composite(image,(-6,-10))
         
         line = Image.new(Ticket.RGBA, (1,81), (255,255,255,255))
@@ -179,7 +176,7 @@ class Creat:
         relict_background.alpha_composite(line,(251,4))
         
         score = self.score_info["score"].get(str(relict.id),_DEFAULT_SCORE)
-        main_stat_icon = await pill.get_dowload_img(relict.main_affix.icon, size= Ticket.relict_main_stat_icon_size)
+        main_stat_icon = await pill.get_download_img(relict.main_affix.icon, size= Ticket.relict_main_stat_icon_size)
         color = options.color_element.get(relict.main_affix.type, None)
         if not color is None:
             main_stat_icon = await pill.recolor_image(main_stat_icon, color[:3])
@@ -212,7 +209,7 @@ class Creat:
         
         for i, k in enumerate(relict.sub_affix):
             count_draw  = count.copy()
-            icon = await pill.get_dowload_img(k.icon, size=Ticket.relict_sub_icon_size)
+            icon = await pill.get_download_img(k.icon, size=Ticket.relict_sub_icon_size)
             relict_background.alpha_composite(icon,(x_icon,y_icon))
             scoreR = score["rolls"].get(k.type,0)
             x = x_text - int(font_17.getlength(str(k.display)))
@@ -258,30 +255,30 @@ class Creat:
         d.text((239, 1), "Eff Stat:", font=font_14, fill = (255,255,255,255))
         d.text((301, 1), str(eff), font=font_14, fill = options.color_scoreR.get(eff,(255,255,255,255)))
         
-        self.totall_eff += eff
+        self.total_eff += eff
                 
         return {"position": str(relict.id)[-1:] , "img": background}        
 
     
-    async def creat_relict_sets(self):
+    async def create_relict_sets(self):
         rel_set = options.calculator_relict_sets(self.data.relic_sets)
 
         self.background_sets = Image.new(Ticket.RGBA, Ticket.sets_background, (0,0,0,0))
         icons_sets = await _of.relict_icon_sets
         background_counts = await _of.relict_count_sets
-        font = await pill.get_font(Ticket.setst_font)
+        font = await pill.get_font(Ticket.sets_font)
         
         line_items = []
         i = 0
         for key in rel_set:
             sets = rel_set[key]
-            holst_line = Image.new(Ticket.RGBA, Ticket.setst_line_size, (0,0,0,0))
-            icon = await pill.get_dowload_img(sets["icon"], size = (33,33))
+            holst_line = Image.new(Ticket.RGBA, Ticket.sets_line_size, (0,0,0,0))
+            icon = await pill.get_download_img(sets["icon"], size = (33,33))
             icons_sets.alpha_composite(icon, (3,3))
             
             background_count = background_counts.copy()
             d = ImageDraw.Draw(background_count)
-            d.text(Ticket.setst_count_position, str(sets["num"]), font=font, fill= Ticket.setst_name_color)
+            d.text(Ticket.sets_count_position, str(sets["num"]), font=font, fill= Ticket.sets_name_color)
             
             d = ImageDraw.Draw(holst_line)
             sets_name_font,size = await pill.get_text_size_frame(sets["name"],15,280)
@@ -289,18 +286,18 @@ class Creat:
                 if i != 0:
                     holst_line.alpha_composite(icons_sets, (356,0))
                     holst_line.alpha_composite(background_count,(0,10))
-                    d.text((int(185-size/2), 12), sets["name"], font=sets_name_font, fill=Ticket.setst_name_color)
+                    d.text((int(185-size/2), 12), sets["name"], font=sets_name_font, fill=Ticket.sets_name_color)
                     line_items.append({"setap": i, "line": holst_line})
                 else:
                     holst_line.alpha_composite(icons_sets, (0,0))
                     holst_line.alpha_composite(background_count,(370,10))
-                    d.text((int(185-size/2), 12), sets["name"], font=sets_name_font, fill=Ticket.setst_name_color)
+                    d.text((int(185-size/2), 12), sets["name"], font=sets_name_font, fill=Ticket.sets_name_color)
                     line_items.append({"setap": i, "line": holst_line})
                 i += 1
             else:
                 holst_line.alpha_composite(icons_sets, (0,0))
                 holst_line.alpha_composite(background_count,(370,10))
-                d.text((int(185-size/2), 12), sets["name"], font=sets_name_font, fill=Ticket.setst_name_color)
+                d.text((int(185-size/2), 12), sets["name"], font=sets_name_font, fill=Ticket.sets_name_color)
                 line_items.append({"setap": 3, "line": holst_line})
         
         
@@ -316,7 +313,7 @@ class Creat:
     async def get_score(self):
         self.score_info = await stats.Calculator(self.data).start()
     
-    async def creat_stats(self):
+    async def create_stats(self):
         self.background_stats = Image.new(Ticket.RGBA, (434, 692), (0, 0, 0, 0))
 
         combined_attributes = {}
@@ -335,7 +332,7 @@ class Creat:
         
         result = []
                 
-        async for i, background in pill.creat_stats(combined_attributes, dop, 
+        async for i, background in pill.create_stats(combined_attributes, dop, 
                       Ticket.stat_font_dop,Ticket.stat_font,
                       Ticket.stat_line_size, Ticket.stat_name_size, Ticket.stat_max_width, Ticket.stat_icon_size,
                       Ticket.stat_icon_position, Ticket.stat_name_position, Ticket.stat_x_position,
@@ -352,7 +349,7 @@ class Creat:
             self.background_stats.alpha_composite(key, (0, position_line))
             position_line += x
                    
-    async def creat_path(self):
+    async def create_path(self):
         font = await pill.get_font(11)
         font_13 = await pill.get_font(13)
 
@@ -385,9 +382,9 @@ class Creat:
             if key.max_level == 1:
 
                 if key.anchor in ["Point05","Point06","Point07","Point08"]:
-                    icon = await pill.get_dowload_img(key.icon, size=(38,38))
+                    icon = await pill.get_download_img(key.icon, size=(38,38))
                 else:
-                    icon = await pill.get_dowload_img(key.icon, size=(30,30))
+                    icon = await pill.get_download_img(key.icon, size=(30,30))
                     
                 if key.level == 0:
                     if key.anchor in ["Point05","Point06","Point07","Point08"]:
@@ -414,7 +411,7 @@ class Creat:
                 self.dop_bg.alpha_composite(bg, position_dop[i])
                 i += 1
             else:
-                icon = await pill.get_dowload_img(key.icon, size=(43, 43))
+                icon = await pill.get_download_img(key.icon, size=(43, 43))
                 bg = await _of.bg_main
                 frame_bg = await _of.frame_main
                 bg = bg.copy()
@@ -442,7 +439,7 @@ class Creat:
                 position_main += 77
 
 
-    async def creat_name(self):
+    async def create_name(self):
         self.background_name = Image.new(Ticket.RGBA, Ticket.name_size, (0, 0, 0, 0))
         d = ImageDraw.Draw(self.background_name)
         names = await pill.create_image_with_text(self.data.name, Ticket.font_name_size , max_width=Ticket.name_with, color= Ticket.name_color)
@@ -466,7 +463,7 @@ class Creat:
         starts = await options.get_stars(self.data.rarity)
         self.background_name.alpha_composite(starts,Ticket.position_name_star)   
     
-    async def creat_constant(self):
+    async def create_constant(self):
         self.background_skills = Image.new(Ticket.RGBA, (381, 54), (0, 0, 0, 0))
         x = 0
         rank = self.data.rank
@@ -476,7 +473,7 @@ class Creat:
         for key in self.data.rank_icons[:rank]:
             bg = await _of.ON_const
             bg = await pill.recolor_image(bg.resize((54,54)).copy(),self.element_color[:3])
-            icon = await pill.get_dowload_img(key, size=(43,43))
+            icon = await pill.get_download_img(key, size=(43,43))
             icon = await pill.recolor_image(icon, self.element_color[:3])
             bg.alpha_composite(icon,(5,5))
             self.background_skills.alpha_composite(bg,(x,0))
@@ -484,7 +481,7 @@ class Creat:
         for key in self.data.rank_icons[rank:]:
             bg = await _of.OFF_const
             bg = bg.resize((54,54)).copy()
-            icon = await pill.get_dowload_img(key, size=(43,43))
+            icon = await pill.get_download_img(key, size=(43,43))
             icon = await pill.apply_opacity(icon, 0.3)
             bg.alpha_composite(icon,(5,5))
             bg.alpha_composite(closed,(0,0))
@@ -492,7 +489,7 @@ class Creat:
             x += 65
    
     
-    async def creat_score_total(self):
+    async def create_score_total(self):
         self.background_score = Image.new("RGBA",(442,37), (0,0,0,0))
         
         sclor_bg = await _of.relict_backgroundl_score_line
@@ -530,7 +527,7 @@ class Creat:
         d.text((132, -2), str(self.score_info["total_score"]["rank"]["name"]), font=font_16, fill = self.score_info["total_score"]["rank"]["color"])
         
         d.text((287, -2), "Eff Stat:", font=font_16, fill = (255,255,255,255))
-        d.text((366, -2), str(self.totall_eff), font=font_16, fill = options.color_scoreR.get(self.totall_eff,(255,255,255,255)))
+        d.text((366, -2), str(self.total_eff), font=font_16, fill = options.color_scoreR.get(self.total_eff,(255,255,255,255)))
     
     
     async def build_relict(self):
@@ -556,7 +553,7 @@ class Creat:
                 self.background_relict.alpha_composite(none_relict, position.get(key))
     
     
-    async def creat_seeleland(self):
+    async def create_seeleland(self):
         self.seelelen = Image.new("RGBA",(1,1), (0,0,0,0))
         
         if self.seeleland:
@@ -576,18 +573,18 @@ class Creat:
             draw.text((127, 42), data["percrank"].replace("top ", ""), font=font, fill=(255, 255, 255, 255))
     
     async def build(self):
-        bg = Image.new(Ticket.RGBA, Ticket.bacground_size, (0,0,0,0))
+        bg = Image.new(Ticket.RGBA, Ticket.background_size, (0,0,0,0))
         
-        bg.alpha_composite(self.light_cone_background.resize((302,182)),(29,35))
-        bg.alpha_composite(self.background_relict,(29,310)) 
-        bg.alpha_composite(self.background_sets,(29,222))
-        bg.alpha_composite(self.background_stats,(884,56))
-        bg.alpha_composite(self.main_bg,(500,68))
-        bg.alpha_composite(self.dop_bg,(446,165))
-        bg.alpha_composite(self.background_skills,(455,327))
-        bg.alpha_composite(self.background_name,(1350,691))
-        bg.alpha_composite(self.background_score,(442,436))
-        bg.alpha_composite(self.seelelen,(1688,718)) 
+        bg.alpha_composite(self.light_cone_background.resize(Ticket.build_lc_size),Ticket.build_lc_position)
+        bg.alpha_composite(self.background_relict,Ticket.build_relict_position) 
+        bg.alpha_composite(self.background_sets,Ticket.build_sets_position)
+        bg.alpha_composite(self.background_stats,Ticket.build_stats_position)
+        bg.alpha_composite(self.main_bg,Ticket.build_skill_position_main)
+        bg.alpha_composite(self.dop_bg,Ticket.build_skill_position_dop)
+        bg.alpha_composite(self.background_skills,Ticket.build_constant_position)
+        bg.alpha_composite(self.background_name,Ticket.build_name_position)
+        bg.alpha_composite(self.background_score,Ticket.build_score_position)
+        bg.alpha_composite(self.seelelen,Ticket.build_seelelen_position) 
         
         if self.gif:
             self.background = []
@@ -615,25 +612,25 @@ class Creat:
                             break
                         if frame_count % n != 0:
                             self.art = frame.convert("RGBA")
-                            await self.creat_bacground()
+                            await self.create_background()
                             self.GIFT_BG.append(self.background.copy())
                         frame_count += 1
             else:
                 self.element_color = await pill.get_colors(self.art, 15, common=True, radius=5, quality=800)
-                await self.creat_bacground()
+                await self.create_background()
         else:
             self.element_color = (255,213,167,255)
-            await self.creat_bacground()
+            await self.create_background()
         
         async with anyio.create_task_group() as tasks:
-            tasks.start_soon(self.creat_light_cone)
-            tasks.start_soon(self.creat_stats)
-            tasks.start_soon(self.creat_name)
-            tasks.start_soon(self.creat_constant)
-            tasks.start_soon(self.creat_relict_sets)
+            tasks.start_soon(self.create_light_cone)
+            tasks.start_soon(self.create_stats)
+            tasks.start_soon(self.create_name)
+            tasks.start_soon(self.create_constant)
+            tasks.start_soon(self.create_relict_sets)
             tasks.start_soon(self.get_score)
-            tasks.start_soon(self.creat_path)
-            tasks.start_soon(self.creat_seeleland)
+            tasks.start_soon(self.create_path)
+            tasks.start_soon(self.create_seeleland)
         
         async def wait_all(*funcs):
             results = [None] * len(funcs)
@@ -648,7 +645,7 @@ class Creat:
             return results
         
         self.relict = await wait_all(*[
-            functools.partial(self.creat_relict, key)
+            functools.partial(self.create_relict, key)
             for key in self.data.relics
         ])
 
@@ -657,7 +654,7 @@ class Creat:
         
         
         
-        await self.creat_score_total()
+        await self.create_score_total()
         await self.build_relict()
         await self.build()
         
@@ -667,7 +664,7 @@ class Creat:
                 "animation": self.gif,
                 "rarity": self.data.rarity,
                 "card": self.background,
-                "size": Ticket.bacground_size,
+                "size": Ticket.background_size,
                 "color": self.element_color,
             }
             

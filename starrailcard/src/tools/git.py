@@ -8,7 +8,7 @@ from pathlib import Path
 from io import BytesIO
 
 from .http import AioSession
-from .cashe import Cache
+from .cache import Cache
 
 lock = threading.Lock()
 
@@ -84,6 +84,46 @@ total_style = {
     'LOGO_GIT': 'teample_two_new/LOGO.png',
     'LOGO_GIT_INV': 'three/LOGO.png',
     'seeleland_v2': "seeleland_v2.png"
+}
+
+
+card_style = {
+    'background_overlay': 'style_card/background/overlay.png',
+    'background_shadow': 'style_card/background/shadow.png',
+    'background_maska': 'style_card/background/maska.png',
+    'background_maska_art': 'style_card/background/maska_art.png',
+    
+    'shadow_3_light_cone': 'three/light_cones/3_shadow_lc.png',
+    'star_3_frame_light_cone': 'three/light_cones/3_star_frame_lc.png',
+    'shadow_4_light_cone': 'three/light_cones/4_shadow_lc.png',
+    'star_4_frame_light_cone': 'three/light_cones/4_star_frame_lc.png',
+    'shadow_5_light_cone': 'three/light_cones/5_shadow_lc.png',
+    'star_5_frame_light_cone': 'three/light_cones/5_star_frame_lc.png',
+    'blic_light_cones': 'three/light_cones/blic.png',
+    'frame_light_cones': 'three/light_cones/frame_lc.png',
+    'maska_light_cones': 'three/light_cones/maska_lc.png',
+    'stats_light_cones': 'three/light_cones/stats.png',
+    'none_relict': 'teample_two_new/relict/none_relict.png',
+    
+    'relict_backgroundl_score_line': 'teample_two_new/relict/backgroundl_score_line.png',
+    'relict_full_score_line': 'teample_two_new/relict/full_score_line.png',
+    'relict_count_sets': 'teample_two_new/relict/count_sets.png',
+    'relict_frame_line': 'teample_two_new/relict/frame_line.png',    
+    'relict_line': 'teample_two_new/relict/line.png',
+    'relict_frame': 'teample_two_new/relict/relict_frame.png',
+    'relict_maska': 'teample_two_new/relict/relict_maska.png',
+    'relict_score_frame': 'teample_two_new/relict/score_frame.png',
+    'none_relict': 'teample_two_new/relict/none_relict.png',
+    
+    'talants_adaptationt_frame': 'style_card/talants/adaptationt_frame.png',
+    'talants_background': 'style_card/talants/background.png',
+    'talants_count': 'style_card/talants/count.png',
+    'talants_default_frame': 'style_card/talants/default_frame.png',
+    'talants_line': 'style_card/talants/line.png',
+    'talants_mini_stats': 'style_card/talants/mini_stats.png',
+    'talants_main_stats': 'style_card/talants/main_stats.png',
+    
+    
 }
 
 relict_score = {
@@ -171,14 +211,16 @@ profile_phone = {
     'maska_character': 'profile_phone/maska_charter.png'
 }
 
+
+
 class ImageCache:
     
-    _assets_dowload = False
+    _assets_download = False
     _mapping = {}
             
     @classmethod
-    async def set_assets_dowload(cls, dowload = False):
-        cls._assets_dowload = dowload
+    async def set_assets_download(cls, download = False):
+        cls._assets_download = download
     
     @classmethod
     def set_mapping(cls,style):
@@ -188,6 +230,8 @@ class ImageCache:
             cls._mapping = ticket
         elif style == 3:
             cls._mapping = profile_phone
+        elif style == 4:
+            cls._mapping = card_style
         
     @classmethod
     async def _load_image(cls, name):
@@ -215,7 +259,7 @@ class ImageCache:
             image = Image.open(BytesIO(image_data))
             _caches[name] = image
         
-        if cls._assets_dowload:
+        if cls._assets_download:
             file_path = assets / name
             file_path.parent.mkdir(parents=True, exist_ok=True)
             image.save(str(assets / name))
