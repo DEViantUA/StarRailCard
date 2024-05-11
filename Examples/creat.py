@@ -3,7 +3,7 @@ import starrailcard
 
 async def main():
         async with starrailcard.Card() as card:
-                data = await card.creat(700649319, style=2)
+            data = await card.create(700649319, style=2)
             print(data)
             print("Settings:")
             print(f"  UID: {data.settings.uid}")

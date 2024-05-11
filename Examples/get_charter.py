@@ -3,7 +3,7 @@ import starrailcard
 
 async def main():
     async with starrailcard.Card() as card:
-            data = await card.creat_profile(700649319)
+        data = await card.create_profile(700649319)
         key_id = data.get_charter()
         key_name = data.get_charter(name = True)
         key_setting = data.get_charter(setting = True)

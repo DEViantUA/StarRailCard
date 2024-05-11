@@ -6,7 +6,7 @@ async def main():
     data = await api.ApiMiHoMo(825868370,"en").get()
     #Here you can perform any actions with the data
     async with starrailcard.Card(api_data = data) as card:
-      data = await card.creat(825868370, style=2)
+      data = await card.create(825868370, style=2)
       print(data)
       print("Settings:")
       print(f"  UID: {data.settings.uid}")
