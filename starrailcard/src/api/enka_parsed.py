@@ -1,543 +1,631 @@
+import json
+import math
+from pathlib import Path
+from copy import deepcopy
+
 from ..tools.json_data import JsonManager
 from ..tools.enums import PathData
-import json
 
-_DEFFAULT_ASSETS_LINK = "https://enka.network/ui/hsr/"
+CHARACTERS_LINK_ICON = "icon/{catalog}/{character_id}.png"
+CHARACTERS_LINK_IMAGE = "image/{catalog}/{character_id}.png"
+ENKA_INDEX = Path(__file__).parent / "assets" / "enka_api" / "index"
+ENKA = Path(__file__).parent.parent / "assets" / "enka_api"
 
-_DEFFAULT_ASSETS_HSR_LINK = "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/{catalog}/{key}.png"
-_DEFFAULT_ASSETS_HSR_LINK_SKILL = "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/"
-
-
-fiel = {
+field = {
     "BaseHP": "hp",
     "BaseAttack": "atk",
     "BaseDefence": "def",
 }
 
-proc = {
-    "false": False,
-    'true': True
-}
 
 class AssetEnkaParsed:
-    def __init__(self, data: dict, lang: str = "en") -> None:
-        self.data = data["detailInfo"]
-        self.lang = lang
-       
-    async def creat_player(self):
-        avatar_link = await AssetEnkaParsed.get_icon_avatar(self.data["headIcon"])
-        self.player = {
-            "uid": 0,#self.data["uid"],
-            "nickname": self.data["nickname"],
-            "level": self.data["level"],
-            "is_display": self.data["isDisplayAvatar"],
-            "avatar": {"id": str(self.data["headIcon"]), "name": avatar_link.split("/")[-1:][0], "icon": _DEFFAULT_ASSETS_LINK + avatar_link},
-            "signature": self.data["signature"],
-            "friend_count": self.data["friendCount"],
-            "world_level": self.data["worldLevel"],
-            "space_info": {
-                "pass_area_progress": self.data["recordInfo"]["challengeInfo"]["scheduleMaxLevel"],
-                "light_cone_count": self.data["recordInfo"]["equipmentCount"],
-                "avatar_count": self.data["recordInfo"]["avatarCount"],
-                "achievement_count": self.data["recordInfo"]["achievementCount"],
-            }
-        }
-        
+    def __init__(self, data) -> None:
+        self.data = data
+        self.lang = "en"
     
-    async def creat_avatar(self):
-        self.charter = []
-        for key in self.data["avatarDetailList"]:      
-            charter_info = await AssetEnkaParsed.get_info_character(key["avatarId"],self.lang)
-            path_info = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "paths.json").read()
-            element_info = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "elements.json").read()
-            skills_info = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "character_skills.json").read()
-            skill_trees_info = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "character_skill_trees.json").read()
-            character_ranks = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "character_ranks.json").read()
-            light_cone = await AssetEnkaParsed.add_light_cone(key,self.lang,path_info)
-            relics = [await AssetEnkaParsed.add_relics(keys, self.lang) for keys in key["relicList"]]
-            skill_trees = await AssetEnkaParsed.add_skill_trees(skill_trees_info,charter_info,skills_info,key)
-
-            data = {
-                "id": key["avatarId"],
-                "name": charter_info["AvatarName"]["name"],
-                "rarity": charter_info["Rarity"],
-                "rank": key.get("rank",0),
-                "level": key["level"],
-                "promotion": key["promotion"],
-                "icon": _DEFFAULT_ASSETS_HSR_LINK.format(catalog = "icon/avatar", key = key["avatarId"]),
-                "preview": _DEFFAULT_ASSETS_HSR_LINK.format(catalog = "image/character_preview", key = key["avatarId"]),
-                "portrait": _DEFFAULT_ASSETS_HSR_LINK.format(catalog = "image/character_portrait", key = key["avatarId"]),
-                "path": await AssetEnkaParsed.get_path(path_info,charter_info),
-                "rank_icons": [_DEFFAULT_ASSETS_HSR_LINK_SKILL + character_ranks.get(str(key))["icon"] for key in charter_info["RankIDList"]],
-                "element":  await AssetEnkaParsed.get_element(element_info,charter_info["Element"]),
-                "skills": await AssetEnkaParsed.add_skills(element_info,charter_info,key, self.lang),
-                "skill_trees": skill_trees,
-                "light_cone": light_cone if light_cone != {} else None,
-                "relics": relics,
-                "relic_sets": await AssetEnkaParsed.add_relict_sets(key["relicList"], self.lang),
-                "additions": await AssetEnkaParsed.add_additions(key, self.lang, light_cone.get("attributes",[])),
-                "attributes": await AssetEnkaParsed.add_attributes(relics, skill_trees, self.lang),
-                "properties": None, #await AssetEnkaParsed.add_properties(key["skillTreeList"], self.lang),
-                "pos": [key.get("pos", 0)]
-            }
-            
-            self.charter.append(data)
-        
-        
+    async def load_assets(self):
+        self.character = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "characters.json").read()
+        self.element = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "elements.json").read()
+        self.path =  await JsonManager(PathData.ENKA_INDEX.value / self.lang / "paths.json").read()
+        self.character_rank = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "character_ranks.json").read()
+        self.character_promotions = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "character_promotions.json").read()
+        self.skill = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "character_skills.json").read()
+        self.skill_trees_info = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "character_skill_trees.json").read()
+        self.light_cone = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "light_cones.json").read()
+        self.propertie = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "properties.json").read()
+        self.light_cone_rank = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "light_cone_ranks.json").read()
+        self.relics = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "relics.json").read()
+        self.relics_set = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "relic_sets.json").read()
+        self.relic_main_affixes = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "relic_main_affixes.json").read()
+        self.relic_sub_affixes = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "relic_sub_affixes.json").read()
+        self.relic_set = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "relic_sets.json").read()
+        self.light_cone_promotion = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "light_cone_promotions.json").read()
+        self.avatar = await JsonManager(PathData.ENKA_INDEX.value / self.lang / "avatars.json").read()
     
     async def collect(self):
-        await self.creat_player()
-        await self.creat_avatar()
-
-        await JsonManager(PathData.ENKA.value / "TEST_API.json").write(self.charter)
-        
-        return {"player": self.player, "characters":self.charter}
-    '''
-    @classmethod
-    async def add_properties(cls, skillTreeList, lang):
-        property = await JsonManager(PathData.ENKA_INDEX.value / lang / "properties.json").read()
-        skill_trees_info = await JsonManager(PathData.ENKA_INDEX.value / lang / "character_skill_trees.json").read()
-    '''
-    
-    @classmethod
-    async def add_attributes(cls, relict, skill, lang):
-        skill_trees_info = await JsonManager(PathData.ENKA_INDEX.value / lang / "character_skill_trees.json").read()
-        property = await JsonManager(PathData.ENKA_INDEX.value / lang / "properties.json").read()
-        
-        data = {}          
-        
-        for key in relict:
-            if not key["main_affix"]["field"] in data:
-                data[key["main_affix"]["field"]] = {
-                    "field": key["main_affix"]["field"],
-                    "name": key["main_affix"]["name"],
-                    "icon": key["main_affix"]["icon"],
-                    "value": key["main_affix"]["value"],
-                    "display": AssetEnkaParsed.get_display(key["main_affix"]["value"], key["main_affix"]["percent"]),
-                    "percent": key["main_affix"]["percent"]
-                    }
-            else:
-                data[key["main_affix"]["field"]]["value"] += key["main_affix"]["value"]
-                data[key["main_affix"]["field"]]["display"] = AssetEnkaParsed.get_display(data[key["main_affix"]["field"]]["value"], key["main_affix"]["percent"])
-            
-            for keys in key["sub_affix"]:
-                if not keys["field"] in data:
-                    data[keys["field"]] = {
-                        "field": keys["field"],
-                        "name": keys["name"],
-                        "icon": keys["icon"],
-                        "value": keys["value"],
-                        "display": AssetEnkaParsed.get_display(keys["value"], keys["percent"]),
-                        "percent": keys["percent"]
-                        }
-                else:
-                    
-                    data[keys["field"]]["value"] += keys["value"]
-                    data[keys["field"]]["display"] = AssetEnkaParsed.get_display(data[keys["field"]]["value"], keys["percent"])
-            
-        for key in skill:
-            info = skill_trees_info.get(str(key["id"]))["levels"]
-            if info == []:
-                continue
-            info = info[0]["properties"]
-            if info == []:
-                continue
-            info = info[0]
-            
-            property_info = property.get(info["type"])
-            
-            if not property_info["field"] in data:
-                data[property_info["field"]] = {
-                    "field": property_info["field"],
-                    "name": property_info["name"],
-                    "icon": property_info["icon"],
-                    "value": info["value"],
-                    "display": AssetEnkaParsed.get_display(info["value"], property_info["percent"]),
-                    "percent": property_info["percent"]
-                    }
-            else:
-                
-                data[property_info["field"]]["value"] += info["value"]
-                data[property_info["field"]]["display"] = AssetEnkaParsed.get_display(data[property_info["field"]]["value"], property_info["percent"])
-            
-                
-            
-        return [data[key] for key in data]
-    
-    @classmethod
-    async def add_additions(cls, data,lang, light_cone):
-        promotion_id = data["promotion"]
-        avatarId = data["avatarId"]
-        level = data["level"] 
-        
-        if level > 1:
-            level = data["level"]-1
-        
-        property = await JsonManager(PathData.ENKA_INDEX.value / lang / "properties.json").read()
-        meta = await JsonManager(PathData.ENKA.value / "meta.json").read()
-        meta = meta["avatar"].get(str(avatarId)).get(str(promotion_id))
-        
-
-        name = {
-            "hp": "HPBase",
-            "atk": "AttackBase",
-            "def": "DefenceBase",
-            "spd": "SpeedBase",
-            "crit_rate": "CriticalChance",
-            "crit_dmg": "CriticalDamage",
-        }
-        
-        base = [
-            {
-               "field":"hp",
-               "name":"BaseHP",
-               "icon": _DEFFAULT_ASSETS_HSR_LINK_SKILL + "icon/property/IconMaxHP.png",
-               "value": 0,
-               "display": None,
-               "percent": False
-            },
-            {
-               "field":"atk",
-               "name": "BaseAttack",
-               "icon": _DEFFAULT_ASSETS_HSR_LINK_SKILL + "icon/property/IconAttack.png",
-               "value": 0,
-               "display": None,
-               "percent": False
-            },
-            {
-               "field":"def",
-               "name": "BaseDefence",
-               "icon": _DEFFAULT_ASSETS_HSR_LINK_SKILL + "icon/property/IconDefence.png",
-               "value": 0,
-               "display": None,
-               "percent": False
-            },
-            {
-               "field":"spd",
-               "name": "SpeedDelta",
-               "icon": _DEFFAULT_ASSETS_HSR_LINK_SKILL + "icon/property/IconSpeed.png",
-               "value": 0,
-               "display": None,
-               "percent": False
-            },
-            {
-               "field":"crit_rate",
-               "name": "CriticalChanceBase",
-               "icon": _DEFFAULT_ASSETS_HSR_LINK_SKILL + "icon/property/IconCriticalChance.png",
-               "value":0.,
-               "display": None,
-               "percent": True
-            },
-            {
-               "field":"crit_dmg",
-               "name": "CriticalDamageBase",
-               "icon": _DEFFAULT_ASSETS_HSR_LINK_SKILL + "icon/property/IconCriticalDamage.png",
-               "value":0,
-               "display": None,
-               "percent": True
-            }
-         ]
-        
-        for key in base:
-            name_meta = name.get(key["field"])
-            key["name"] = property.get(key["name"])["name"]
-            if not key["percent"]:
-                if light_cone != []:
-                    for keys in light_cone:
-                        if key["field"] == keys["field"]:
-                            key["value"] = meta[name_meta] + (meta.get(name_meta.replace("Base", "Add"), 0) * level) + keys["value"]
-                else:
-                    key["value"] = meta[name_meta] + (meta.get(name_meta.replace("Base", "Add"), 0) * level)
-            else:
-                key["value"] = meta[name_meta]
-            key["display"] = AssetEnkaParsed.get_display(key["value"], key["percent"])
-        
-        return base
-    
-    @classmethod
-    async def add_relict_sets(cls, data, lang):
-        
-        new_data = []
-        sets_num = {}
-        done = []
-        data_relics = await JsonManager(PathData.ENKA.value / "relics.json").read()
-        data_relics_sets = await JsonManager(PathData.ENKA_INDEX.value / lang / "relic_sets.json").read()
-        
-        for key in data:
-            relics = data_relics.get(str(key["tid"]))
-            if not relics["SetID"] in sets_num:
-                sets_num[relics["SetID"]] = 1
-            else:
-                sets_num[relics["SetID"]] += 1
-        
-        property = await JsonManager(PathData.ENKA_INDEX.value / lang / "properties.json").read()
-        
-        for key in data:
-            relics = data_relics.get(str(key["tid"]))
-            if sets_num[relics["SetID"]] < 2 or relics["SetID"] in done:
-                continue
-            
-            relics_sets = data_relics_sets.get(str(relics["SetID"]))
-
-            index_desc = 0
-            if sets_num[relics["SetID"]] >= 4:
-                index_desc = 1
-            
-            properties = relics_sets["properties"][index_desc]
-            if properties == []:
-                properties = relics_sets["properties"][0]
-            new_data.append({"id": str(relics["SetID"]),
-                "name": relics_sets["name"],
-                "icon": _DEFFAULT_ASSETS_HSR_LINK_SKILL +  relics_sets["icon"],
-                "num": sets_num[relics["SetID"]],
-                "desc": relics_sets["desc"][index_desc],
-                "properties":[
-                    {
-                        "type": properties[0]["type"],
-                        "field": property.get(properties[0]["type"])["field"],
-                        "name": property.get(properties[0]["type"])["name"],
-                        "icon": _DEFFAULT_ASSETS_HSR_LINK_SKILL +  property.get(properties[0]["type"])["icon"],
-                        "value": properties[0]["value"],
-                        "display": AssetEnkaParsed.get_display(properties[0]["value"], property.get(properties[0]["type"])["percent"]),
-                        "percent": property.get(properties[0]["type"])["percent"]
-                    } if properties != [] else []
-                ]
-                }
-            )
-            done.append(relics["SetID"])
-        
-        return new_data
-        
-
-    @classmethod
-    async def add_relics(cls, data,lang):
-
-        relics = await JsonManager(PathData.ENKA.value / "relics.json").read()
-        relics = relics.get(str(data["tid"]))
-        
-        relicsMiHoMo = await JsonManager(PathData.ENKA_INDEX.value / lang /"relics.json").read()
-        relicsMiHoMo = relicsMiHoMo.get(str(data["tid"]))
-        
-        hash = await JsonManager(PathData.ENKA.value / "hsr.json").read()
-        hash = hash.get(lang)
-        
-        main_affix = await JsonManager(PathData.ENKA_INDEX.value / lang / "relic_main_affixes.json").read()
-        main_affix = main_affix.get(relicsMiHoMo["main_affix_id"])
-        main_affix = main_affix["affixes"].get(str(data["mainAffixId"]))
-        
-        
-            
-        property = await JsonManager(PathData.ENKA_INDEX.value / lang / "properties.json").read()
-
+        await self.load_assets()
         data = {
-                "id": data["tid"],
-                "name": relicsMiHoMo["name"],
-                "set_id": data["_flat"]["setID"],
-                "set_name": hash.get(str(data["_flat"]["setName"])),
-                "rarity": relics["Rarity"],
-                "level": data["level"],
-                "icon": f"https://enka.network/ui/hsr/{relics['Icon']}",
-                "main_affix":{
-                    "type": main_affix["property"],
-                    "field": property.get(main_affix["property"])["field"],
-                    "name": property.get(main_affix["property"])["name"],
-                    "icon": _DEFFAULT_ASSETS_HSR_LINK_SKILL +  property.get(main_affix["property"])["icon"],
-                    "value": data["_flat"]["props"][0]["value"],
-                    "display": AssetEnkaParsed.get_display(data["_flat"]["props"][0]["value"], property.get(main_affix["property"])["percent"]),
-                    "percent": property.get(main_affix["property"])["percent"]
-                },
-                "sub_affix": [ await AssetEnkaParsed.add_sub_affix(key, index, property, lang, data["_flat"]["props"]) for index, key in enumerate(data["subAffixList"], start = 2)]
-                }
+            "player": await self.get_player(),
+            "characters": [await self.get_character(key) for key in self.data["detailInfo"]["avatarDetailList"]]
+        }
         
         return data
-        
-    @classmethod
-    async def add_sub_affix(cls, affix, index, property, lang, flat):
-        affixId = str(affix["affixId"])
-        sub_affix = await JsonManager(PathData.ENKA_INDEX.value / lang / "relic_sub_affixes.json").read()
-        sub_affix = sub_affix.get(str(index))
+    
+    async def get_memory_data(self):
+        data = self.data["detailInfo"]["recordInfo"]["challengeInfo"]
+        return {
+            "chaos_id": data.get("scheduleGroupId", 0),
+            "chaos_level": data.get("scheduleMaxLevel", 0),
+            "abyss_level": data.get("abyssLevel", 0),
+            "abyss_star_count": data.get("abyssStarCount", 0),
+        }
+        pass
+    
+    async def get_space_info(self):
+        data = self.data["detailInfo"]["recordInfo"]
+        return {
+            "relic_count": data["relicCount"],
+            "music_count": data["musicCount"],
+            "book_count": data["bookCount"],
+            "universe_level": data["maxRogueChallengeScore"],
+            "light_cone_count": data["equipmentCount"],
+            "avatar_count": data["avatarCount"],
+            "achievement_count": data["achievementCount"],
+            "memory_data": await self.get_memory_data()
+        }
+    async def get_avatar_info(self, avatar_id):
+        if str(avatar_id) not in self.avatar:
+            return None
+        return {
+            "id": avatar_id,
+            "name": self.avatar[avatar_id]["name"],
+            "icon": self.avatar[avatar_id]["icon"]
+        }
+    async def get_player(self):
 
         return {
-            "type": sub_affix["affixes"][affixId]["property"],
-            "field":property.get(sub_affix["affixes"][affixId]["property"])["field"],
-            "name": property.get(sub_affix["affixes"][affixId]["property"])["name"],
-            "icon": _DEFFAULT_ASSETS_HSR_LINK_SKILL +  property.get(sub_affix["affixes"][affixId]["property"])["icon"],
-            "value": flat[index-1]["value"],
-            "display": AssetEnkaParsed.get_display(flat[index-1]["value"], property.get(sub_affix["affixes"][affixId]["property"])["percent"]),
-            "percent":property.get(sub_affix["affixes"][affixId]["property"])["percent"],
-            "count": affix.get("cnt", 0),
-            "step": affix.get("step", 0)
+            "uid": self.data["detailInfo"]["uid"],
+            "nickname": self.data["detailInfo"]["nickname"],
+            "level": self.data["detailInfo"]["level"],
+            "world_level": self.data["detailInfo"]["worldLevel"],
+            "friend_count": self.data["detailInfo"]["friendCount"],
+            "avatar": await self.get_avatar_info(str(self.data["detailInfo"]["headIcon"])),
+            "signature": self.data["detailInfo"]["signature"],
+            "is_display": self.data["detailInfo"]["isDisplayAvatar"],
+            "space_info": await self.get_space_info()
+            
+            
         }
-
     
-    @classmethod
-    async def add_light_cone(cls, key,lang,path_info):        
-        if key.get("equipment", {}) != {}:
-            data = await AssetEnkaParsed.get_info_light_cone(key["equipment"]["tid"],lang)
-            property = await JsonManager(PathData.ENKA_INDEX.value / lang / "properties.json").read()
-            light_cone_ranks = await JsonManager(PathData.ENKA_INDEX.value / lang / "light_cone_ranks.json").read()
-            
-            return {
-                "id": key["equipment"]["tid"],
-                "name": data["EquipmentName"]["name"],
-                "rarity": data["Rarity"],
-                "rank": key["equipment"]["rank"],
-                "level": key["equipment"]["level"],
-                "promotion": key["equipment"]["promotion"],
-                "icon": _DEFFAULT_ASSETS_HSR_LINK.format(catalog = "icon/light_cone", key = key["equipment"]["tid"]),
-                "preview": _DEFFAULT_ASSETS_HSR_LINK.format(catalog = "image/light_cone_preview", key = key["equipment"]["tid"]),
-                "portrait": _DEFFAULT_ASSETS_HSR_LINK.format(catalog = "image/light_cone_portrait", key = key["equipment"]["tid"]),
-                "path": await AssetEnkaParsed.get_path(path_info,data),
-                "attributes": [
-                    {
-                        "field": fiel.get(keys["type"]),
-                        "name": property.get(keys["type"])["name"],
-                        "icon": _DEFFAULT_ASSETS_HSR_LINK_SKILL +  property.get(keys["type"])["icon"],
-                        "value": keys["value"],
-                        "display": AssetEnkaParsed.get_display(keys["value"],property.get(keys["type"])["percent"]),
-                        "percent":property.get(keys["type"])["percent"]
-                    }
-                for keys in key["equipment"]["_flat"]["props"]],
-
-                "properties": [{
-                    "type": keys["type"],
-                    "field": property.get(keys["type"])["field"],
-                    "name": property.get(keys["type"])["name"],
-                    "icon": property.get(keys["type"])["icon"],
-                    "value": keys["value"],
-                    "display": AssetEnkaParsed.get_display(keys["value"],property.get(keys["type"])["percent"]),
-                    "percent": property.get(keys["type"])["percent"]
-                    } for keys in light_cone_ranks.get(str(key["equipment"]["tid"]))["properties"][key["equipment"]["rank"]-1] ]
-            }
-            
-        return {}
-    
-    @classmethod
-    async def get_info_light_cone(cls, ids,lang):
-        data = await JsonManager(PathData.ENKA.value / "weps.json").read()
-
-        charter = data.get(str(ids))
+    async def get_light_cone(self, data):
+        info = self.light_cone.get(str(data.get("tid")))
         
-        hash = await JsonManager(PathData.ENKA.value / "hsr.json").read()
+        id = str(data.get("tid"))
+        name = info.get("name")
+        rarity = info.get("rarity")
+        rank = data.get("rank")
+        level = data.get("level")
+        promotion = data.get("promotion")
+        icon = info.get("icon")
+        preview = info.get("preview")
+        portrait = info.get("portrait")
+        path = await self.get_path(info.get("path"))
+        attributes = await self.get_light_cone_attribute_from_promotion(id, promotion, level)
+        properties = await self.get_light_cone_property_from_rank(id, rank)
         
-        charter["EquipmentName"]["name"] = hash.get(lang).get(str(charter["EquipmentName"]["Hash"]))
-
-        return charter
+        return {
+            "id": id,
+            "name": name,
+            "rarity": rarity,
+            "rank": rank,
+            "level": level,
+            "promotion": promotion,
+            "icon": icon,
+            "preview": preview,
+            "portrait": portrait,
+            "path": path,
+            "attributes": attributes,
+            "properties": properties,
+        }
     
-    @classmethod
-    async def add_skill_trees(cls, skill_trees_info,charter_info,skills_info,key):
+    async def get_light_cone_property_from_rank(self, id: str, rank: int):
+        if id not in self.light_cone_rank:
+            return []
+        if rank not in range(1, 5 + 1):
+            return []
+        properties = []
+        
+        for i in self.light_cone_rank[id]["properties"][rank - 1]:
+            if i["type"] not in self.propertie:
+                continue
+            property = self.propertie[i["type"]]
+            properties.append(
+                {
+                    "type": i["type"],
+                    "field": property["field"],
+                    "name": property["name"],
+                    "icon": property["icon"],
+                    "value": i["value"],
+                    "display": await self.get_display(i["value"], property["percent"]),
+                    "percent": property["percent"],
+                }
+            )
+        return properties
+    
+    async def get_light_cone_attribute_from_promotion(self, id: str, promotion: int, level: int):
+        if id not in self.light_cone_promotion:
+            return []
+        if promotion not in range(0, 6 + 1):  # 0-6
+            return []
+        if level not in range(1, 80 + 1):  # 1-80
+            return []
+        attributes = []
+        for k, v in self.light_cone_promotion[id]["values"][promotion].items():
+            property = None
+            for i in self.propertie.values():
+                if i["field"] == k:
+                    property = i
+                    break
+            if property is None:
+                continue
+            attributes.append(
+                {
+                    "field": k,
+                    "name": property["name"],
+                    "icon": property["icon"],
+                    "value": v["base"] + v["step"] * (level - 1),
+                    "display": await self.get_display(v["base"] + v["step"] * (level - 1), property["percent"]),
+                    "percent": property["percent"],
+                }
+            )
+        return attributes
+    
+    async def get_character(self, data):
+        id = str(data.get("avatarId"))
+        name = self.character.get(str(id)).get("name")
+        rarity = self.character.get(str(id)).get("rarity")
+        rank = data.get("rank", 0)
+        level = data.get("level")
+        promotion = data.get("promotion", 0)
+        icon = self.character.get(str(id)).get("icon")
+        preview = self.character.get(str(id)).get("preview")
+        portrait = self.character.get(str(id)).get("portrait")
+        rank_icons = [await self.get_rank_icons(key) for key in self.character.get(str(id)).get("ranks")]
+        path = await self.get_path(self.character.get(str(id)).get("path"))
+        element = await self.get_element(self.character.get(str(id)).get("element"))
+        skills = await self.get_skill(data, str(id), self.character.get(str(id)).get("element"))
+        skill_trees = await self.get_skill_trees(data, str(id))
+        light_cone = await self.get_light_cone(data.get("equipment")) if data.get("equipment") else None
+        attributes = await self.get_attributes(str(id), promotion, level)
+        properties = await self.get_properties(str(id), data["skillTreeList"])
+                
+        relic_infos = [await self.get_relic_info(relic) for relic in data["relicList"]]
+        relics = [
+            relic_info for relic_info in relic_infos if relic_info is not None
+        ]
+        relic_sets = await self.get_relic_sets_info(relics) if relics else []
+        
+        attributes = await self.merge_attribute(
+            [
+                attributes,
+                light_cone["attributes"] if light_cone else [],
+            ]
+        )
+
+        
+        relic_properties = []
+        for relic in relics:
+            if relic["main_affix"]:
+                relic_properties.append(relic["main_affix"])
+            relic_properties += [
+                {
+                    "type": affix["type"],
+                    "field": affix["field"],
+                    "name": affix["name"],
+                    "icon": affix["icon"],
+                    "value": affix["value"],
+                    "display": affix["display"],
+                    "percent": affix["percent"],
+                } for affix in relic["sub_affix"]
+            ]
+
+        for relic_set in relic_sets:
+            relic_properties += relic_set["properties"]
+                
+        properties = await self.merge_property(
+            [
+                properties,
+                light_cone["properties"] if light_cone else [],
+                relic_properties,
+            ]
+        )
+        
+        additions = await self.get_additions(attributes, properties)
+    
+      
+        return {
+            "id": id,
+            "name": name,
+            "rarity": rarity,
+            "rank": rank,
+            "level": level,
+            "promotion": promotion,
+            "icon": icon,
+            "preview": preview,
+            "portrait": portrait,
+            "rank_icons": rank_icons,
+            "path": path,
+            "element": element,
+            "skills": skills,
+            "skill_trees": skill_trees,
+            "light_cone": light_cone,
             
+            "relics": relics,
+            "relic_sets": relic_sets,
+            "attributes": attributes,
+            "additions": additions,
+            "properties": properties,
+            "pos": [data.get("pos", 0)],
+        }
+        
+    async def get_additions(self, attributes, properties):
+        attribute_dict = {}
+        addition_dict = {}
+        for attribute in attributes:
+            if not attribute["field"]  in addition_dict:
+                attribute_dict[attribute["field"]] = attribute["value"]
+        for property in properties:
+            if (
+                self.propertie[property["type"]]["ratio"]
+                and property["field"] in attribute_dict
+            ):
+                value = property["value"] * attribute_dict[property["field"]]
+            else:
+                value = property["value"]
+            if property["field"] not in addition_dict:
+                addition_dict[property["field"]] = value
+            else:
+                addition_dict[property["field"]] += value
+        additions = []
+        for k, v in addition_dict.items():
+            property = None
+            for i in self.propertie.values():
+                if i["field"] == k:
+                    property = i
+                    break
+                
+            if property is None:
+                continue
+            
+            additions.append(
+                {
+                    "field": k,
+                    "name": property["name"],
+                    "icon": property["icon"],
+                    "value": v,
+                    "display": await self.get_display(v, property["percent"]),
+                    "percent": property["percent"],
+                }
+            )
+            
+        return additions
+    
+    async def get_attributes(self, character_id, promotion, level):
+        
+        if character_id not in self.character_promotions:
+            return []
+        if promotion not in range(0, 6 + 1):  # 0-6
+            return []
+        if level not in range(1, 80 + 1):  # 1-80
+            return []
+        attributes = []
+        for k, v in self.character_promotions[character_id]["values"][promotion].items():
+            property = None
+            for i in self.propertie.values():
+                if i["field"] == k:
+                    property = i
+                    break
+            if property is None:
+                continue
+            
+            attributes.append(
+                {
+                    "field": k,
+                    "name": property["name"],
+                    "icon": property["icon"],
+                    "value": v["base"] + v["step"] * (level - 1),
+                    "display": await self.get_display(v["base"] + v["step"] * (level - 1), property["percent"]),
+                    "percent": property["percent"]
+                }
+            )
+        return attributes
+    
+    async def get_properties(self, characters_id, info):
+        skill_trees = self.character[characters_id]["skill_trees"]
+        properties = []
+        
+        for skill_tree in info:
+            pointId = str(skill_tree["pointId"])
+            if pointId in skill_trees and pointId in self.skill_trees_info:
+                property_list = (self.skill_trees_info[pointId]["levels"][skill_tree["level"] - 1]["properties"])
+                for i in property_list:
+                    if self.propertie.get(i.get("type")) is None or i["value"] <= 0:
+                        continue
+                    property = self.propertie[i["type"]]             
+                    properties.append(
+                        {
+                            "type": i["type"],
+                            "field": property["field"],
+                            "name": property["name"],
+                            "icon": property["icon"],
+                            "value": i["value"],
+                            "display": await self.get_display( i["value"], property["percent"]),
+                            "percent": property["percent"],
+                            "type": i["type"],
+                        }
+                    )
+        return properties
+    
+    async def get_skill_trees(self, data, character_id):
         return [{
-            "id": keys["pointId"],
-            "level": keys["level"],
-            "anchor": skill_trees_info[str(keys["pointId"])]["anchor"],
-            "icon": _DEFFAULT_ASSETS_HSR_LINK_SKILL + skill_trees_info[str(keys["pointId"])]["icon"],
-            "max_level": AssetEnkaParsed.get_max_level(skill_trees_info[str(keys["pointId"])],charter_info,skills_info,key.get("rank",0)),
-            "parent": AssetEnkaParsed.get_parent(skill_trees_info[str(keys["pointId"])]),
-            } for keys in key["skillTreeList"]]
+            "id": str(key["pointId"]),
+            "level": key["level"],
+            "anchor": self.skill_trees_info.get(str(key["pointId"]))["anchor"],
+            "icon": self.skill_trees_info.get(str(key["pointId"]))["icon"],
+            "max_level": await self.get_max_level(self.character.get(character_id)["ranks"], str(key["pointId"]),key.get("rank",0)),
+            "parent": await self.get_parent(key["pointId"])
+            } for key in data["skillTreeList"]]
     
-    @classmethod
-    async def add_skills(cls, element_info,charter_info,key,lang):
-        skill_trees_info = await JsonManager(PathData.ENKA_INDEX.value / lang / "character_skill_trees.json").read()
-        skills_info = await JsonManager(PathData.ENKA_INDEX.value / lang / "character_skills.json").read()
+    async def get_skill(self, data, character_data, element):
+
+        character_data = self.character.get(character_data)
         
-        data = []
+        response= []
         
-        for keys in key["skillTreeList"]:
+        for keys in data["skillTreeList"]:
             pointId = str(keys["pointId"])
-            if skill_trees_info.get(pointId)["level_up_skills"] == []:
+            if self.skill_trees_info.get(pointId)["level_up_skills"] == []:
                 continue
             
-            skills_info_id = str(skill_trees_info.get(pointId)["level_up_skills"][0]["id"])
+            skills_info_id = str(self.skill_trees_info.get(pointId)["level_up_skills"][0]["id"])
             
-            if not int(skills_info_id) in charter_info["SkillList"]:
+            if not str(skills_info_id) in character_data["skills"]:
                 continue
             
-            info = skills_info.get(skills_info_id)
+            info = self.skill.get(skills_info_id)
             
-            max_level = skill_trees_info.get(pointId)["max_level"]
+            max_level = self.skill_trees_info.get(pointId)["max_level"]
             if keys["level"] > max_level:
                 max_level = info["max_level"]
 
-            data.append(
+            response.append(
                 {
                     "id": skills_info_id,
                     "name": info["name"],
                     "level": keys["level"],
                     "max_level": max_level,
-                    "element": await AssetEnkaParsed.get_element(element_info, info["element"]),
+                    "element": await self.get_element(element),
                     "type": info["type"],
                     "type_text": info["type_text"],
                     "effect": info["effect"],
                     "effect_text": info["effect_text"],
                     "simple_desc": info["simple_desc"],
                     "desc": info["desc"],
-                    "icon": _DEFFAULT_ASSETS_HSR_LINK_SKILL +  info["icon"],
+                    "icon": info["icon"],
                 }
             )
             
-        return data
-
-    @classmethod
-    async def get_icon_avatar(cls, ids):
-        data = await JsonManager(PathData.ENKA.value / "avatars.json").read()
-        
-        return data.get(str(ids))["Icon"]
-    
-    @classmethod
-    async def get_info_character(cls, ids,lang):
-        data = await JsonManager(PathData.ENKA.value / "characters.json").read()
-
-        charter = data.get(str(ids))
-        
-        hash = await JsonManager(PathData.ENKA.value / "hsr.json").read()
-        
-        charter["AvatarFullName"]["name"] = hash.get(lang).get(str(charter["AvatarFullName"]["Hash"]))
-        charter["AvatarName"]["name"] = hash.get(lang).get(str(charter["AvatarName"]["Hash"]))
-
-        return charter
-    
-    @classmethod
-    async def get_element(cls, element_info,element):
-        if element != "":
-            return {"id": element_info[element]["id"],
-                    "name": element_info[element]["name"],
-                    "color": element_info[element]["color"],
-                    "icon": _DEFFAULT_ASSETS_HSR_LINK.format(catalog = "icon/element", key = element_info[element]["id"].replace("Thunder", "Lightning"))
-                }
-        else:
+        return response
+                
+    async def get_relic_info(self, data):
+        if str(data["tid"]) not in self.relics:
             return None
+        
+        relics_info = self.relics.get(str(data["tid"]))
+        
+        info = {
+                "id": str(data["tid"]),
+                "name": relics_info["name"],
+                "set_id": str(data["_flat"]["setID"]),
+                "set_name": self.relics_set[relics_info["set_id"]]["name"],
+                "rarity": relics_info["rarity"],
+                "level": data["level"],
+                "icon": relics_info['icon'],
+                "main_affix": await self.get_relic_main_affix(str(data["tid"]), data["level"], str(data["mainAffixId"])),
+                "sub_affix": await self.get_relic_sub_affix(str(data["tid"]), data["subAffixList"])
+                }
 
-    @classmethod
-    async def get_path(cls, path_info,charter_info):
+        return info
+    
+    async def get_relic_sub_affix(self, relict_id, sub_affix_info):
+        if relict_id not in self.relics:
+            return []
+        
+        sub_affix_group = self.relics[relict_id]["sub_affix_id"]
+        if sub_affix_group not in self.relic_sub_affixes:
+            return []
+        
+        properties = []
+        for sub_affix in sub_affix_info:
+            if str(sub_affix["affixId"]) not in self.relic_sub_affixes[sub_affix_group]["affixes"]:
+                continue
+            affix = self.relic_sub_affixes[sub_affix_group]["affixes"][str(sub_affix["affixId"]) ]
+
+            property = self.propertie[affix["property"]]
+            
+            properties.append(
+                {
+                    "type": affix["property"],
+                    "field": property["field"],
+                    "name": property["name"],
+                    "icon": property["icon"],
+                    "value": affix["base"] * sub_affix["cnt"] + affix["step"] * sub_affix.get("step", 0),
+                    "display":  await self.get_display(affix["base"] * sub_affix["cnt"] + affix["step"] * sub_affix.get("step", 0), property["percent"]),
+                    "percent": property["percent"],
+                    "count": sub_affix["cnt"],
+                    "step": sub_affix.get("step", 0)
+                }
+            )
+        return properties
+    
+    async def get_relic_main_affix(self, relict_id, level, main_affix_id):
+        if str(relict_id) not in self.relics:
+            return None
+        if not main_affix_id:
+            return None
+        
+        main_affix_group = self.relics[str(relict_id)]["main_affix_id"]            
+            
+        if main_affix_group not in self.relic_main_affixes or main_affix_id not in self.relic_main_affixes[main_affix_group]["affixes"]:
+            return None
+        
+        affix = self.relic_main_affixes[main_affix_group]["affixes"][main_affix_id]
+        
+        property = self.propertie[affix["property"]]
+          
         return {
-            "id": path_info[charter_info["AvatarBaseType"]]["id"],
-            "name": path_info[charter_info["AvatarBaseType"]]["name"],
-            "icon": _DEFFAULT_ASSETS_HSR_LINK.format(catalog = "icon/path", key = path_info[charter_info["AvatarBaseType"]]["text"]),
-        }
+                "type": affix["property"],
+                "field": property["field"],
+                "name": property["name"],
+                "icon": property["icon"],
+                "value":affix["base"] + + affix["step"] * level,
+                "display": await self.get_display(affix["base"] + + affix["step"] * level, property["percent"]),
+                "percent": property["percent"]
+            }  
+    
+    async def get_relic_sets_info(self, data):
+        set_num = {}
+        for relic in data:
+            if relic["set_id"] not in set_num:
+                set_num[relic["set_id"]] = 1
+            else:
+                set_num[relic["set_id"]] += 1
+                
+        relic_sets = []
+        for k, v in set_num.items():
+            info = self.relic_set[str(k)]
+            if v >= 2:
+                prop = [{
+                    "type": i["type"],
+                    "field": self.propertie.get(i["type"])["field"],
+                    "name": self.propertie.get(i["type"])["name"],
+                    "icon": self.propertie.get(i["type"])["icon"],
+                    "value": i["value"],
+                    "display": await self.get_display(i["value"], self.propertie.get(i["type"])["percent"]),
+                    "percent": self.propertie.get(i["type"])["percent"],
+                } for i in info["properties"][0]]
+                
+                relic_sets.append(
+                    {
+                        "id": k,
+                        "name": info["name"],
+                        "icon": info["icon"],
+                        "num": 2,
+                        "desc": info["desc"][0],
+                        "properties": prop,
+                    }
+                )
+            if v >= 4:
+                prop = [
+                    {
+                        "type": i["type"],
+                        "field": self.propertie.get(i["type"])["field"],
+                        "name": self.propertie.get(i["type"])["name"],
+                        "icon": self.propertie.get(i["type"])["icon"],
+                        "value": i["value"],
+                        "display": await self.get_display(i["value"], self.propertie.get(i["type"])["percent"]),
+                        "percent": self.propertie.get(i["type"])["percent"],
+                    } for i in info["properties"][1] if len(info["properties"]) > 1
+                ]
 
-    @classmethod
-    def get_max_level(cls, skill_trees_info,charter_info,skills_info,rank):
+                relic_sets.append(
+                    {
+                        "id": k,
+                        "name": info["name"],
+                        "icon": info["icon"],
+                        "num": 4,
+                        "desc": info["desc"][1] if len(info["desc"]) > 1 else "",
+                        "properties": prop,
+                    }
+                )
+        return relic_sets
+    
+    async def merge_property(self, properties):
+        property_dict = {}
+        for property_list in properties:
+            for property in property_list:
+                if isinstance(property, list):
+                    if len(property) == 0:
+                        continue
+                    property = property[0]
+
+                if property["type"] not in property_dict:
+                    property_dict[property["type"]] = {}
+                    property_dict[property["type"]]["value"] = property["value"]
+                    property_dict[property["type"]]["origin"] = deepcopy(property)
+                else:
+                    property_dict[property["type"]]["value"] += property["value"]
+        property_res = []
+        
+        for v in property_dict.values():
+            
+            info = v["origin"]
+            info["value"] = v["value"]
+            info["display"] = await self.get_display(v["value"], info["percent"])
+
+            property_res.append(info)
+        return property_res
+    
+    async def merge_attribute(self, attributes):
+        attribute_dict = {}
+        for attribute_list in attributes:
+            for attribute in attribute_list:
+                if attribute["field"] not in attribute_dict:
+                    attribute_dict[attribute["field"]] = {}
+                    attribute_dict[attribute["field"]]["value"] = attribute["value"] 
+                    attribute_dict[attribute["field"]]["origin"] = deepcopy(attribute)
+                else:
+                    attribute_dict[attribute["field"]]["value"] += attribute["value"] 
+        attribute_res = []
+        for v in attribute_dict.values():
+            attribute_info = v["origin"]
+            attribute_info["value"] = v["value"]
+            attribute_info["display"] = await self.get_display(
+                v["value"], attribute_info["percent"]
+            )
+            attribute_res.append(attribute_info)
+            
+        return attribute_res
+    
+    async def get_parent(self, skill_id):
+        parent = self.skill_trees_info.get(str(skill_id)).get("pre_points")
+        if parent == []:
+            return None
+        else:
+            return parent[0]   
+         
+    async def get_rank_icons(self, rank_id):
+        return self.character_rank.get(rank_id).get("icon")
+    
+    async def get_path(self, path):
+        return {"id": self.path.get(path)["id"], "name": self.path.get(path)["name"], "icon": self.path.get(path)["icon"]}
+
+    async def get_element(self, element):
+        return {"id": self.element.get(element)["id"], "name": self.element.get(element)["name"], "color": self.element.get(element)["color"], "icon": self.element.get(element)["icon"]}
+    
+    async def get_max_level(self, ranks_list,skill_id,rank):
+        
+        skill_trees_info = self.skill_trees_info.get(skill_id)
+        
         max_level = skill_trees_info["max_level"]
         if skill_trees_info.get("level_up_skills", []) != []:
-            if int(skill_trees_info.get("level_up_skills")[0]["id"]) in charter_info["RankIDList"][:rank]:
-                max_level = skills_info[skill_trees_info.get("level_up_skills")[0]["id"]]["max_level"]
+            if int(skill_trees_info.get("level_up_skills")[0]["id"]) in ranks_list[:rank]:
+                max_level = self.skill[skill_trees_info.get("level_up_skills")[0]["id"]]["max_level"]
 
         return max_level
     
-    @classmethod
-    def get_parent(cls, parent):
-        if parent["pre_points"] != []:
-            return parent["pre_points"][0]
-        return None
-    
-    @classmethod
-    def get_display(cls, value,percent):
+    async def get_display(self, value, percent):
         if percent:
-            percentage_value = value * 100
-            return f"{percentage_value:.1f}%"
+            return format(math.floor(value * 1000) / 10.0, ".1f") + "%"
         else:
-            if value < 1:
-                value = value * 100
-                
-            return str(round(value))
+            return f"{math.floor(value)}"

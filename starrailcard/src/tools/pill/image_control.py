@@ -81,7 +81,7 @@ async def download_image(link, headers=None):
         image = await http.AioSession.get(link, headers=headers, response_format="bytes")
         return image
     except:
-        raise TypeError(f"Error Dowload image: {link}")
+        raise TypeError(f"Error Download image: {link}")
 
 async def save_image(image, full_path):
     directory = os.path.dirname(full_path)
@@ -95,7 +95,7 @@ async def open_image(image_data):
     try:
         return Image.open(BytesIO(image_data)).convert("RGBA")
     except Exception as e:
-        raise TypeError(f"Error Open image: {e}")
+        raise TypeError(f"Error Open image: {image_data}")
 
 async def get_download_img(link, size=None, thumbnail_size=None, gif=False):
     cache_key = json.dumps((link, size, thumbnail_size), sort_keys=True)
@@ -119,7 +119,7 @@ async def get_download_img(link, size=None, thumbnail_size=None, gif=False):
                 "referer": "https://www.pixiv.net/",
             }
         image = await download_image(link, headers_p)
-        
+
         if _boost_speed:
             if "StarRailRes" in link:
                 full_path = os.path.join(assets, f"/boost_speed/{link.split('master')[1]}".lstrip('/'))

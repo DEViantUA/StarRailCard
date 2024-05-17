@@ -148,7 +148,16 @@ def max_lvl(x):
     
     return max
 
-
+async def get_color_user(color):
+    processed_dict = {}
+    for key, value in color.items():
+        if isinstance(value, tuple):
+            if len(value) >= 3 and len(value) <= 4:
+                if all(0 <= x <= 255 for x in value):
+                    processed_dict[key] = value
+    if processed_dict != {}:
+        return processed_dict
+    return None
 
 async def get_character_art(character_art, style=None):
     processed_dict = {}

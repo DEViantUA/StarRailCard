@@ -2,7 +2,7 @@
 # All rights reserved.
 
 from pydantic import BaseModel, Field
-from typing import List, Optional,Final
+from typing import List, Optional,Final, Union
 
 from ..tools.ukrainization import TranslateDataManager
 
@@ -22,7 +22,6 @@ def hex_to_rgba(hex_code):
     return red, green, blue, alpha
 
 class MemoryInfo(BaseModel):
-    level: Optional[int]
     chaos_id: Optional[int]
     chaos_level: Optional[int]
     abyss_level: Optional[int] =  Field(0, alias= "abyssLevel")
@@ -57,7 +56,7 @@ class Avatar(BaseModel):
             self.name = TranslateDataManager._data.avatar.get(self.id, self.name)
         
 class Player(BaseModel):
-    uid: Optional[str]
+    uid: Optional[Union[str,int]]
     nickname: Optional[str]
     level: int
     world_level: int
@@ -143,7 +142,7 @@ class RelicSet(BaseModel):
     icon: Optional[str]
     num: int
     desc: Optional[str]
-    properties: List[RelicSetProperties]
+    properties: List[RelicSetProperties] = Field([], alias="properties")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -295,7 +294,7 @@ class Character(BaseModel):
     skill_trees: List[SkillTree]
     light_cone: Optional[LightCone]
     relics: Optional[List[Relic]]
-    relic_sets: Optional[List[RelicSet]]
+    relic_sets: Optional[List[RelicSet]] = Field([], alias="relic_sets")
     attributes: List[CharacterAttributes]
     additions: List[CharacterAttributes]
     properties: Optional[List[CharacterProperties]]
@@ -357,6 +356,7 @@ class MiHoMoApi(BaseModel):
                 for attribute in character.attributes:
                     attribute.icon = MAIN_LINK.format(icon=attribute.icon)
 
+                
                 for addition in character.additions:
                     addition.icon = MAIN_LINK.format(icon=addition.icon)
 

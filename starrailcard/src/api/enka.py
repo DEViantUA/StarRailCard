@@ -13,33 +13,25 @@ from .enka_parsed import AssetEnkaParsed
 from ..model import api_mihomo
 
 _API_ENKA = "https://enka.network/api/hsr/uid/{uid}"
-_ASSETS_ENKA = "https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store/hsr/{asset}.json"
 _INDEX_MIHOMO = "https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/index_new/{lang}/{index}.json"
 
-_ASSET_NAME = [
-    "avatars",
-    "characters",
-    "meta",
-    "ranks",
-    "relics",
-    "skills",
-    "skilltree",
-    "weps",
-    "hsr"
-]
-
 _INDEX_NAME = [
-    "paths",
-    "elements",
-    "character_skills",
+    "avatars",
+    "character_promotions",
+    "character_ranks",
     "character_skill_trees",
-    "properties",
+    "character_skills",
+    "characters",
+    "elements",
+    "light_cone_promotions",
     "light_cone_ranks",
-    "relics",
+    "light_cones",
+    "paths",
+    "properties",
     "relic_main_affixes",
-    "relic_sub_affixes",
     "relic_sets",
-    "character_ranks"
+    "relic_sub_affixes",
+    "relics"    
 ]
 
 
@@ -62,7 +54,8 @@ class ApiEnkaNetwork:
 
             if self.parsed:
                 data = await AssetEnkaParsed(data).collect()
-                  
+            else:
+                return data
         except aiohttp.ClientConnectionError:
             raise StarRailCardError(1, "Server is not responding")
         except aiohttp.ClientResponseError as e:
@@ -71,31 +64,22 @@ class ApiEnkaNetwork:
         if self.ua_lang:
             await ukrainization.TranslateDataManager().load_translate_data()
 
-        return api_mihomo.MiHoMoApi(player=data["player"], characters=data["characters"], dont_update_link=True)
+        return api_mihomo.MiHoMoApi(player=data["player"], characters=data["characters"], dont_update_link = False)
         
-    async def update_assets(self):
-        print("===START UPDATE INDEX===")
+    async def update_assets(self, lang = None):
+        print("===START UPDATE ASSET===")
         for name in _INDEX_NAME:
-            for lang in SUPPORTED_LANGUAGES:
-                if lang == "ua":
+            for langs in SUPPORTED_LANGUAGES:
+                if langs == "ua":
                     continue
+                if not lang is None:
+                    if langs != lang:
+                        continue
                 data = await http.AioSession.get(_INDEX_MIHOMO.format(lang = lang, index=name))
                 if not os.path.exists(PathData.ENKA_INDEX.value / lang):
                     os.makedirs(PathData.ENKA_INDEX.value / lang)
                 await JsonManager(PathData.ENKA_INDEX.value / lang /f"{name}.json").write(data)
                 
             print(f"- Updated file: {name}")
-        print("===END UPDATE INDEX===")
-        print()
-        print("===START UPDATE ASSETS===")
-        for name in _ASSET_NAME:
-            if name == "hsr":
-                data = await http.AioSession.get(_ASSETS_ENKA.format(asset=name))
-            else:
-                data = await http.AioSession.get(_ASSETS_ENKA.format(asset=f"honker_{name}"))
-            await JsonManager(PathData.ENKA.value / f"{name}.json").write(data)
-            print(f"- Updated file: {name}")
-            
-        print("===END UPDATE ASSETS===")
-        
+        print("===END UPDATE ASSET===")        
         

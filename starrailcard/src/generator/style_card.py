@@ -25,11 +25,11 @@ _DEFAULT_SCORE = {'count': 0,
 }
 
 class Create:
-    def __init__(self, data, lang, art, hide_uid, uid, seeleland,remove_logo) -> None:
+    def __init__(self, data, lang, art, hide_uid, uid, seeleland,remove_logo, color) -> None:
         self.remove_logo = remove_logo
         self.data = data
         self.lang = lang
-        self.art = art #Image.open("modified_exampl.gif")#art
+        self.art = art 
         self.hide_uid = hide_uid
         self.uid = uid
         
@@ -38,7 +38,10 @@ class Create:
         
         self.seeleland = seeleland
         self.total_eff = 0
-        self.element_color = self.data.element.color.rgba
+        if not color is None:
+            self.element_color = color
+        else:
+            self.element_color = self.data.element.color.rgba
     
     
     

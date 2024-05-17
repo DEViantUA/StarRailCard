@@ -30,7 +30,7 @@ async def get_cone_frame(x):
         return await _of.light_cone_frame_three
 
 class Create:
-    def __init__(self, data, lang, art, hide_uid, uid, seeleland,remove_logo) -> None:
+    def __init__(self, data, lang, art, hide_uid, uid, seeleland,remove_logo, color) -> None:
         self.remove_logo = remove_logo
         self.data = data
         self.lang = lang
@@ -43,7 +43,10 @@ class Create:
         
         self.seeleland = seeleland
         self.total_eff = 0
-        self.element_color = self.data.element.color.rgba
+        if not color is None:
+            self.element_color = color
+        else:
+            self.element_color = self.data.element.color.rgba
     
     async def create_bacground(self):
         self.background = Image.new(RelictScore.RGBA, RelictScore.background_size, (0,0,0,0))
@@ -151,7 +154,7 @@ class Create:
 
         combined_attributes = {}
         dop = {}
-
+        
         for attribute in self.data.attributes + self.data.additions:
             field = attribute.field
             if field in combined_attributes:
@@ -260,7 +263,6 @@ class Create:
         relict_line = await _of.relict_line
         
         background_main.alpha_composite(relict_frame)
-        
         image = await pill.get_download_img(relict.icon, size= RelictScore.relict_icon_size)
         background_image.alpha_composite(image,RelictScore.relict_icon_position)
         background.paste(background_image,(0,0),relict_maska.convert("L"))
@@ -467,8 +469,7 @@ class Create:
             
             await self.create_bacground()
         
-        
-        
+             
         async with anyio.create_task_group() as tasks:
             tasks.start_soon(self.create_light_cone)
             tasks.start_soon(self.create_stats)
@@ -495,7 +496,6 @@ class Create:
             functools.partial(self.create_relict, key)
             for key in self.data.relics
         ])
-                
         await self.create_score_total()
         
         await self.build_relict()

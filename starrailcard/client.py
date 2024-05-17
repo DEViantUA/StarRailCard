@@ -17,7 +17,7 @@ class Card:
     def __init__(self, lang: str = "en", character_art = None, character_id = None, seeleland: bool = False,
                  user_font = None, save: bool = False, asset_save: bool = False, boost_speed: bool = False, remove_logo: bool = False,
                  cache = {"maxsize": 150, "ttl": 300}, enka: bool = False, api_data: api_mihomo.MiHoMoApi = None, proxy: str =  None, 
-                 user_agent: str = None):
+                 user_agent: str = None, color: dict = None):
         """Main class for generating cards
 
         Args:
@@ -34,6 +34,7 @@ class Card:
             api_data (MiHoMoApi, optional): Pass your data received via: api.ApiMiHoMo(uid,"en").get()
             proxy (str, optional): Proxy as a string: http://111.111.111.111:8888
             user_agent (str, optional): Custom User-Agent.
+            color: (dict), Dictionary: {"character_id_1": (255,255,255,255), "character_id_2": (0,0,0,255),...}.
         """
         self.lang = lang
         self.character_art  = character_art
@@ -49,6 +50,7 @@ class Card:
         self.api_data = api_data
         self.proxy = proxy
         self.user_agent = options.get_user_agent(user_agent)
+        self.color = color
 
         
     async def __aenter__(self):
@@ -79,6 +81,9 @@ class Card:
         
         image_control._boost_speed = self.boost_speed
 
+        
+        if isinstance(self.color, dict):
+            self.color = await options.get_color_user(self.color)
         
         if self.remove_logo:
             print("""
@@ -123,7 +128,7 @@ class Card:
         """Function for generating a user profile card
 
         Args:
-            uid (int): UID of the user in the game.
+            uid (Union[int,str]): UID of the user in the game.
             style (int, optional): Card style. Defaults to 1.
             hide_uid (bool, optional): Hide UID. Defaults to False.
             background (str, optional): Link to custom card background. Defaults to None.
@@ -137,6 +142,7 @@ class Card:
                 try:
                     data = await enka.ApiEnkaNetwork(uid, lang= self.lang).get()
                 except Exception as e:
+                    print(e)
                     print("To use the EnkaNetwork API you need to download/update the asset\nExample: await enka.ApiEnkaNetwork().update_assets()")
                     data = await api.ApiMiHoMo(uid, lang= self.lang, force_update = force_update, user_agent= self.user_agent).get()
             else:
@@ -179,7 +185,7 @@ class Card:
         
         return StarRailCard.StarRail(**response)
         
-    async def create(self, uid: Union[int,str], style: bool = 1, hide_uid: bool = False, force_update: bool = False, style_settings = None, log: bool = False):
+    async def create(self, uid: Union[int,str], style: int = 1, hide_uid: bool = False, force_update: bool = False, style_settings = None, log: bool = False):
         """Function for generating character cards
 
         Args:
@@ -198,6 +204,7 @@ class Card:
                 try:
                     data = await enka.ApiEnkaNetwork(uid, lang= self.lang).get()
                 except Exception as e:
+                    print(e)
                     print("To use the EnkaNetwork API you need to download/update the asset")
                     data = await api.ApiMiHoMo(uid, lang= self.lang, force_update = force_update, user_agent= self.user_agent).get()
             else:
@@ -241,16 +248,21 @@ class Card:
                             if not str(key.id) in self.character_id:
                                 return  
                         
+                        if self.color:
+                            color = self.color.get(str(key.id))
+                        else:
+                            color = None
+                        
                         art = None
                         if self.character_art:
                             if str(key.id) in self.character_art:
                                 art = self.character_art[str(key.id)]
                         if style == 1:
-                            result.append(await style_relict_score.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo).start())
+                            result.append(await style_relict_score.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo, color).start())
                         elif style == 2:
-                            result.append(await style_ticket.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo).start())
+                            result.append(await style_ticket.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo, color).start())
                         elif style == 3:
-                            result.append(await style_card.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo).start())
+                            result.append(await style_card.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo, color).start())
                     except Exception as e:
                         print(f"Error in get_result for character {key.id}: {e}")
                         

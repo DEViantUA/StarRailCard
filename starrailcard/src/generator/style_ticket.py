@@ -25,7 +25,7 @@ _of.set_mapping(2)
 
 
 class Create:
-    def __init__(self, data, lang, art, hide_uid, uid, seeleland, remove_logo) -> None:
+    def __init__(self, data, lang, art, hide_uid, uid, seeleland, remove_logo, color) -> None:
         self.data = data
         self.remove_logo = remove_logo
         self.lang = lang
@@ -34,7 +34,11 @@ class Create:
         self.uid = uid
         self.seeleland = seeleland
         self.total_eff = 0
-        self.element_color = self.data.element.color.rgba
+        self.color = color
+        if not color is None:
+            self.element_color = color
+        else:
+            self.element_color = self.data.element.color.rgba
         self.gif = False
         self.GIFT_BG = []
         
@@ -63,6 +67,9 @@ class Create:
             if ll > 0.6:
                 self.background.alpha_composite(background_dark)
         else:
+            if not self.color is None:
+                line,self.element_color = await pill.recolor_image(line, self.element_color[:3], light = True)
+                
             self.background = Image.new(Ticket.RGBA, Ticket.background_size, Ticket.background_default_color)
             user_image = await pill.get_center_scale(Ticket.splash_size, await pill.get_download_img(self.data.portrait))
             position_art = Ticket.position_splash_art
@@ -619,7 +626,8 @@ class Create:
                 self.element_color = await pill.get_colors(self.art, 15, common=True, radius=5, quality=800)
                 await self.create_background()
         else:
-            self.element_color = (255,213,167,255)
+            if self.color is None:
+                self.element_color = (255,213,167,255)
             await self.create_background()
         
         async with anyio.create_task_group() as tasks:

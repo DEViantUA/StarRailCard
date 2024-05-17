@@ -4,8 +4,6 @@ from typing import Optional
 from ..tools import http, translator, ukrainization, options
 from ..model import api_mihomo
 from .error import StarRailCardError
-from ..tools.json_data import JsonManager
-from ..tools.enums import PathData
 
 _API_MIHOMO: str = "https://api.mihomo.me/sr_info_parsed/{uid}"
 _API_MIHOMO_NAKED: str = "https://api.mihomo.me/sr_info/{uid}"

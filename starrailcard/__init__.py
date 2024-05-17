@@ -37,7 +37,7 @@ SOFTWARE.
 
 __title__ = 'StarRailCard.py'
 __author__ = 'DeviantUa'
-__version__ = '2.1.8'
+__version__ = '2.1.9'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2024-present DeviantUa'
 
