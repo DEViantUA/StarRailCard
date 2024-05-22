@@ -191,7 +191,7 @@ class Create:
             position_line += x
     
     async def get_score(self):
-        self.score_info = await stats.Calculator(self.data).start()
+        self.score_info = await stats.Calculator(self.data).start(self.hoyo)
         
     async def create_relict(self,relict):
         background_main = Image.new(Card.RGBA,Card.relict_size, (0,0,0,0))
@@ -468,8 +468,9 @@ class Create:
         starts = await options.get_stars(self.data.rarity)
         self.background_name.alpha_composite(starts, Card.position_name_star)
 
-    async def start(self):
+    async def start(self, build = None, hoyo = False ):
         _of.set_mapping(4)
+        self.hoyo = hoyo
         
         if self.art:
             if "gif" in self.art:
@@ -536,6 +537,7 @@ class Create:
                 "card": self.background,
                 "size": Card.background_size,
                 "color": self.element_color,
+                "build": build
             }
             
         return data

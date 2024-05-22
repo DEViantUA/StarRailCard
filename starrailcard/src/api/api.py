@@ -27,12 +27,8 @@ class ApiMiHoMo:
             api_mihomo.UA_LANG = True
             
         self.v = v
-
-    async def recollect(self, data):
-        
-        pass
     
-    async def get(self) -> Optional[api_mihomo.MiHoMoApi]:
+    async def get(self, parse: bool = True) -> Optional[api_mihomo.MiHoMoApi]:
         """Get data from the MiHoMo API."""
         try:
             params = {
@@ -72,7 +68,10 @@ class ApiMiHoMo:
         if self.ua_lang:
             await ukrainization.TranslateDataManager().load_translate_data()
         
-        return api_mihomo.MiHoMoApi(player=data["player"], characters=data["characters"], dont_update_link= False)
+        if parse:
+            return api_mihomo.MiHoMoApi(player=data["player"], characters=data["characters"], dont_update_link= False)
+        else:
+            return data
     
     async def add_info(self, data):
         info = self.dop_info["detailInfo"]["recordInfo"]

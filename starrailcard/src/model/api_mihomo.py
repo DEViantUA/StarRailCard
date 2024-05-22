@@ -276,7 +276,7 @@ class CharacterProperties(BaseModel):
         if UA_LANG:
             self.name = TranslateDataManager._data.stats.get(self.field, self.name)            
 
-        
+  
 class Character(BaseModel):
     id: Optional[str]
     name: Optional[str]
@@ -298,6 +298,7 @@ class Character(BaseModel):
     attributes: List[CharacterAttributes]
     additions: List[CharacterAttributes]
     properties: Optional[List[CharacterProperties]]
+    build: Optional[dict] = Field(None)
     pos: list
     
     def __init__(self, *args, **kwargs):

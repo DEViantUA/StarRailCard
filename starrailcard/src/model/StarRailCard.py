@@ -34,6 +34,10 @@ class Avatar(BaseModel):
         if UA_LANG:
             self.name = TranslateDataManager._data.avatar.get(self.id, self.name)
 
+class BuildSetting(BaseModel):
+    id: Optional[Union[str,int]]
+    name_build: Optional[str]
+
 class Card(BaseModel):
     id: int
     name: Optional[str]
@@ -42,6 +46,7 @@ class Card(BaseModel):
     animation: bool
     size: Optional[tuple]
     color: Optional[tuple]
+    build: Optional[BuildSetting]
     class Config:
         arbitrary_types_allowed = True
     
@@ -89,7 +94,7 @@ class Setting(BaseModel):
     lang: Optional[str]
     hide_uid: bool
     save: bool
-    force_update: bool
+    force_update: Optional[bool]
     style: int
     
 class StarRail(BaseModel):

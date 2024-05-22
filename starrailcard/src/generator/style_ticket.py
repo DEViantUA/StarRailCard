@@ -318,7 +318,7 @@ class Create:
                 self.background_sets.alpha_composite(key["line"],(0,45))
                 
     async def get_score(self):
-        self.score_info = await stats.Calculator(self.data).start()
+        self.score_info = await stats.Calculator(self.data).start(self.hoyo)
     
     async def create_stats(self):
         self.background_stats = Image.new(Ticket.RGBA, (434, 692), (0, 0, 0, 0))
@@ -601,9 +601,9 @@ class Create:
         else:
             self.background.alpha_composite(bg)
         
-    async def start(self):
+    async def start(self, build = None, hoyo = False):
         _of.set_mapping(2)
-        
+        self.hoyo = hoyo
         if self.art:
             if "gif" in self.art:
                 self.gif = True
@@ -674,6 +674,7 @@ class Create:
                 "card": self.background,
                 "size": Ticket.background_size,
                 "color": self.element_color,
+                "build": build
             }
             
         return data

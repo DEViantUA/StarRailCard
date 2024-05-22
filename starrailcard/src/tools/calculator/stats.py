@@ -83,8 +83,10 @@ class Calculator:
     
     async def get_relic_score(self, chara_id, relic_json):
         result_json = {}
-        
-        main_weight = self.score[chara_id]["main"][self.relict_id.get(relic_json.id, relic_json.id)[-1]][relic_json.main_affix.type]
+        try:
+            main_weight = self.score[chara_id]["main"][self.relict_id.get(relic_json.id, relic_json.id)[-1]][relic_json.main_affix.type]
+        except:
+            main_weight = 0
         main_affix_score = (relic_json.level + 1) / 16 * main_weight
         result_json["main_formula"] = f'{round((relic_json.level + 1) / 16 * 100, 1)}×{main_weight}={main_affix_score * 100}'
         
@@ -101,7 +103,9 @@ class Calculator:
 
         return result_json,dont_sub
 
-    async def start(self):
+    async def start(self, hoyo):
+        if hoyo:
+            return self.result
         
         if not self.data.id in self.score:
             await self.update_score(self.data.id)

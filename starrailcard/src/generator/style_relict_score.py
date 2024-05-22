@@ -334,7 +334,7 @@ class Create:
         self.background_path = await pill.create_path(self.data)
     
     async def get_score(self):
-        self.score_info = await stats.Calculator(self.data).start()
+        self.score_info = await stats.Calculator(self.data).start(self.hoyo)
         
     async def build_relict(self):
         self.background_relict = Image.new(RelictScore.RGBA, (1131,297), (0,0,0,0))
@@ -438,9 +438,9 @@ class Create:
         else:
             self.background.alpha_composite(bg)
                     
-    async def start(self):
+    async def start(self, build = None, hoyo = False):
         _of.set_mapping(1)
-        
+        self.hoyo = hoyo
         if self.art:
             if "gif" in self.art:
                 self.gif = True
@@ -508,7 +508,8 @@ class Create:
             "rarity": self.data.rarity,
             "card": self.background,
             "size": RelictScore.background_size,
-            "color": self.element_color
+            "color": self.element_color,
+            "build": build
         }
         
         return data
