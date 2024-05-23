@@ -1,17 +1,13 @@
-import aiohttp
 from typing import Optional, Union
-from .api import ApiMiHoMo
+
+import aiohttp
+
 from ..model import api_mihomo
-from ..tools import http, translator, options, ukrainization
+from ..tools import http, options, translator, ukrainization
+from .api import ApiMiHoMo
 from .error import StarRailCardError
 from .hoyolab_parsed import AssetHoYoLabParsed
 
-try:
-    import genshin
-    import_genshin = True
-except ImportError as e:
-    import_genshin = False
-    
 LANG_MAP = {
     "zh-CN": "zh-cn",
     "zh-TW": "zh-tw",
@@ -49,7 +45,9 @@ class HoYoLabApi:
 
 
     async def get(self,cookie: dict, uid: Union[str,int] = 0):
-        if not import_genshin:
+        try:
+            import genshin
+        except ImportError:
             raise StarRailCardError(100, "Install the genshin.py module\n- pip install genshin")
         
         if uid == 0:
@@ -60,7 +58,7 @@ class HoYoLabApi:
         player = await ApiMiHoMo(uid, self.lang).get(parse= False)
         
         try:
-            client = genshin.Client(cookie, game= genshin.Game.STARRAIL, lang= self.convert_lang)
+            client = genshin.Client(cookie, game= genshin.Game.STARRAIL, lang= self.convert_lang or "en-us")
             data = await client.get_starrail_characters(uid)
         except Exception as e:
             print(e)
