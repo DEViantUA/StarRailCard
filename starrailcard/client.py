@@ -1,14 +1,20 @@
 # Copyright 2024 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
 
-import anyio
-from typing import Union
 import asyncio
+from typing import Union
 
-from .src.tools import cache, http, ukrainization, options, translator, git
-from .src.generator import style_relict_score, style_ticket, style_profile_phone, style_card
+import anyio
+
 from .src.api import api, enka, error, hoyolab
-from .src.model import StarRailCard,api_mihomo
+from .src.generator import (
+    style_card,
+    style_profile_phone,
+    style_relict_score,
+    style_ticket,
+)
+from .src.model import StarRailCard, api_mihomo
+from .src.tools import cache, git, http, options, translator, ukrainization
 from .src.tools.pill import image_control
 
 
@@ -164,11 +170,11 @@ class HoYoCard:
                             if str(key.id) in self.character_art:
                                 art = self.character_art[str(key.id)]
                         if style == 1:
-                            result.append(await style_relict_score.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo, color).start(True))
+                            result.append(await style_relict_score.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo, color).start(hoyo=True))
                         elif style == 2:
-                            result.append(await style_ticket.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo, color).start(True))
+                            result.append(await style_ticket.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo, color).start(hoyo=True))
                         elif style == 3:
-                            result.append(await style_card.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo, color).start(True))
+                            result.append(await style_card.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo, color).start(hoyo=True))
                     except Exception as e:
                         print(f"Error in get_result for character {key.id}: {e}")
                         
