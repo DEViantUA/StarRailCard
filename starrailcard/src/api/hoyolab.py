@@ -9,8 +9,8 @@ from .error import StarRailCardError
 from .hoyolab_parsed import AssetHoYoLabParsed
 
 LANG_MAP = {
-    "zh-CN": "zh-cn",
-    "zh-TW": "zh-tw",
+    "cn": "zh-cn",
+    "cht": "zh-tw",
     "de": "de-de",
     "en": "en-us",
     "es": "es-es",
