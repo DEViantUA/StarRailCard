@@ -1,13 +1,12 @@
-from typing import Optional, Union
-
 import aiohttp
-
-from ..model import api_mihomo
-from ..tools import http, options, translator, ukrainization
+from typing import Optional, Union
 from .api import ApiMiHoMo
+from ..model import api_mihomo
+from ..tools import http, translator, options, ukrainization
 from .error import StarRailCardError
 from .hoyolab_parsed import AssetHoYoLabParsed
 
+    
 LANG_MAP = {
     "cn": "zh-cn",
     "cht": "zh-tw",
@@ -58,7 +57,7 @@ class HoYoLabApi:
         player = await ApiMiHoMo(uid, self.lang).get(parse= False)
         
         try:
-            client = genshin.Client(cookie, game= genshin.Game.STARRAIL, lang= self.convert_lang or "en-us")
+            client = genshin.Client(cookie, game= genshin.Game.STARRAIL, lang= self.convert_lang)
             data = await client.get_starrail_characters(uid)
         except Exception as e:
             print(e)
