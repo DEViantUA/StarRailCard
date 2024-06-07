@@ -17,7 +17,7 @@ setuptools.setup(
 	long_description=open("README.md", "r", encoding="utf-8").read(),
 	long_description_content_type="text/markdown",
 	url="https://github.com/DEViantUA/StarRailCard",
-	keywords = ["honkai", "cards", "generation", "honkaistarraill","raill", "starraill", "builds", "honkairail", "honkai"] ,
+	keywords = ["honkai", "cards", "generation", "honkaistarraill","raill", "starraill", "builds", "honkairail", "honkai", "genshin", "build", "api"] ,
 	packages=setuptools.find_packages(),
 	classifiers=[
 		"Programming Language :: Python :: 3",

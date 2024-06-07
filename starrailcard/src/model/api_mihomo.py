@@ -50,7 +50,6 @@ class Avatar(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.icon = MAIN_LINK.format(icon = self.icon)
 
         if UA_LANG:
             self.name = TranslateDataManager._data.avatar.get(self.id, self.name)
@@ -78,7 +77,6 @@ class RelicMainAffix(BaseModel):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.icon = MAIN_LINK.format(icon = self.icon)
     
         if UA_LANG:
             self.name = TranslateDataManager._data.stats.get(self.type, self.name)
@@ -96,7 +94,6 @@ class RelicSubAffix(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.icon = MAIN_LINK.format(icon = self.icon)
     
         if UA_LANG:
             self.name = TranslateDataManager._data.stats.get(self.type, self.name)
@@ -114,7 +111,6 @@ class Relic(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.icon = MAIN_LINK.format(icon = self.icon)
     
         if UA_LANG:
             self.set_name = TranslateDataManager._data.relict_sets.get(self.set_id, self.set_name)
@@ -131,7 +127,6 @@ class RelicSetProperties(BaseModel):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.icon = MAIN_LINK.format(icon = self.icon)
     
         if UA_LANG:
             self.name = TranslateDataManager._data.stats.get(self.type, self.name)
@@ -146,8 +141,7 @@ class RelicSet(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.icon = MAIN_LINK.format(icon = self.icon)
-    
+            
         if UA_LANG:
             self.name = TranslateDataManager._data.relict_sets.get(self.id, self.name)
             
@@ -161,8 +155,7 @@ class LightConeAttributes(BaseModel):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.icon = MAIN_LINK.format(icon = self.icon)
-    
+
         if UA_LANG:
             self.name = TranslateDataManager._data.stats.get(self.field, self.name)
 
@@ -172,9 +165,7 @@ class Path(BaseModel):
     icon: Optional[str]
     
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        #self.icon = MAIN_LINK.format(icon = self.icon)
-    
+        super().__init__(*args, **kwargs)    
         if UA_LANG:
             self.name = TranslateDataManager._data.paths.get(self.id, self.name)
 
@@ -194,10 +185,7 @@ class LightCone(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.icon = MAIN_LINK.format(icon = self.icon)
-        #self.preview = MAIN_LINK.format(icon = self.preview)
-        #self.portrait = MAIN_LINK.format(icon = self.portrait)
-    
+
         if UA_LANG:
             self.name = TranslateDataManager._data.weapons.get(self.id, self.name)
             
@@ -213,7 +201,6 @@ class Element(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.icon = MAIN_LINK.format(icon = self.icon)
         self.color = ColorElement(hex = self.color, rgba = hex_to_rgba(self.color))
         
         if UA_LANG:
@@ -243,7 +230,6 @@ class SkillTree(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.icon = MAIN_LINK.format(icon = self.icon)
         
 class CharacterAttributes(BaseModel):
     field: Optional[str]
@@ -255,7 +241,6 @@ class CharacterAttributes(BaseModel):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.icon = MAIN_LINK.format(icon = self.icon)
 
         if UA_LANG:
             self.name = TranslateDataManager._data.stats.get(self.field, self.name)
@@ -271,7 +256,6 @@ class CharacterProperties(BaseModel):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.icon = MAIN_LINK.format(icon = self.icon)
 
         if UA_LANG:
             self.name = TranslateDataManager._data.stats.get(self.field, self.name)            
@@ -302,16 +286,7 @@ class Character(BaseModel):
     pos: list
     
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        #self.icon = MAIN_LINK.format(icon = self.icon)
-        #self.preview = MAIN_LINK.format(icon = self.preview)
-        #self.portrait = MAIN_LINK.format(icon = self.portrait)
-        #self.pos = self.pos[0]
-        #new_rank_icons = []
-        #for key in self.rank_icons:
-            #new_rank_icons.append(MAIN_LINK.format(icon = key))
-        #self.rank_icons = new_rank_icons
-        
+        super().__init__(*args, **kwargs)        
         if UA_LANG:
             self.name = TranslateDataManager._data.avatar.get(self.id, self.name)
     

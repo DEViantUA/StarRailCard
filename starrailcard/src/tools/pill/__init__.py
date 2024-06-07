@@ -5,4 +5,3 @@ from .gradient_v2 import *
 from .image_control import *
 from .text_control import *
 from .style_editor import *
-from .diagrama import *

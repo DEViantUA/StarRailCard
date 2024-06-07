@@ -109,7 +109,7 @@ class AssetEnkaParsed:
             "world_level": self.data["detailInfo"]["worldLevel"],
             "friend_count": self.data["detailInfo"]["friendCount"],
             "avatar": await self.get_avatar_info(str(self.data["detailInfo"]["headIcon"])),
-            "signature": self.data["detailInfo"].get("signature", ""),
+            "signature": self.data["detailInfo"]["signature"],
             "is_display": self.data["detailInfo"]["isDisplayAvatar"],
             "space_info": await self.get_space_info()
             
@@ -448,7 +448,7 @@ class AssetEnkaParsed:
                 "set_id": str(data["_flat"]["setID"]),
                 "set_name": self.relics_set[relics_info["set_id"]]["name"],
                 "rarity": relics_info["rarity"],
-                "level": data.get("level", 0),
+                "level": data["level"],
                 "icon": relics_info['icon'],
                 "main_affix": await self.get_relic_main_affix(str(data["tid"]), data["level"], str(data["mainAffixId"])),
                 "sub_affix": await self.get_relic_sub_affix(str(data["tid"]), data["subAffixList"])
