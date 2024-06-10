@@ -218,7 +218,7 @@ class AssetEnkaParsed:
         attributes = await self.get_attributes(str(id), promotion, level)
         properties = await self.get_properties(str(id), data["skillTreeList"])
                 
-        relic_infos = [await self.get_relic_info(relic) for relic in data["relicList"]]
+        relic_infos = [await self.get_relic_info(relic) for relic in data.get("relicList", [])]
         relics = [
             relic_info for relic_info in relic_infos if relic_info is not None
         ]
@@ -245,7 +245,7 @@ class AssetEnkaParsed:
                     "value": affix["value"],
                     "display": affix["display"],
                     "percent": affix["percent"],
-                } for affix in relic["sub_affix"]
+                } for affix in relic.get("sub_affix", [])
             ]
 
         for relic_set in relic_sets:
