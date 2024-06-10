@@ -10,7 +10,7 @@ from pathlib import Path
 import warnings
 
 
-warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore", module="matplotlib.font_manager")
 
 assets = assets = Path(__file__).parent.parent.parent / 'assets'
 

@@ -15,7 +15,7 @@ SUPPORTED_LANGUAGES = {
     'ru': 'ru',
     'th': 'th',
     'vi': 'vi',
-    'ua': 'ru'
+    'ua': 'ua'
 }
 
 
