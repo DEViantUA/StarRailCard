@@ -450,7 +450,7 @@ class AssetEnkaParsed:
                 "rarity": relics_info["rarity"],
                 "level": data.get("level", 0),
                 "icon": relics_info['icon'],
-                "main_affix": await self.get_relic_main_affix(str(data["tid"]), data["level"], str(data["mainAffixId"])),
+                "main_affix": await self.get_relic_main_affix(str(data["tid"]), data.get("level", 0), str(data["mainAffixId"])),
                 "sub_affix": await self.get_relic_sub_affix(str(data["tid"]), data["subAffixList"])
                 }
 
