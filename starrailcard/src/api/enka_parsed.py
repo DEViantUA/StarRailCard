@@ -83,9 +83,9 @@ class AssetEnkaParsed:
     async def get_space_info(self):
         data = self.data["detailInfo"]["recordInfo"]
         return {
-            "relic_count": data["relicCount"],
-            "music_count": data["musicCount"],
-            "book_count": data["bookCount"],
+            "relic_count": data.get("relicCount", 0),
+            "music_count": data.get("musicCount", 0),
+            "book_count": data.get("bookCount", 0),
             "universe_level": data["maxRogueChallengeScore"],
             "light_cone_count": data["equipmentCount"],
             "avatar_count": data["avatarCount"],
