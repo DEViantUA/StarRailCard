@@ -1,8 +1,9 @@
 # Copyright 2024 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
 
+from typing import Final, List, Optional, Union
+
 from pydantic import BaseModel, Field
-from typing import List, Optional,Final, Union
 
 from ..tools.ukrainization import TranslateDataManager
 
@@ -175,7 +176,7 @@ class LightCone(BaseModel):
     rarity: int
     rank: int
     level: int
-    promotion: int
+    promotion: int = 0
     icon: Optional[str]
     preview: Optional[str]
     portrait: Optional[str]
