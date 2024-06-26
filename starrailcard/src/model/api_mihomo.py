@@ -175,7 +175,7 @@ class LightCone(BaseModel):
     rarity: int
     rank: int
     level: int
-    promotion: int
+    promotion: int = 0
     icon: Optional[str]
     preview: Optional[str]
     portrait: Optional[str]

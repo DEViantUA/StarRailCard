@@ -83,9 +83,9 @@ class AssetEnkaParsed:
     async def get_space_info(self):
         data = self.data["detailInfo"]["recordInfo"]
         return {
-            "relic_count": data["relicCount"],
-            "music_count": data["musicCount"],
-            "book_count": data["bookCount"],
+            "relic_count": data.get("relicCount", 0),
+            "music_count": data.get("musicCount", 0),
+            "book_count": data.get("bookCount", 0),
             "universe_level": data["maxRogueChallengeScore"],
             "light_cone_count": data["equipmentCount"],
             "avatar_count": data["avatarCount"],
@@ -218,7 +218,7 @@ class AssetEnkaParsed:
         attributes = await self.get_attributes(str(id), promotion, level)
         properties = await self.get_properties(str(id), data["skillTreeList"])
                 
-        relic_infos = [await self.get_relic_info(relic) for relic in data["relicList"]]
+        relic_infos = [await self.get_relic_info(relic) for relic in data.get("relicList", [])]
         relics = [
             relic_info for relic_info in relic_infos if relic_info is not None
         ]
@@ -245,7 +245,7 @@ class AssetEnkaParsed:
                     "value": affix["value"],
                     "display": affix["display"],
                     "percent": affix["percent"],
-                } for affix in relic["sub_affix"]
+                } for affix in relic.get("sub_affix", [])
             ]
 
         for relic_set in relic_sets:
@@ -450,7 +450,7 @@ class AssetEnkaParsed:
                 "rarity": relics_info["rarity"],
                 "level": data.get("level", 0),
                 "icon": relics_info['icon'],
-                "main_affix": await self.get_relic_main_affix(str(data["tid"]), data["level"], str(data["mainAffixId"])),
+                "main_affix": await self.get_relic_main_affix(str(data["tid"]), data.get("level", 0), str(data["mainAffixId"])),
                 "sub_affix": await self.get_relic_sub_affix(str(data["tid"]), data["subAffixList"])
                 }
 
