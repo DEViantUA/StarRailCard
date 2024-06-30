@@ -1,8 +1,9 @@
 # Copyright 2024 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
 
-from pydantic import BaseModel, Field
-from typing import List, Optional,Final, Union
+from typing import Final, List, Optional, Union
+
+from pydantic import BaseModel, Field, model_validator
 
 from ..tools.ukrainization import TranslateDataManager
 
@@ -182,6 +183,11 @@ class LightCone(BaseModel):
     path: Path
     attributes: List[LightConeAttributes]
     properties: Optional[List[LightConeAttributes]]
+    
+    @model_validator("promotion", mode="before")
+    @classmethod
+    def __handle_none_value(cls, v: Optional[int]) -> int:
+        return v or 0
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
