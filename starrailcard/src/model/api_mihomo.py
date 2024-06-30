@@ -3,7 +3,7 @@
 
 from typing import Final, List, Optional, Union
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator
 
 from ..tools.ukrainization import TranslateDataManager
 
@@ -184,7 +184,7 @@ class LightCone(BaseModel):
     attributes: List[LightConeAttributes]
     properties: Optional[List[LightConeAttributes]]
     
-    @model_validator("promotion", mode="before")
+    @field_validator("promotion", mode="before")
     @classmethod
     def __handle_none_value(cls, v: Optional[int]) -> int:
         return v or 0
