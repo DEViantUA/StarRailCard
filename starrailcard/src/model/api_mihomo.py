@@ -1,9 +1,8 @@
 # Copyright 2024 DEViantUa <t.me/deviant_ua>
 # All rights reserved.
 
-from typing import Final, List, Optional, Union
-
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
+from typing import List, Optional,Final, Union
 
 from ..tools.ukrainization import TranslateDataManager
 
@@ -52,6 +51,9 @@ class Avatar(BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        if self.icon == "" or self.icon is None:
+            self.icon = "icon/avatar/202018.png"
+        
         if UA_LANG:
             self.name = TranslateDataManager._data.avatar.get(self.id, self.name)
         
@@ -183,11 +185,6 @@ class LightCone(BaseModel):
     path: Path
     attributes: List[LightConeAttributes]
     properties: Optional[List[LightConeAttributes]]
-    
-    @field_validator("promotion", mode="before")
-    @classmethod
-    def __handle_none_value(cls, v: Optional[int]) -> int:
-        return v or 0
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
