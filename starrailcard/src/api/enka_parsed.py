@@ -110,7 +110,7 @@ class AssetEnkaParsed:
             "friend_count": self.data["detailInfo"]["friendCount"],
             "avatar": await self.get_avatar_info(str(self.data["detailInfo"]["headIcon"])),
             "signature": self.data["detailInfo"].get("signature", ""),
-            "is_display": self.data["detailInfo"]["isDisplayAvatar"],
+            "is_display": self.data["detailInfo"].get("isDisplayAvatar", False),
             "space_info": await self.get_space_info()
             
             
