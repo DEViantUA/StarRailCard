@@ -111,9 +111,7 @@ class AssetEnkaParsed:
             "avatar": await self.get_avatar_info(str(self.data["detailInfo"]["headIcon"])),
             "signature": self.data["detailInfo"].get("signature", ""),
             "is_display": self.data["detailInfo"].get("isDisplayAvatar", False),
-            "space_info": await self.get_space_info()
-            
-            
+            "space_info": await self.get_space_info() 
         }
     
     async def get_light_cone(self, data):
