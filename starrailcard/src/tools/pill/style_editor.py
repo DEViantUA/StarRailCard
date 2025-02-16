@@ -57,8 +57,13 @@ async def create_path(character):
     background_path = await options.get_background_path(character.path.id)
     path = treePaths.map_new.get(character.path.id)
     font_15 = await get_font(15) 
+    if character.path.id == "Memory":
+        closed = await git.ImageCache().path_closed_mage
+    else:
+        closed = await git.ImageCache().path_closed_main
+
     for key in character.skill_trees:
-        if key.anchor in ['Point01','Point02','Point03','Point04','Point05']:
+        if key.anchor in ['Point01','Point02','Point03','Point04','Point05','Point19','Point20']:
             icon = await get_download_img(key.icon, size=(47,47))
             icon = await recolor_image(icon, (255,212,173))
             count = await git.ImageCache().path_count
@@ -82,7 +87,7 @@ async def create_path(character):
                 background_path.alpha_composite(icon, path[key.anchor]["icon"])
             else:
                 icon = await apply_opacity(icon, opacity=0.5)
-                closed = await git.ImageCache().path_closed_main
+                
                 background_path.alpha_composite(icon, path[key.anchor]["icon"])
                 background_path.alpha_composite(closed, path[key.anchor]["closed"])
         else:

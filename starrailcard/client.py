@@ -3,7 +3,7 @@
 
 import anyio
 from typing import Union
-import asyncio
+import traceback
 
 from .src.tools import cache, http, ukrainization, options, translator, git
 from .src.generator import style_relict_score, style_ticket, style_profile_phone, style_card
@@ -442,6 +442,7 @@ class Card:
                         elif style == 3:
                             result.append(await style_card.Create(key,self.translateLang,art,hide_uid,uid, self.seeleland,self.remove_logo, color).start())
                     except Exception as e:
+                        print(f"Error in get_result for character {key.id}:\n{traceback.format_exc()}")
                         print(f"Error in get_result for character {key.id}: {e}")
                         
                 tasks.start_soon(get_result, key)

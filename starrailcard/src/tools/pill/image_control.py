@@ -124,7 +124,7 @@ async def get_download_img(link, size=None, thumbnail_size=None, gif=False):
             if "StarRailRes" in link:
                 full_path = os.path.join(assets, f"/boost_speed/{link.split('master')[1]}".lstrip('/'))
                 await save_image(image, full_path)
-                
+                      
         image = await open_image(image)
     else:
         image = image_boost

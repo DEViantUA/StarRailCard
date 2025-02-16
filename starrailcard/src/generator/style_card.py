@@ -378,23 +378,31 @@ class Create:
         holst_main = Image.new("RGBA", (69, 296), (0, 0, 0, 0))
         holst_dop = Image.new("RGBA", (265, 293), (0, 0, 0, 0))
         line = Image.new("RGBA", (15, 2), (255, 255, 255, 255))
+        holst_point_add = Image.new("RGBA", (145, 68), (0, 0, 0, 0))
+        point_add_position = 0
         position_dop = treePaths.tree.get(self.data.path.id)
         position_main_y = 0
-        
+
         for key in self.data.skill_trees:
             if key.max_level != 1:
-                icon_skill = Image.new("RGBA", (69, 68), (0, 0, 0, 0))
                 font = await pill.get_font(24)
                 color = (227, 215, 194, 255)
-                if key.max_level > 10:
-                    color = options.color_element_talant.get(self.data.element.id.lower(), (255,255,255,255))
+                icon_skill = Image.new("RGBA", (69, 68), (0, 0, 0, 0))
                 background = await _of.talants_background
                 background = background.copy()
                 icon = await pill.get_download_img(key.icon, size=(55, 55))
-                icon = await pill.recolor_image(icon, (227, 215, 194))
-                background.alpha_composite(icon, (4, 4))
+                
                 frame = await _of.talants_adaptationt_frame
-                frame = await pill.recolor_image(frame.copy(), (color[0], color[1], color[2]))
+                if key.max_level > 10:
+                    color = options.color_element_talant.get(self.data.element.id.lower(), (255,255,255,255))
+                if key.anchor in ["Point19", "Point20"]:
+                    icon = await pill.recolor_image(icon, (215, 194, 227))
+                    frame = await pill.recolor_image(frame.copy(),  (215, 194, 227))
+                else:
+                    icon = await pill.recolor_image(icon, (227, 215, 194))
+                    frame = await pill.recolor_image(frame.copy(), (color[0], color[1], color[2]))
+                
+                background.alpha_composite(icon, (4, 4))
                 count_background = await _of.talants_count
                 count_background = count_background.copy()
                 d = ImageDraw.Draw(count_background)
@@ -403,8 +411,13 @@ class Create:
                 background.alpha_composite(frame)
                 icon_skill.alpha_composite(background, (5, 0))
                 icon_skill.alpha_composite(count_background, (0, 37))
-                holst_main.alpha_composite(icon_skill, (0, position_main_y))
-                position_main_y += 76
+                if key.anchor in ["Point19", "Point20"]:
+                    holst_point_add.alpha_composite(icon_skill, (point_add_position, 0))
+                    point_add_position += 78
+
+                else:
+                    holst_main.alpha_composite(icon_skill, (0, position_main_y))
+                    position_main_y += 76
             else:
                 if key.anchor in ["Point05", "Point06", "Point07", "Point08"]:
                     icon_background = await _of.talants_main_stats
@@ -424,12 +437,15 @@ class Create:
                     if key.level == 0:
                         icon_background = await pill.apply_opacity(icon_background, opacity=0.5)
                     holst_dop.alpha_composite(icon_background, (222 - position_dop[str(key.id)[-2:]][0],position_dop[str(key.id)[-2:]][1]))
+                    
                     holst_dop.alpha_composite(line, (266 - position_dop[str(key.id)[-2:]][0], position_dop[str(key.id)[-2:]][1] + 21))
         
         
-        self.stats = Image.new("RGBA", (345, 296), (0, 0, 0, 0))
-        self.stats.alpha_composite(holst_main, (276, 0))
-        self.stats.alpha_composite(holst_dop, (0, 8))
+        self.stats = Image.new("RGBA", (345, 367), (0, 0, 0, 0))        
+        self.stats.alpha_composite(holst_point_add, (120, 4))
+        self.stats.alpha_composite(holst_main, (275, 72))
+        self.stats.alpha_composite(holst_dop, (0, 72))
+        
     
     
     async def create_constant(self):

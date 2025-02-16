@@ -103,7 +103,6 @@ class Create:
     async def create_avatar(self):
         self.background_profile_avatar = Image.new("RGBA", (625, 254), (0,0,0,0))
         avatar = self.profile.player.avatar.icon
-            
         avatar,font_20,desc_frame = await asyncio.gather(pill.get_download_img(avatar, size= (134,134)),pill.get_font(18),_of.desc_frame)
             
         self.background_profile_avatar.alpha_composite(avatar)

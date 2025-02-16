@@ -75,6 +75,7 @@ total_style = {
     "Shaman": 'teample_two_new/path/Shaman.png',
     "Warlock": 'teample_two_new/path/Warlock.png',
     "Warrior": 'teample_two_new/path/Warrior.png',
+    "Memory": 'teample_two_new/path/Memory.png',
     
     'relict_backgroundl_score_line': 'teample_two_new/relict/backgroundl_score_line.png',
     'relict_full_score_line': 'teample_two_new/relict/full_score_line.png',
@@ -154,6 +155,7 @@ relict_score = {
     'path_count': 'teample_two_new/path/count.png',
     'path_closed_main': 'teample_two_new/path/closed_main.png',
     'path_closed_dop': 'teample_two_new/path/closed_dop.png',
+    'path_closed_mage': "teample_two_new/path/closed_mage.png",
 }
 
 ticket = {

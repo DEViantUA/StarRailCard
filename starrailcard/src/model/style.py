@@ -94,7 +94,7 @@ class Card:
     build_relict_position = (542,685)
     build_relict_size = None
     
-    build_skill_position = (733,380)
+    build_skill_position = (733,309)
     build_skill_size = None
     
     build_constant_position = (1028,96)
@@ -314,6 +314,7 @@ class Ticket:
     
     build_skill_position_total = None
     build_skill_position_main = (500,68)
+    build_skill_position_main_add = (410,68)
     build_skill_position_dop = (446,165)
     build_skill_size = (488,428) #
     

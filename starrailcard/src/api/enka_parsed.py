@@ -110,8 +110,10 @@ class AssetEnkaParsed:
             "friend_count": self.data["detailInfo"]["friendCount"],
             "avatar": await self.get_avatar_info(str(self.data["detailInfo"]["headIcon"])),
             "signature": self.data["detailInfo"].get("signature", ""),
-            "is_display": self.data["detailInfo"].get("isDisplayAvatar", False),
-            "space_info": await self.get_space_info() 
+            "is_display": self.data["detailInfo"]["isDisplayAvatar"],
+            "space_info": await self.get_space_info()
+            
+            
         }
     
     async def get_light_cone(self, data):
@@ -122,7 +124,7 @@ class AssetEnkaParsed:
         rarity = info.get("rarity")
         rank = data.get("rank")
         level = data.get("level")
-        promotion = data.get("promotion")
+        promotion = data.get("promotion", 0)
         icon = info.get("icon")
         preview = info.get("preview")
         portrait = info.get("portrait")
@@ -200,6 +202,8 @@ class AssetEnkaParsed:
     async def get_character(self, data, build = {}):
         id = str(data.get("avatarId"))
         name = self.character.get(str(id)).get("name")
+        if "{NICKNAME}" in name:
+            name = "Trailblazer"
         rarity = self.character.get(str(id)).get("rarity")
         rank = data.get("rank", 0)
         level = data.get("level")
@@ -384,14 +388,27 @@ class AssetEnkaParsed:
         return properties
     
     async def get_skill_trees(self, data, character_id, rank):
-        return [{
-            "id": str(key["pointId"]),
-            "level": key["level"],
-            "anchor": self.skill_trees_info.get(str(key["pointId"]))["anchor"],
-            "icon": self.skill_trees_info.get(str(key["pointId"]))["icon"],
-            "max_level": await self.get_max_level(self.character.get(character_id)["ranks"], str(key["pointId"]), rank),
-            "parent": await self.get_parent(key["pointId"])
-            } for key in data["skillTreeList"]]
+        infos = []
+        for key in self.character[character_id]["skill_trees"]:
+            active = False
+            for keys in data["skillTreeList"]:
+                if str(keys["pointId"]) == key:
+                    active = True
+                    break
+                
+            infos.append(
+                {
+                    "id": str(key),
+                    "level": 1 if active else 0,
+                    "anchor": self.skill_trees_info.get(str(key))["anchor"],
+                    "icon": self.skill_trees_info.get(str(key))["icon"],
+                    "max_level": await self.get_max_level(self.character.get(character_id)["ranks"], str(key), rank),
+                    "parent": await self.get_parent(int(key))
+                }
+
+            )
+        
+        return infos
     
     async def get_skill(self, data, character_data, element):
 

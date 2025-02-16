@@ -360,7 +360,7 @@ class Create:
         font = await pill.get_font(11)
         font_13 = await pill.get_font(13)
 
-        self.main_bg =  Image.new("RGBA", (282,58), (0, 0, 0, 0))
+        self.main_bg =  Image.new("RGBA", (522,58), (0, 0, 0, 0))
         position_main = 0
 
         self.dop_bg = Image.new("RGBA", (399,124), (0, 0, 0, 0))
@@ -384,6 +384,7 @@ class Create:
             (329,84),
         )
         
+        self.add_main_full = False
         i = 0
         for key in self.data.skill_trees:
             if key.max_level == 1:
@@ -422,11 +423,16 @@ class Create:
                 bg = await _of.bg_main
                 frame_bg = await _of.frame_main
                 bg = bg.copy()
-                frame_bg = await pill.recolor_image(frame_bg.copy(),self.element_color[:3])
-                bg.alpha_composite(frame_bg)
-                
                 count = await _of.count_tree
-                count = await pill.recolor_image(count.copy(),self.element_color[:3])
+                if key.anchor in ["Point19", "Point20"]:
+                    self.add_main_full  = True
+                    count = await pill.recolor_image(count.copy(),(189, 144, 252))
+                    frame_bg = await pill.recolor_image(frame_bg.copy(),(189, 144, 252))
+                else:
+                    count = await pill.recolor_image(count.copy(),self.element_color[:3])
+                    frame_bg = await pill.recolor_image(frame_bg.copy(),self.element_color[:3])
+                bg.alpha_composite(frame_bg)
+
                 bg.alpha_composite(icon,(4,4))
                 draw = ImageDraw.Draw(count)
                 if key.anchor == 'Point01':
@@ -586,7 +592,10 @@ class Create:
         bg.alpha_composite(self.background_relict,Ticket.build_relict_position) 
         bg.alpha_composite(self.background_sets,Ticket.build_sets_position)
         bg.alpha_composite(self.background_stats,Ticket.build_stats_position)
-        bg.alpha_composite(self.main_bg,Ticket.build_skill_position_main)
+        if self.add_main_full:
+            bg.alpha_composite(self.main_bg,Ticket.build_skill_position_main_add)
+        else:
+            bg.alpha_composite(self.main_bg,Ticket.build_skill_position_main)
         bg.alpha_composite(self.dop_bg,Ticket.build_skill_position_dop)
         bg.alpha_composite(self.background_skills,Ticket.build_constant_position)
         bg.alpha_composite(self.background_name,Ticket.build_name_position)
