@@ -389,17 +389,17 @@ class AssetEnkaParsed:
     
     async def get_skill_trees(self, data, character_id, rank):
         infos = []
+        lvl = 0
         for key in self.character[character_id]["skill_trees"]:
-            active = False
             for keys in data["skillTreeList"]:
                 if str(keys["pointId"]) == key:
-                    active = True
+                    lvl = keys["level"]
                     break
-                
+            
             infos.append(
                 {
                     "id": str(key),
-                    "level": 1 if active else 0,
+                    "level": lvl,
                     "anchor": self.skill_trees_info.get(str(key))["anchor"],
                     "icon": self.skill_trees_info.get(str(key))["icon"],
                     "max_level": await self.get_max_level(self.character.get(character_id)["ranks"], str(key), rank),
